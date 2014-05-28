@@ -3,6 +3,8 @@ package org.p2c2e.zing;
 import java.lang.reflect.*;
 import java.util.*;
 
+import org.p2c2e.zing.swing.Glk;
+
 public abstract class Dispatch
 {
   static Method[] METHODS = new Method[322];

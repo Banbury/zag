@@ -1,4 +1,4 @@
-package org.p2c2e.zing;
+package org.p2c2e.zing.swing;
 
 import javax.swing.*;
 import java.awt.*;

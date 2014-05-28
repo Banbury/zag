@@ -5,6 +5,10 @@ import java.awt.*;
 import java.awt.font.*;
 import java.awt.event.*;
 import javax.swing.*;
+
+import org.p2c2e.zing.swing.Glk;
+import org.p2c2e.zing.swing.Window;
+
 import java.nio.*;
 
 public class Test
@@ -60,7 +64,7 @@ public class Test
     Glk.putChar('o');
 
 
-    Window w3 =
+    IWindow w3 =
       Glk.windowOpen(w, Glk.WINMETHOD_FIXED | Glk.WINMETHOD_RIGHT, 5, 
                      Glk.WINTYPE_TEXT_GRID, 0);
 

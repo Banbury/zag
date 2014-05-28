@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
 
+import org.p2c2e.zing.swing.Glk;
+
 public class MaskArea extends Area
 {
   static final int TRANS = 0xffffffff;

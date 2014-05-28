@@ -8,6 +8,7 @@ import micromod.resamplers.*;
 import micromod.output.*;
 import micromod.output.converters.*;
 import org.p2c2e.blorb.*;
+import org.p2c2e.zing.swing.Glk;
 
 public class SoundChannel
 {

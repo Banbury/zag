@@ -2,6 +2,8 @@ package org.p2c2e.zing;
 
 import java.util.*;
 
+import org.p2c2e.zing.swing.Glk;
+
 public class StyleHints implements Cloneable
 {
   static TreeMap BUFFER_HINTS = new TreeMap();
@@ -60,9 +62,9 @@ public class StyleHints implements Cloneable
     TreeMap mNew;
     TreeMap m = null;
 
-    if (wintype == Window.TEXT_BUFFER)
+    if (wintype == IWindow.TEXT_BUFFER)
       m = BUFFER_HINTS;
-    else if (wintype == Window.TEXT_GRID)
+    else if (wintype == IWindow.TEXT_GRID)
       m = GRID_HINTS;
 
     if (m == null)
@@ -99,7 +101,7 @@ public class StyleHints implements Cloneable
   {
     StyleHints hints = null;
 
-    if (winType == Window.TEXT_BUFFER || winType == Glk.WINTYPE_ALL_TYPES)
+    if (winType == IWindow.TEXT_BUFFER || winType == Glk.WINTYPE_ALL_TYPES)
     {
       hints = (StyleHints) BUFFER_HINTS.get(style.name);
 
@@ -109,7 +111,7 @@ public class StyleHints implements Cloneable
         BUFFER_HINTS.put(style.name, hints);
       }
     }
-    if (winType == Window.TEXT_GRID || winType == Glk.WINTYPE_ALL_TYPES)
+    if (winType == IWindow.TEXT_GRID || winType == Glk.WINTYPE_ALL_TYPES)
     {
       hints = (StyleHints) GRID_HINTS.get(style.name);
 
