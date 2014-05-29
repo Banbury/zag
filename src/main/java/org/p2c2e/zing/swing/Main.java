@@ -45,6 +45,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 
 import org.p2c2e.blorb.BlorbFile;
 import org.p2c2e.blorb.NotBlorbException;
@@ -72,6 +73,12 @@ public class Main {
 	static boolean specialConfig = false;
 
 	public static void main(String[] argv) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		System.setProperty("com.apple.mrj.application.apple.menu.about.name",
 				"Zag");
