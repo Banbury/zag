@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
-import org.p2c2e.zing.swing.Glk;
 import org.p2c2e.zing.swing.TextBufferWindow;
 import org.p2c2e.zing.swing.TextGridWindow;
 import org.p2c2e.zing.swing.Window;
@@ -23,9 +22,9 @@ public abstract class Stream implements Comparable {
 	Stream(int mode) {
 		filemode = mode;
 		rcount = wcount = pos = 0;
-		canRead = (filemode == Glk.FILEMODE_READ || filemode == Glk.FILEMODE_READ_WRITE);
-		canWrite = (filemode == Glk.FILEMODE_WRITE
-				|| filemode == Glk.FILEMODE_READ_WRITE || filemode == Glk.FILEMODE_WRITE_APPEND);
+		canRead = (filemode == IGlk.FILEMODE_READ || filemode == IGlk.FILEMODE_READ_WRITE);
+		canWrite = (filemode == IGlk.FILEMODE_WRITE
+				|| filemode == IGlk.FILEMODE_READ_WRITE || filemode == IGlk.FILEMODE_WRITE_APPEND);
 	}
 
 	public void setHyperlink(int val) {
@@ -185,7 +184,7 @@ public abstract class Stream implements Comparable {
 			buf = buffer;
 			len = buflen;
 
-			if (mode == Glk.FILEMODE_WRITE_APPEND)
+			if (mode == IGlk.FILEMODE_WRITE_APPEND)
 				System.err
 						.println("Attempt to open memory stream with mode WriteAppend.");
 		}
@@ -193,13 +192,13 @@ public abstract class Stream implements Comparable {
 		@Override
 		public void setPosition(int p, int seekmode) {
 			switch (seekmode) {
-			case Glk.SEEKMODE_START:
+			case IGlk.SEEKMODE_START:
 				pos = p;
 				break;
-			case Glk.SEEKMODE_CURRENT:
+			case IGlk.SEEKMODE_CURRENT:
 				pos += p;
 				break;
-			case Glk.SEEKMODE_END:
+			case IGlk.SEEKMODE_END:
 				pos = len + p;
 				break;
 			default:
@@ -335,7 +334,7 @@ public abstract class Stream implements Comparable {
 		Window w;
 
 		public WindowStream(Window w) {
-			super(Glk.FILEMODE_WRITE);
+			super(IGlk.FILEMODE_WRITE);
 			this.w = w;
 		}
 
@@ -426,7 +425,7 @@ public abstract class Stream implements Comparable {
 			buf = buffer;
 			len = buflen;
 
-			if (mode == Glk.FILEMODE_WRITE_APPEND)
+			if (mode == IGlk.FILEMODE_WRITE_APPEND)
 				System.err
 						.println("Attempt to open memory stream with mode WriteAppend.");
 		}
@@ -434,13 +433,13 @@ public abstract class Stream implements Comparable {
 		@Override
 		public void setPosition(int p, int seekmode) {
 			switch (seekmode) {
-			case Glk.SEEKMODE_START:
+			case IGlk.SEEKMODE_START:
 				pos = p;
 				break;
-			case Glk.SEEKMODE_CURRENT:
+			case IGlk.SEEKMODE_CURRENT:
 				pos += p;
 				break;
-			case Glk.SEEKMODE_END:
+			case IGlk.SEEKMODE_END:
 				pos = len + p;
 				break;
 			default:
@@ -598,24 +597,24 @@ public abstract class Stream implements Comparable {
 
 			try {
 				switch (fmode) {
-				case Glk.FILEMODE_READ:
+				case IGlk.FILEMODE_READ:
 					f.f.createNewFile();
 					rf = new RandomAccessFile(f.f, "r");
 					rbuf = ByteBuffer.allocate(8192);
 					break;
-				case Glk.FILEMODE_WRITE:
+				case IGlk.FILEMODE_WRITE:
 					rf = new RandomAccessFile(f.f, "rw");
 					rf.setLength(0L);
 					wbuf = ByteBuffer.allocate(8192);
 					break;
-				case Glk.FILEMODE_READ_WRITE:
+				case IGlk.FILEMODE_READ_WRITE:
 					if (!f.f.exists())
 						f.f.createNewFile();
 					rf = new RandomAccessFile(f.f, "rw");
 					rbuf = ByteBuffer.allocate(8192);
 					wbuf = ByteBuffer.allocate(8192);
 					break;
-				case Glk.FILEMODE_WRITE_APPEND:
+				case IGlk.FILEMODE_WRITE_APPEND:
 					if (!f.f.exists())
 						f.f.createNewFile();
 					rf = new RandomAccessFile(f.f, "rw");
@@ -634,7 +633,7 @@ public abstract class Stream implements Comparable {
 				eio.printStackTrace();
 			}
 
-			isText = ((f.u & Glk.FILEUSAGE_TEXT_MODE) != 0);
+			isText = ((f.u & IGlk.FILEUSAGE_TEXT_MODE) != 0);
 		}
 
 		int fillReadBuf() throws IOException {
@@ -924,7 +923,7 @@ public abstract class Stream implements Comparable {
 		@Override
 		public Result close() {
 			try {
-				if (filemode != Glk.FILEMODE_READ) {
+				if (filemode != IGlk.FILEMODE_READ) {
 					if (!reading)
 						commitWrite();
 					else
@@ -956,13 +955,13 @@ public abstract class Stream implements Comparable {
 				}
 
 				switch (seekmode) {
-				case Glk.SEEKMODE_START:
+				case IGlk.SEEKMODE_START:
 					pos = p;
 					break;
-				case Glk.SEEKMODE_CURRENT:
+				case IGlk.SEEKMODE_CURRENT:
 					pos += p;
 					break;
-				case Glk.SEEKMODE_END:
+				case IGlk.SEEKMODE_END:
 					pos = (int) rf.length() + p;
 					break;
 				default:

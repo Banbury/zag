@@ -1,20 +1,14 @@
 package org.p2c2e.zing.swing;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.swing.JFrame;
@@ -25,18 +19,9 @@ import javax.swing.SwingConstants;
 
 import org.p2c2e.blorb.BlorbFile;
 import org.p2c2e.util.Bytes;
-import org.p2c2e.zing.CharInputConsumer;
-import org.p2c2e.zing.Fileref;
-import org.p2c2e.zing.HyperlinkInputConsumer;
+import org.p2c2e.zing.AbstractGlk;
 import org.p2c2e.zing.IWindow;
-import org.p2c2e.zing.InByteBuffer;
-import org.p2c2e.zing.InOutByteBuffer;
-import org.p2c2e.zing.InOutIntBuffer;
-import org.p2c2e.zing.Int;
-import org.p2c2e.zing.LineInputConsumer;
-import org.p2c2e.zing.MouseInputConsumer;
 import org.p2c2e.zing.ObjectCallback;
-import org.p2c2e.zing.OutByteBuffer;
 import org.p2c2e.zing.OutInt;
 import org.p2c2e.zing.SoundChannel;
 import org.p2c2e.zing.Stream;
@@ -45,181 +30,23 @@ import org.p2c2e.zing.StyleHints;
 
 import com.sixlegs.image.png.PngImage;
 
-public abstract class Glk {
-	public static final int GESTALT_VERSION = 0;
-	public static final int GESTALT_CHAR_INPUT = 1;
-	public static final int GESTALT_LINE_INPUT = 2;
-	public static final int GESTALT_CHAR_OUTPUT = 3;
+public class Glk extends AbstractGlk {
+	private static Glk instance;
 
-	public static final int GESTALT_CHAR_OUTPUT_CANNOT_PRINT = 0;
-	public static final int GESTALT_CHAR_OUTPUT_APPROX_PRINT = 1;
-	public static final int GESTALT_CHAR_OUTPUT_EXACT_PRINT = 2;
+	public static Glk getInstance() {
+		if (instance == null)
+			instance = new Glk();
 
-	public static final int GESTALT_MOUSE_INPUT = 4;
-	public static final int GESTALT_TIMER = 5;
-	public static final int GESTALT_GRAPHICS = 6;
-	public static final int GESTALT_DRAW_IMAGE = 7;
-	public static final int GESTALT_SOUND = 8;
-	public static final int GESTALT_SOUND_VOLUME = 9;
-	public static final int GESTALT_SOUND_NOTIFY = 10;
-	public static final int GESTALT_HYPERLINKS = 11;
-	public static final int GESTALT_HYPERLINK_INPUT = 12;
-	public static final int GESTALT_SOUND_MUSIC = 13;
-	public static final int GESTALT_GRAPHICS_TRANSPARENCY = 14;
-	public static final int GESTALT_UNICODE = 15;
-
-	public static final int EVTYPE_NONE = 0;
-	public static final int EVTYPE_TIMER = 1;
-	public static final int EVTYPE_CHAR_INPUT = 2;
-	public static final int EVTYPE_LINE_INPUT = 3;
-	public static final int EVTYPE_MOUSE_INPUT = 4;
-	public static final int EVTYPE_ARRANGE = 5;
-	public static final int EVTYPE_REDRAW = 6;
-	public static final int EVTYPE_SOUND_NOTIFY = 7;
-	public static final int EVTYPE_HYPERLINK = 8;
-
-	public static class GlkEvent {
-		public int type;
-		public IWindow win;
-		public int val1, val2;
+		return instance;
 	}
 
-	public static final int KEYCODE_UNKNOWN = 0xffffffff;
-	public static final int KEYCODE_LEFT = 0xfffffffe;
-	public static final int KEYCODE_RIGHT = 0xfffffffd;
-	public static final int KEYCODE_UP = 0xfffffffc;
-	public static final int KEYCODE_DOWN = 0xfffffffb;
-	public static final int KEYCODE_RETURN = 0xfffffffa;
-	public static final int KEYCODE_DELETE = 0xfffffff9;
-	public static final int KEYCODE_ESCAPE = 0xfffffff8;
-	public static final int KEYCODE_TAB = 0xfffffff7;
-	public static final int KEYCODE_PAGE_UP = 0xfffffff6;
-	public static final int KEYCODE_PAGE_DOWN = 0xfffffff5;
-	public static final int KEYCODE_HOME = 0xfffffff4;
-	public static final int KEYCODE_END = 0xfffffff3;
-	public static final int KEYCODE_FUNC1 = 0xffffffef;
-	public static final int KEYCODE_FUNC2 = 0xffffffee;
-	public static final int KEYCODE_FUNC3 = 0xffffffed;
-	public static final int KEYCODE_FUNC4 = 0xffffffec;
-	public static final int KEYCODE_FUNC5 = 0xffffffeb;
-	public static final int KEYCODE_FUNC6 = 0xffffffea;
-	public static final int KEYCODE_FUNC7 = 0xffffffe9;
-	public static final int KEYCODE_FUNC8 = 0xffffffe8;
-	public static final int KEYCODE_FUNC9 = 0xffffffe7;
-	public static final int KEYCODE_FUNC10 = 0xffffffe6;
-	public static final int KEYCODE_FUNC11 = 0xffffffe5;
-	public static final int KEYCODE_FUNC12 = 0xffffffe4;
-	public static final int KEYCODE_MAXVAL = 28;
-
-	public static final int STYLE_NORMAL = 0;
-	public static final int STYLE_EMPHASIZED = 1;
-	public static final int STYLE_PREFORMATTED = 2;
-	public static final int STYLE_HEADER = 3;
-	public static final int STYLE_SUBHEADER = 4;
-	public static final int STYLE_ALERT = 5;
-	public static final int STYLE_NOTE = 6;
-	public static final int STYLE_BLOCKQUOTE = 7;
-	public static final int STYLE_INPUT = 8;
-	public static final int STYLE_USER1 = 9;
-	public static final int STYLE_USER2 = 10;
-	public static final int STYLE_NUMSTYLES = 11;
-
-	public static final String[] STYLES = { "normal", "emphasized",
-			"preformatted", "header", "subheader", "alert", "note",
-			"blockquote", "input", "user1", "user2" };
-
-	public static final int WINTYPE_ALL_TYPES = 0;
-	public static final int WINTYPE_PAIR = 1;
-	public static final int WINTYPE_BLANK = 2;
-	public static final int WINTYPE_TEXT_BUFFER = 3;
-	public static final int WINTYPE_TEXT_GRID = 4;
-	public static final int WINTYPE_GRAPHICS = 5;
-
-	public static final int WINMETHOD_LEFT = 0x00;
-	public static final int WINMETHOD_RIGHT = 0x01;
-	public static final int WINMETHOD_ABOVE = 0x02;
-	public static final int WINMETHOD_BELOW = 0x03;
-	public static final int WINMETHOD_DIRMASK = 0x0f;
-
-	public static final int WINMETHOD_FIXED = 0x10;
-	public static final int WINMETHOD_PROPORTIONAL = 0x20;
-	public static final int WINMETHOD_DIVISION_MASK = 0xf0;
-
-	public static final int FILEUSAGE_DATA = 0x00;
-	public static final int FILEUSAGE_SAVED_GAME = 0x01;
-	public static final int FILEUSAGE_TRANSCRIPT = 0x02;
-	public static final int FILEUSAGE_INPUT_RECORD = 0x03;
-	public static final int FILEUSAGE_TYPE_MASK = 0x0f;
-
-	public static final int FILEUSAGE_TEXT_MODE = 0x100;
-	public static final int FILEUSAGE_BINARY_MODE = 0x000;
-
-	public static final int FILEMODE_WRITE = 0x01;
-	public static final int FILEMODE_READ = 0x02;
-	public static final int FILEMODE_READ_WRITE = 0x03;
-	public static final int FILEMODE_WRITE_APPEND = 0x05;
-
-	public static final int SEEKMODE_START = 0;
-	public static final int SEEKMODE_CURRENT = 1;
-	public static final int SEEKMODE_END = 2;
-
-	public static final int STYLEHINT_INDENTATION = 0;
-	public static final int STYLEHINT_PARA_INDENTATION = 1;
-	public static final int STYLEHINT_JUSTIFICATION = 2;
-	public static final int STYLEHINT_SIZE = 3;
-	public static final int STYLEHINT_WEIGHT = 4;
-	public static final int STYLEHINT_OBLIQUE = 5;
-	public static final int STYLEHINT_PROPORTIONAL = 6;
-	public static final int STYLEHINT_TEXT_COLOR = 7;
-	public static final int STYLEHINT_BACK_COLOR = 8;
-	public static final int STYLEHINT_REVERSE_COLOR = 9;
-	public static final int STYLEHINT_NUMHINTS = 10;
-
-	public static final int STYLEHINT_JUST_LEFT_FLUSH = 0;
-	public static final int STYLEHINT_JUST_LEFT_RIGHT = 1;
-	public static final int STYLEHINT_JUST_CENTERED = 2;
-	public static final int STYLEHINT_JUST_RIGHT_FLUSH = 3;
-
-	public static final int IMAGEALIGN_INLINE_UP = 0x01;
-	public static final int IMAGEALIGN_INLINE_DOWN = 0x02;
-	public static final int IMAGEALIGN_INLINE_CENTER = 0x03;
-	public static final int IMAGEALIGN_MARGIN_LEFT = 0x04;
-	public static final int IMAGEALIGN_MARGIN_RIGHT = 0x05;
-
-	static final Comparator HC_COMP = new HashCodeComparator();
-	static TreeMap WINDOWS;
-	static TreeMap STREAMS;
-	static TreeMap FILE_REFS;
-	static TreeMap SOUND_CHANNELS;
-
-	static Stream CURRENT_STREAM;
-
-	static LinkedList EVENT_QUEUE;
-
-	static int TIMER = 0;
-	static long TIMESTAMP;
-
-	public static BlorbFile BLORB_FILE;
-	static MediaTracker TRACKER;
-	static LinkedList IMAGE_CACHE;
-
-	static ObjectCallback CREATE_CALLBACK;
-	static ObjectCallback DESTROY_CALLBACK;
-
-	static boolean BORDERS_ON = true;
-
-	public static final int STRICTNESS_IGNORE = 0;
-	public static final int STRICTNESS_WARN = 1;
-	public static final int STRICTNESS_DIE = 2;
-	static int STRICTNESS = STRICTNESS_WARN;
-
-	public static void setFrame(JFrame frame) {
+	public void setFrame(JFrame frame) {
 		setFrame(frame, true, true, null, null, -1, -1);
 	}
 
-	public static void setFrame(JFrame frame, boolean statusOn,
-			boolean bordersOn, String proportionalFont, String fixedFont,
-			int propFontSize, int fixedFontSize) {
+	public void setFrame(JFrame frame, boolean statusOn, boolean bordersOn,
+			String proportionalFont, String fixedFont, int propFontSize,
+			int fixedFontSize) {
 		reset();
 
 		Window.setFrame(frame);
@@ -253,10 +80,11 @@ public abstract class Glk {
 		LameFocusManager.registerFrame(frame, statusOn);
 
 		TRACKER = new MediaTracker(frame);
-		Style.setupStyles(Window.getFrame());
+		Style.setupStyles(Glk.getInstance(), Window.getFrame());
 	}
 
-	public static void flush() {
+	@Override
+	public void flush() {
 		if (Window.getRoot() != null)
 			Window.getRoot().doLayout();
 
@@ -274,7 +102,8 @@ public abstract class Glk {
 		}
 	}
 
-	public static void reset() {
+	@Override
+	public void reset() {
 		if (Window.getRoot() != null) {
 			Window.close(Window.getRoot());
 			Window.getFrame().getContentPane().validate();
@@ -290,17 +119,18 @@ public abstract class Glk {
 		EVENT_QUEUE = new LinkedList();
 		TIMER = 0;
 		TIMESTAMP = 0L;
-		BLORB_FILE = null;
+		blorbFile = null;
 		IMAGE_CACHE = new LinkedList();
 
 		StyleHints.clearAll();
 	}
 
-	public static StatusPane getStatusPane() {
+	public StatusPane getStatusPane() {
 		return LameFocusManager.STATUS;
 	}
 
-	public static void progress(String stJob, int min, int max, int cur) {
+	@Override
+	public void progress(String stJob, int min, int max, int cur) {
 		JProgressBar prog = LameFocusManager.STATUS.prog;
 
 		if (min == max && prog.isVisible()) {
@@ -332,88 +162,18 @@ public abstract class Glk {
 		}
 	}
 
-	public static void setBlorbFile(BlorbFile f) {
-		BLORB_FILE = f;
-		IMAGE_CACHE.clear();
-
-	}
-
-	public static void setMorePromptCallback(ObjectCallback c) {
+	@Override
+	public void setMorePromptCallback(ObjectCallback c) {
 		TextBufferWindow.MORE_CALLBACK = c;
 	}
 
-	public static void setCreationCallback(ObjectCallback c) {
-		CREATE_CALLBACK = c;
-	}
-
-	public static void setDestructionCallback(ObjectCallback c) {
-		DESTROY_CALLBACK = c;
-	}
-
-	public static void tick() {
-
-	}
-
-	// why does *this* function have a glk selector?!
-	public static void setInterruptHandler(Object o) {
-
-	}
-
-	public static void exit() {
-		System.exit(0);
-	}
-
-	static Object objIterate(SortedMap mainMap, Object o, Int rock) {
-		SortedMap m;
-		Object next;
-
-		if (o == null)
-			m = mainMap;
-		else
-			m = mainMap.tailMap(new Integer(o.hashCode() + 1));
-
-		if (m.isEmpty()) {
-			if (rock != null)
-				rock.val = 0;
-			return null;
-		} else {
-			next = m.firstKey();
-			if (rock != null)
-				rock.val = ((Integer) mainMap.get(next)).intValue();
-			return next;
-		}
-	}
-
-	public static IWindow windowIterate(IWindow win, OutInt rock) {
-		return (IWindow) objIterate(WINDOWS, win, rock);
-	}
-
-	public static Stream streamIterate(Stream s, OutInt rock) {
-		return (Stream) objIterate(STREAMS, s, rock);
-	}
-
-	public static Fileref filerefIterate(Fileref f, OutInt rock) {
-		return (Fileref) objIterate(FILE_REFS, f, rock);
-	}
-
-	public static SoundChannel schannelIterate(SoundChannel s, OutInt rock) {
-		return (SoundChannel) objIterate(SOUND_CHANNELS, s, rock);
-	}
-
-	public static char charToLower(char ch) {
-		return Character.toLowerCase(ch);
-	}
-
-	public static char charToUpper(char ch) {
-		return Character.toUpperCase(ch);
-	}
-
-	public static IWindow windowGetRoot() {
+	public IWindow windowGetRoot() {
 		return Window.getRoot();
 	}
 
-	public static void windowGetArrangement(IWindow win, OutInt method,
-			OutInt size, OutWindow key) {
+	@Override
+	public void windowGetArrangement(IWindow win, OutInt method, OutInt size,
+			OutWindow key) {
 		if (win == null) {
 			nullRef("Glk.windowGetArrangement");
 		} else {
@@ -427,15 +187,17 @@ public abstract class Glk {
 		}
 	}
 
-	public static void windowSetArrangement(IWindow win, int method, int size,
-			Window newKey) {
+	@Override
+	public void windowSetArrangement(IWindow win, int method, int size,
+			IWindow newKey) {
 		if (win == null)
 			nullRef("Glk.windowSetArrangement");
 		else
 			((PairWindow) win).setArrangement(method, size, newKey);
 	}
 
-	public static void windowGetSize(IWindow win, OutInt b1, OutInt b2) {
+	@Override
+	public void windowGetSize(IWindow win, OutInt b1, OutInt b2) {
 		if (win != null) {
 			if (b1 != null)
 				b1.val = win.getWindowWidth();
@@ -446,7 +208,8 @@ public abstract class Glk {
 		}
 	}
 
-	public static IWindow windowGetSibling(IWindow win) {
+	@Override
+	public IWindow windowGetSibling(IWindow win) {
 		if (win != null)
 			return win.getSibling();
 
@@ -454,7 +217,8 @@ public abstract class Glk {
 		return null;
 	}
 
-	public static IWindow windowGetParent(IWindow win) {
+	@Override
+	public IWindow windowGetParent(IWindow win) {
 		if (win != null)
 			return win.getParent();
 
@@ -462,7 +226,8 @@ public abstract class Glk {
 		return null;
 	}
 
-	public static int windowGetType(IWindow win) {
+	@Override
+	public int windowGetType(IWindow win) {
 		if (win instanceof TextBufferWindow)
 			return WINTYPE_TEXT_BUFFER;
 		if (win instanceof TextGridWindow)
@@ -480,7 +245,8 @@ public abstract class Glk {
 		return -1;
 	}
 
-	public static int windowGetRock(IWindow w) {
+	@Override
+	public int windowGetRock(IWindow w) {
 		if (w == null) {
 			nullRef("Glk.windowGetRock");
 			return 0;
@@ -492,16 +258,19 @@ public abstract class Glk {
 		return ((Integer) WINDOWS.get(w)).intValue();
 	}
 
-	public static void windowClear(IWindow win) {
+	@Override
+	public void windowClear(IWindow win) {
 		if (win == null)
 			nullRef("Glk.windowClear");
 		else
 			win.clear();
 	}
 
-	public static Window windowOpen(Window w, int method, int size,
-			int wintype, int rock) {
-		Window win = Window.split(w, method, size, BORDERS_ON, wintype);
+	@Override
+	public IWindow windowOpen(IWindow w, int method, int size, int wintype,
+			int rock) {
+		Window win = Window
+				.split((Window) w, method, size, BORDERS_ON, wintype);
 
 		WINDOWS.put(win, new Integer(rock));
 		STREAMS.put(win.stream, new Integer(0));
@@ -520,7 +289,8 @@ public abstract class Glk {
 		return win;
 	}
 
-	public static void windowClose(Window w, Stream.Result streamresult) {
+	@Override
+	public void windowClose(IWindow w, Stream.Result streamresult) {
 		if (w == null) {
 			nullRef("Glk.windowClose");
 			return;
@@ -534,29 +304,33 @@ public abstract class Glk {
 		windowCloseRecurse(w);
 	}
 
-	private static void windowCloseRecurse(Window w) {
-		if (w instanceof PairWindow) {
-			PairWindow pw = (PairWindow) w;
+	protected void windowCloseRecurse(IWindow w) {
+		Window wnd = (Window) w;
+
+		if (wnd instanceof PairWindow) {
+			PairWindow pw = (PairWindow) wnd;
 			windowCloseRecurse(pw.first);
 			windowCloseRecurse(pw.second);
 		}
 
-		WINDOWS.remove(w);
-		STREAMS.remove(w.stream);
+		WINDOWS.remove(wnd);
+		STREAMS.remove(wnd.getStream());
 		if (DESTROY_CALLBACK != null) {
 			DESTROY_CALLBACK.callback(w);
-			DESTROY_CALLBACK.callback(w.stream);
+			DESTROY_CALLBACK.callback(wnd.getStream());
 		}
 	}
 
-	public static void windowSetEchoStream(IWindow win, Stream s) {
+	@Override
+	public void windowSetEchoStream(IWindow win, Stream s) {
 		if (win == null)
 			nullRef("Glk.windowSetEchoStream");
 		else
 			win.setEchoStream(s);
 	}
 
-	public static Stream windowGetEchoStream(IWindow win) {
+	@Override
+	public Stream windowGetEchoStream(IWindow win) {
 		if (win == null) {
 			nullRef("Glk.windowGetEchoStream");
 			return null;
@@ -565,7 +339,8 @@ public abstract class Glk {
 		}
 	}
 
-	public static Stream windowGetStream(IWindow win) {
+	@Override
+	public Stream windowGetStream(IWindow win) {
 		if (win == null) {
 			nullRef("Glk.windowGetStream");
 			return null;
@@ -574,741 +349,7 @@ public abstract class Glk {
 		}
 	}
 
-	public static void setWindow(IWindow win) {
-		CURRENT_STREAM = (win == null) ? null : win.getStream();
-	}
-
-	public static void streamSetCurrent(Stream s) {
-		if (s == null || s.canWrite())
-			CURRENT_STREAM = s;
-	}
-
-	public static Stream streamGetCurrent() {
-		return CURRENT_STREAM;
-	}
-
-	public static void putChar(char ch) {
-		if (CURRENT_STREAM == null)
-			nullRef("Glk.putChar");
-		else
-			CURRENT_STREAM.putChar(ch);
-	}
-
-	public static void putCharUni(int ch) {
-		if (CURRENT_STREAM == null)
-			nullRef("Glk.putCharUni");
-		else
-			CURRENT_STREAM.putCharUni(ch);
-	}
-
-	public static void putString(String s) {
-		if (CURRENT_STREAM == null)
-			nullRef("Glk.putString");
-		else
-			CURRENT_STREAM.putString(s);
-	}
-
-	public static void putStringUni(String s) {
-		if (CURRENT_STREAM == null)
-			nullRef("Glk.putStringUni");
-		else
-			CURRENT_STREAM.putStringUni(s);
-	}
-
-	public static void putBuffer(InByteBuffer b, int len) {
-		if (CURRENT_STREAM == null)
-			nullRef("Glk.putBuffer");
-		else
-			CURRENT_STREAM.putBuffer(b.buffer, len);
-	}
-
-	public static void putBufferUni(InByteBuffer b, int len) {
-		if (CURRENT_STREAM == null)
-			nullRef("Glk.putBufferUni");
-		else
-			CURRENT_STREAM.putBufferUni(b.buffer, len);
-	}
-
-	public static void putCharStream(Stream s, int ch) {
-		if (s == null)
-			nullRef("Glk.putCharStream");
-		else
-			s.putChar(ch);
-	}
-
-	public static void putCharStreamUni(Stream s, int ch) {
-		if (s == null)
-			nullRef("Glk.putCharStreamUni");
-		else
-			s.putCharUni(ch);
-	}
-
-	public static void putStringStream(Stream stm, String s) {
-		if (stm == null)
-			nullRef("Glk.putStringStream");
-		else
-			stm.putString(s);
-	}
-
-	public static void putStringStreamUni(Stream stm, String s) {
-		if (stm == null)
-			nullRef("Glk.putStringStreamUni");
-		else
-			stm.putStringUni(s);
-	}
-
-	public static void putBufferStream(Stream s, InByteBuffer b, int len) {
-		if (s == null)
-			nullRef("Glk.putBufferStream");
-		else
-			s.putBuffer(b.buffer, len);
-	}
-
-	public static void putBufferStreamUni(Stream s, InByteBuffer b, int len) {
-		if (s == null)
-			nullRef("Glk.putBufferStreamUni");
-		else
-			s.putBufferUni(b.buffer, len);
-	}
-
-	public static int getCharStream(Stream s) {
-		if (s != null)
-			return s.getChar();
-
-		nullRef("Glk.getCharStream");
-		return -1;
-	}
-
-	public static int getCharStreamUni(Stream s) {
-		if (s != null)
-			return s.getCharUni();
-
-		nullRef("Glk.getCharStreamUni");
-		return -1;
-	}
-
-	public static int getBufferStream(Stream s, OutByteBuffer b, int len) {
-		if (s != null)
-			return s.getBuffer(b.buffer, len);
-
-		nullRef("Glk.getBufferStream");
-		return -1;
-	}
-
-	public static int getBufferStreamUni(Stream s, OutByteBuffer b, int len) {
-		if (s != null)
-			return s.getBufferUni(b.buffer, len);
-
-		nullRef("Glk.getBufferStreamUni");
-		return -1;
-	}
-
-	public static int getLineStream(Stream s, OutByteBuffer b, int len) {
-		if (s != null)
-			return s.getLine(b.buffer, len);
-
-		nullRef("Glk.getLineStream");
-		return -1;
-	}
-
-	public static int getLineStreamUni(Stream s, OutByteBuffer b, int len) {
-		if (s != null)
-			return s.getLineUni(b.buffer, len);
-
-		nullRef("Glk.getLineStreamUni");
-		return -1;
-	}
-
-	public static void streamClose(Stream s, Stream.Result b) {
-		if (s == null) {
-			nullRef("Glk.streamClose");
-			return;
-		}
-
-		Stream.Result res = s.close();
-		if (b != null) {
-			b.readcount = res.readcount;
-			b.writecount = res.writecount;
-		}
-
-		STREAMS.remove(s);
-		if (DESTROY_CALLBACK != null)
-			DESTROY_CALLBACK.callback(s);
-	}
-
-	public static int streamGetPosition(Stream s) {
-		if (s == null) {
-			nullRef("Glk.streamGetPosition");
-			return -1;
-		}
-
-		return s.getPosition();
-	}
-
-	public static void streamSetPosition(Stream s, int pos, int seekmode) {
-		if (s == null) {
-			nullRef("Glk.streamSetPosition");
-			return;
-		}
-
-		s.setPosition(pos, seekmode);
-	}
-
-	public static Stream streamOpenMemory(InOutByteBuffer b, int len, int mode,
-			int rock) {
-		Stream s = new Stream.MemoryStream(b.buffer, len, mode);
-
-		STREAMS.put(s, new Integer(rock));
-		if (CREATE_CALLBACK != null)
-			CREATE_CALLBACK.callback(s);
-		return s;
-	}
-
-	public static Stream streamOpenMemoryUni(InOutByteBuffer b, int len,
-			int mode, int rock) {
-		Stream s = new Stream.UnicodeMemoryStream(b.buffer, len, mode);
-
-		STREAMS.put(s, new Integer(rock));
-		if (CREATE_CALLBACK != null)
-			CREATE_CALLBACK.callback(s);
-		return s;
-	}
-
-	public static Stream streamOpenFile(Fileref ref, int mode, int rock) {
-		if (ref == null) {
-			nullRef("Glk.streamOpenFile");
-			return null;
-		}
-
-		Stream s = new Stream.FileStream(ref, mode, false);
-
-		STREAMS.put(s, new Integer(rock));
-		if (CREATE_CALLBACK != null)
-			CREATE_CALLBACK.callback(s);
-		return s;
-	}
-
-	public static Stream streamOpenFileUni(Fileref ref, int mode, int rock) {
-		if (ref == null) {
-			nullRef("Glk.streamOpenFileUni");
-			return null;
-		}
-
-		Stream s = new Stream.FileStream(ref, mode, true);
-
-		STREAMS.put(s, new Integer(rock));
-		if (CREATE_CALLBACK != null)
-			CREATE_CALLBACK.callback(s);
-		return s;
-	}
-
-	public static int streamGetRock(Stream s) {
-		if (s == null) {
-			nullRef("Glk.streamGetRock");
-			return 0;
-		}
-
-		return ((Integer) STREAMS.get(s)).intValue();
-	}
-
-	public static void setStyleStream(Stream s, int style) {
-		if (s == null) {
-			nullRef("Glk.setStyleStream");
-			return;
-		}
-
-		if (style < STYLE_NUMSTYLES)
-			s.setStyle(STYLES[style]);
-		else
-			s.setStyle(STYLES[STYLE_NORMAL]);
-	}
-
-	public static void setStyle(int style) {
-		if (CURRENT_STREAM != null)
-			setStyleStream(CURRENT_STREAM, style);
-	}
-
-	public static void stylehintSet(int wintype, int style, int hint, int val) {
-		StyleHints.setHint(wintype, Style.getStyle(STYLES[style], wintype),
-				hint, val);
-	}
-
-	public static void stylehintClear(int wintype, int style, int hint) {
-		StyleHints.clearHint(wintype, Style.getStyle(STYLES[style], wintype),
-				hint);
-	}
-
-	public static boolean styleDistinguish(Window win, int s1, int s2) {
-		if (win == null) {
-			nullRef("Glk.styleDistinguish");
-			return false;
-		}
-
-		Style first = (Style) win.getHintedStyles().get(STYLES[s1]);
-		Style second = (Style) win.getHintedStyles().get(STYLES[s2]);
-
-		if (!first.family.equals(second.family))
-			return true;
-		if ((first.isOblique || second.isOblique)
-				&& !(first.isOblique && second.isOblique))
-			return true;
-		if (first.size != second.size)
-			return true;
-		if (!first.weight.equals(second.weight))
-			return true;
-		if (first.leftIndent != second.leftIndent)
-			return true;
-		if (first.rightIndent != second.rightIndent)
-			return true;
-		if (first.parIndent != second.parIndent)
-			return true;
-		if (first.justification != second.justification)
-			return true;
-		if (!first.textColor.equals(second.textColor))
-			return true;
-		if (!first.backColor.equals(second.backColor))
-			return true;
-
-		return false;
-	}
-
-	public static boolean styleMeasure(IWindow win, int style, int hint,
-			OutInt result) {
-		if (win == null) {
-			nullRef("Glk.styleMeasure");
-			return false;
-		}
-
-		return win.measureStyle(STYLES[style], hint, result);
-	}
-
-	public static Fileref filerefCreateTemp(int usage, int rock) {
-		try {
-			Fileref ref = Fileref.createTemp(usage);
-			if (ref != null) {
-				FILE_REFS.put(ref, new Integer(rock));
-				if (CREATE_CALLBACK != null)
-					CREATE_CALLBACK.callback(ref);
-				return ref;
-			} else {
-				return null;
-			}
-		} catch (IOException e) {
-			return null;
-		}
-	}
-
-	public static Fileref filerefCreateByName(int usage, String name, int rock) {
-		Fileref ref = Fileref.createByName(usage, name);
-		if (ref != null) {
-			FILE_REFS.put(ref, new Integer(rock));
-			if (CREATE_CALLBACK != null)
-				CREATE_CALLBACK.callback(ref);
-			return ref;
-		} else {
-			return null;
-		}
-	}
-
-	public static Fileref filerefCreateFromFileref(int usage, Fileref r,
-			int rock) {
-		if (r == null) {
-			nullRef("Glk.filerefCreateFromFileref");
-			return null;
-		}
-
-		Fileref ref = Fileref.createFromFileref(usage, r);
-		FILE_REFS.put(ref, new Integer(rock));
-		if (CREATE_CALLBACK != null)
-			CREATE_CALLBACK.callback(ref);
-		return ref;
-	}
-
-	public static void filerefDestroy(Fileref ref) {
-		if (ref == null) {
-			nullRef("Glk.filerefDestroy");
-			return;
-		}
-
-		ref.destroy();
-
-		FILE_REFS.remove(ref);
-		if (DESTROY_CALLBACK != null)
-			DESTROY_CALLBACK.callback(ref);
-	}
-
-	public static void filerefDeleteFile(Fileref ref) {
-		if (ref == null) {
-			nullRef("Glk.filerefDeleteFile");
-			return;
-		}
-
-		Fileref.deleteFile(ref);
-	}
-
-	public static boolean filerefDoesFileExist(Fileref ref) {
-		if (ref == null) {
-			nullRef("Glk.filerefDoesFileExist");
-			return false;
-		}
-
-		return ref.fileExists();
-	}
-
-	public static int filerefGetRock(Fileref ref) {
-		if (ref == null) {
-			nullRef("Glk.filerefGetRock");
-			return 0;
-		}
-
-		return ((Integer) FILE_REFS.get(ref)).intValue();
-	}
-
-	public static int schannelGetRock(SoundChannel c) {
-		if (c == null) {
-			nullRef("Glk.schannelGetRock");
-			return 0;
-		}
-
-		return ((Integer) SOUND_CHANNELS.get(c)).intValue();
-	}
-
-	public static SoundChannel schannelCreate(int rock) {
-		SoundChannel c = new SoundChannel();
-		SOUND_CHANNELS.put(c, new Integer(rock));
-		if (CREATE_CALLBACK != null)
-			CREATE_CALLBACK.callback(c);
-
-		return c;
-	}
-
-	public static void schannelDestroy(SoundChannel c) {
-		if (c == null) {
-			nullRef("Glk.schannelDestroy");
-			return;
-		}
-
-		try {
-			c.destroy();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		SOUND_CHANNELS.remove(c);
-		if (DESTROY_CALLBACK != null)
-			DESTROY_CALLBACK.callback(c);
-	}
-
-	public static boolean schannelPlayExt(SoundChannel c, int soundId,
-			int repeat, int notify) {
-		if (c == null) {
-			nullRef("Glk.schannelPlayExt");
-			return false;
-		}
-
-		try {
-			return c.play(soundId, repeat, notify);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	public static boolean schannelPlay(SoundChannel c, int soundId) {
-		return schannelPlayExt(c, soundId, 1, 0);
-	}
-
-	public static void schannelStop(SoundChannel c) {
-		if (c == null) {
-			nullRef("Glk.schannelStop");
-			return;
-		}
-
-		try {
-			c.stop();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void schannelSetVolume(SoundChannel c, int vol) {
-		if (c == null)
-			nullRef("Glk.schannelSetVolume");
-		else
-			c.setVolume(vol);
-	}
-
-	public static void soundLoadHint(int soundId, int val) {
-
-	}
-
-	public static int gestalt(int sel, int val) {
-		return gestaltExt(sel, val, null, 0);
-	}
-
-	public static int gestaltExt(int sel, int val, InOutIntBuffer arr, int len) {
-		switch (sel) {
-		case GESTALT_VERSION:
-			return 0x00000601;
-		case GESTALT_CHAR_OUTPUT:
-			if (val == 10 || (val >= 32 && val < 127)
-					|| (val >= 160 && val < 256)) {
-				if (arr != null && len > 0)
-					arr.buffer.put(1);
-				return GESTALT_CHAR_OUTPUT_EXACT_PRINT;
-			} else {
-				if (arr != null && len > 0)
-					arr.buffer.put(0);
-				return GESTALT_CHAR_OUTPUT_CANNOT_PRINT;
-			}
-		case GESTALT_LINE_INPUT:
-			if ((val >= 32 && val < 127) || (val >= 160 && val < 256))
-				return 1;
-			else
-				return 0;
-		case GESTALT_CHAR_INPUT:
-			if (val >= 0 && val < 256)
-				return 1;
-			if (val == KEYCODE_LEFT || val == KEYCODE_RIGHT
-					|| val == KEYCODE_UP || val == KEYCODE_DOWN)
-				return 1;
-			return 0;
-		case GESTALT_MOUSE_INPUT:
-			if (val == WINTYPE_TEXT_GRID || val == WINTYPE_GRAPHICS)
-				return 1;
-			else
-				return 0;
-		case GESTALT_TIMER:
-			return 1;
-		case GESTALT_GRAPHICS:
-			return 1;
-		case GESTALT_DRAW_IMAGE:
-			if (val == WINTYPE_TEXT_BUFFER || val == WINTYPE_GRAPHICS)
-				return 1;
-			else
-				return 0;
-		case GESTALT_GRAPHICS_TRANSPARENCY:
-			return 1;
-		case GESTALT_SOUND:
-			return 1;
-		case GESTALT_SOUND_MUSIC:
-			return 1;
-		case GESTALT_SOUND_VOLUME:
-			return 1;
-		case GESTALT_SOUND_NOTIFY:
-			return 1;
-		case GESTALT_HYPERLINKS:
-			return 1;
-		case GESTALT_UNICODE:
-			return 1;
-		default:
-			return 0;
-		}
-	}
-
-	public static void requestCharEvent(Window win) {
-		if (win == null)
-			nullRef("Glk.requestCharEvent");
-		else
-			win.requestCharacterInput(new GlkCharConsumer(win));
-	}
-
-	/* TODO: test this */
-	public static void requestCharEventUni(Window win) {
-		if (win == null)
-			nullRef("Glk.requestCharEvent");
-		else
-			win.requestCharacterInput(new GlkCharConsumer(win));
-	}
-
-	public static void cancelCharEvent(Window win) {
-		if (win == null)
-			nullRef("Glk.cancelCharEvent");
-		else
-			win.cancelCharacterInput();
-	}
-
-	public static void requestLineEvent(Window win, InOutByteBuffer b,
-			int maxlen, int initlen) {
-		if (win == null) {
-			nullRef("Glk.requestLineEvent");
-			return;
-		}
-
-		StringBuffer sb;
-		String s = null;
-		if (initlen > 0) {
-			sb = new StringBuffer();
-			for (int i = 0; i < initlen; i++)
-				sb.append((char) b.buffer.get(i));
-			s = sb.toString();
-		}
-		win.requestLineInput(new GlkLineConsumer(win, b.buffer, false), s,
-				maxlen);
-	}
-
-	public static void requestLineEventUni(Window win, InOutByteBuffer b,
-			int maxlen, int initlen) {
-		if (win == null) {
-			nullRef("Glk.requestLineEventUni");
-			return;
-		}
-
-		StringBuffer sb;
-		String s = null;
-		if (initlen > 0) {
-			sb = new StringBuffer();
-			for (int i = 0; i < initlen; i++) {
-				int t = b.buffer.getInt(i * 4);
-				sb.appendCodePoint(t);
-			}
-			s = sb.toString();
-		}
-		win.requestLineInput(new GlkLineConsumer(win, b.buffer, true), s,
-				maxlen);
-	}
-
-	public static void cancelLineEvent(Window win, GlkEvent e) {
-		if (win == null) {
-			nullRef("Glk.cancelLineEvent");
-			return;
-		}
-
-		String s = win.cancelLineInput();
-
-		if (e != null) {
-			e.type = EVTYPE_LINE_INPUT;
-			e.win = win;
-			e.val1 = s.length();
-			e.val2 = 0;
-		}
-	}
-
-	public static void requestMouseEvent(Window win) {
-		if (win == null)
-			nullRef("Glk.requestMouseEvent");
-		else
-			win.requestMouseInput(new GlkMouseConsumer(win));
-	}
-
-	public static void cancelMouseEvent(Window win) {
-		if (win == null)
-			nullRef("Glk.cancelMouseEvent");
-		else
-			win.cancelMouseInput();
-	}
-
-	public static void requestTimerEvents(int delta) {
-		TIMESTAMP = System.currentTimeMillis();
-		TIMER = delta;
-	}
-
-	public static boolean imageDraw(IWindow win, int imgid, int val1, int val2) {
-		Image img = getImage(imgid, -1, -1);
-		if (img == null)
-			return false;
-
-		if (win instanceof TextBufferWindow) {
-			((TextBufferWindow) win).drawImage(img, val1);
-			return true;
-		}
-		if (win instanceof GraphicsWindow) {
-			((GraphicsWindow) win).drawImage(img, val1, val2);
-			return true;
-		}
-		return false;
-	}
-
-	public static boolean imageDrawScaled(IWindow win, int imgid, int val1,
-			int val2, int width, int height) {
-		Image img = getImage(imgid, width, height);
-		if (img == null)
-			return false;
-
-		if (win instanceof TextBufferWindow) {
-			((TextBufferWindow) win).drawImage(img, val1);
-			return true;
-		}
-		if (win instanceof GraphicsWindow) {
-			((GraphicsWindow) win).drawImage(img, val1, val2);
-			return true;
-		}
-		return false;
-	}
-
-	public static boolean imageGetInfo(int imgid, OutInt width, OutInt height) {
-		if (BLORB_FILE != null) {
-			Image img = getImage(imgid, -1, -1);
-			if (img != null) {
-				if (width != null)
-					width.val = img.getWidth((Component) Window.getFrame());
-				if (height != null)
-					height.val = img.getHeight((Component) Window.getFrame());
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	}
-
-	public static void windowSetBackgroundColor(IWindow win, Color c) {
-		if (win instanceof GraphicsWindow)
-			((GraphicsWindow) win).setBackgroundColor(c);
-	}
-
-	public static void windowFillRect(IWindow win, Color c, int left, int top,
-			int width, int height) {
-		if (win instanceof GraphicsWindow)
-			((GraphicsWindow) win).fillRect(c, left, top, width, height);
-	}
-
-	public static void windowEraseRect(IWindow win, int left, int top,
-			int width, int height) {
-		if (win instanceof GraphicsWindow)
-			((GraphicsWindow) win).eraseRect(left, top, width, height);
-	}
-
-	public static void windowFlowBreak(IWindow win) {
-		if (win instanceof TextBufferWindow)
-			((TextBufferWindow) win).flowBreak();
-	}
-
-	public static void windowMoveCursor(IWindow win, int x, int y) {
-		if (win == null)
-			nullRef("Glk.windowMoveCursor");
-		else
-			((TextGridWindow) win).setCursor(x, y);
-	}
-
-	public static void setHyperlink(int val) {
-		setHyperlinkStream(CURRENT_STREAM, val);
-	}
-
-	public static void setHyperlinkStream(Stream s, int val) {
-		if (s == null)
-			nullRef("Glk.setHyperlinkStream");
-		else
-			s.setHyperlink(val);
-	}
-
-	public static void requestHyperlinkEvent(IWindow w) {
-		if (w instanceof TextBufferWindow)
-			((TextBufferWindow) w)
-					.requestHyperlinkInput(new GlkHyperConsumer(w));
-		else if (w instanceof TextGridWindow)
-			((TextGridWindow) w).requestHyperlinkInput(new GlkHyperConsumer(w));
-	}
-
-	public static void cancelHyperlinkEvent(IWindow w) {
-		if (w instanceof TextBufferWindow)
-			((TextBufferWindow) w).cancelHyperlinkInput();
-		else if (w instanceof TextGridWindow)
-			((TextGridWindow) w).cancelHyperlinkInput();
-	}
-
-	public static void select(GlkEvent e) {
+	public void select(GlkEvent e) {
 		long cur = 0l;
 		GlkEvent ev = null;
 		boolean done = false;
@@ -1349,7 +390,8 @@ public abstract class Glk {
 		}
 	}
 
-	public static void selectPoll(GlkEvent e) {
+	@Override
+	public void selectPoll(GlkEvent e) {
 		long cur;
 		GlkEvent ev = null;
 		ListIterator li;
@@ -1386,14 +428,61 @@ public abstract class Glk {
 		}
 	}
 
-	public static void addEvent(GlkEvent e) {
-		synchronized (EVENT_QUEUE) {
-			EVENT_QUEUE.addLast(e);
-			EVENT_QUEUE.notifyAll();
+	@Override
+	public boolean imageDraw(IWindow win, int imgid, int val1, int val2) {
+		Image img = getImage(imgid, -1, -1);
+		if (img == null)
+			return false;
+
+		if (win instanceof TextBufferWindow) {
+			((TextBufferWindow) win).drawImage(img, val1);
+			return true;
+		}
+		if (win instanceof GraphicsWindow) {
+			((GraphicsWindow) win).drawImage(img, val1, val2);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean imageDrawScaled(IWindow win, int imgid, int val1, int val2,
+			int width, int height) {
+		Image img = getImage(imgid, width, height);
+		if (img == null)
+			return false;
+
+		if (win instanceof TextBufferWindow) {
+			((TextBufferWindow) win).drawImage(img, val1);
+			return true;
+		}
+		if (win instanceof GraphicsWindow) {
+			((GraphicsWindow) win).drawImage(img, val1, val2);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean imageGetInfo(int imgid, OutInt width, OutInt height) {
+		if (blorbFile != null) {
+			Image img = getImage(imgid, -1, -1);
+			if (img != null) {
+				if (width != null)
+					width.val = img.getWidth((Component) Window.getFrame());
+				if (height != null)
+					height.val = img.getHeight((Component) Window.getFrame());
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
 		}
 	}
 
-	public static Image getImage(int id, int xscale, int yscale) {
+	@Override
+	public Image getImage(int id, int xscale, int yscale) {
 		ImageCacheNode n = null;
 		Image img = null;
 		int nodes = IMAGE_CACHE.size();
@@ -1435,7 +524,7 @@ public abstract class Glk {
 		}
 
 		try {
-			BlorbFile.Chunk chunk = BLORB_FILE.getByUsage(BlorbFile.PICT, id);
+			BlorbFile.Chunk chunk = blorbFile.getByUsage(BlorbFile.PICT, id);
 			if (chunk == null)
 				return null;
 
@@ -1473,18 +562,8 @@ public abstract class Glk {
 		}
 	}
 
-	public static int colorToInt(Color c) {
-		return ((c.getRed() << 16) | (c.getGreen() << 8) | c.getBlue());
-	}
-
-	public static Color intToColor(int i) {
-		int iRed = (i >>> 16) & 0xff;
-		int iGreen = (i >>> 8) & 0xff;
-		int iBlue = i & 0xff;
-		return new Color(iRed, iGreen, iBlue);
-	}
-
-	static void nullRef(String func) {
+	@Override
+	public void nullRef(String func) {
 		switch (STRICTNESS) {
 		case STRICTNESS_DIE:
 			throw new NullPointerException("Invalid object reference: " + func);
@@ -1501,205 +580,6 @@ public abstract class Glk {
 			break;
 		default:
 			// NOOP
-		}
-	}
-
-	static class ImageCacheNode {
-		int id;
-		Image normal;
-		Image scaled;
-	}
-
-	static class GlkHyperConsumer implements HyperlinkInputConsumer {
-		IWindow w;
-
-		GlkHyperConsumer(IWindow win) {
-			w = win;
-		}
-
-		public void consume(int val) {
-			GlkEvent e = new GlkEvent();
-			e.type = EVTYPE_HYPERLINK;
-			e.win = w;
-			e.val1 = val;
-			e.val2 = 0;
-
-			addEvent(e);
-		}
-	}
-
-	static class GlkCharConsumer implements CharInputConsumer {
-		IWindow w;
-
-		GlkCharConsumer(IWindow win) {
-			w = win;
-		}
-
-		public void consume(java.awt.event.KeyEvent e) {
-			GlkEvent ev = new GlkEvent();
-			ev.type = EVTYPE_CHAR_INPUT;
-			ev.win = w;
-			ev.val1 = e.getKeyChar();
-			ev.val2 = 0;
-
-			switch (ev.val1) {
-			case 9:
-				ev.val1 = KEYCODE_TAB;
-				break;
-			case 10:
-			case 13:
-				ev.val1 = KEYCODE_RETURN;
-				break;
-			case 27:
-				ev.val1 = KEYCODE_ESCAPE;
-				break;
-			case 127:
-				ev.val1 = KEYCODE_DELETE;
-				break;
-			case KeyEvent.CHAR_UNDEFINED:
-				switch (e.getKeyCode()) {
-				case KeyEvent.VK_LEFT:
-					ev.val1 = KEYCODE_LEFT;
-					break;
-				case KeyEvent.VK_RIGHT:
-					ev.val1 = KEYCODE_RIGHT;
-					break;
-				case KeyEvent.VK_UP:
-					ev.val1 = KEYCODE_UP;
-					break;
-				case KeyEvent.VK_DOWN:
-					ev.val1 = KEYCODE_DOWN;
-					break;
-				case KeyEvent.VK_ENTER:
-					ev.val1 = KEYCODE_RETURN;
-					break;
-				case KeyEvent.VK_DELETE:
-					ev.val1 = KEYCODE_DELETE;
-					break;
-				case KeyEvent.VK_ESCAPE:
-					ev.val1 = KEYCODE_ESCAPE;
-					break;
-				case KeyEvent.VK_TAB:
-					ev.val1 = KEYCODE_TAB;
-					break;
-				case KeyEvent.VK_PAGE_UP:
-					ev.val1 = KEYCODE_PAGE_UP;
-					break;
-				case KeyEvent.VK_PAGE_DOWN:
-					ev.val1 = KEYCODE_PAGE_DOWN;
-					break;
-				case KeyEvent.VK_HOME:
-					ev.val1 = KEYCODE_HOME;
-					break;
-				case KeyEvent.VK_END:
-					ev.val1 = KEYCODE_END;
-					break;
-				case KeyEvent.VK_F1:
-					ev.val1 = KEYCODE_FUNC1;
-					break;
-				case KeyEvent.VK_F2:
-					ev.val1 = KEYCODE_FUNC2;
-					break;
-				case KeyEvent.VK_F3:
-					ev.val1 = KEYCODE_FUNC3;
-					break;
-				case KeyEvent.VK_F4:
-					ev.val1 = KEYCODE_FUNC4;
-					break;
-				case KeyEvent.VK_F5:
-					ev.val1 = KEYCODE_FUNC5;
-					break;
-				case KeyEvent.VK_F6:
-					ev.val1 = KEYCODE_FUNC6;
-					break;
-				case KeyEvent.VK_F7:
-					ev.val1 = KEYCODE_FUNC7;
-					break;
-				case KeyEvent.VK_F8:
-					ev.val1 = KEYCODE_FUNC8;
-					break;
-				case KeyEvent.VK_F9:
-					ev.val1 = KEYCODE_FUNC9;
-					break;
-				case KeyEvent.VK_F10:
-					ev.val1 = KEYCODE_FUNC10;
-					break;
-				case KeyEvent.VK_F11:
-					ev.val1 = KEYCODE_FUNC11;
-					break;
-				case KeyEvent.VK_F12:
-					ev.val1 = KEYCODE_FUNC12;
-					break;
-				default:
-					ev.val1 = KEYCODE_UNKNOWN;
-				}
-				break;
-			default:
-			}
-
-			addEvent(ev);
-		}
-	}
-
-	static class GlkLineConsumer implements LineInputConsumer {
-		IWindow w;
-		ByteBuffer b;
-		boolean unicode;
-
-		GlkLineConsumer(IWindow win, ByteBuffer buf, boolean unicode) {
-			w = win;
-			b = buf;
-			this.unicode = unicode;
-		}
-
-		public void consume(String s) {
-			GlkEvent ev = new GlkEvent();
-			cancel(s);
-			ev.type = EVTYPE_LINE_INPUT;
-			ev.win = w;
-			ev.val1 = s.length();
-			ev.val2 = 0;
-			addEvent(ev);
-		}
-
-		public void cancel(String s) {
-			int l = s.length();
-			if (unicode) {
-				// fixme does not handle astral plane
-				for (int i = 0; i < l; i++)
-					b.putInt(i * 4, s.charAt(i));
-			} else {
-				for (int i = 0; i < l; i++)
-					b.put(i, (byte) s.charAt(i));
-			}
-		}
-	}
-
-	static class GlkMouseConsumer implements MouseInputConsumer {
-		IWindow w;
-
-		GlkMouseConsumer(IWindow win) {
-			w = win;
-		}
-
-		public void consume(int x, int y) {
-			GlkEvent e = new GlkEvent();
-			e.type = EVTYPE_MOUSE_INPUT;
-			e.win = w;
-			e.val1 = x;
-			e.val2 = y;
-			addEvent(e);
-		}
-	}
-
-	static final class HashCodeComparator implements Comparator {
-		public int compare(Object o1, Object o2) {
-			return o1.hashCode() - o2.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			return o == this;
 		}
 	}
 }

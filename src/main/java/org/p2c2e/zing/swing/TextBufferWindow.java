@@ -40,6 +40,7 @@ import javax.swing.SwingUtilities;
 
 import org.p2c2e.zing.CharInputConsumer;
 import org.p2c2e.zing.HyperlinkInputConsumer;
+import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.Int;
 import org.p2c2e.zing.LineInputConsumer;
 import org.p2c2e.zing.ObjectCallback;
@@ -208,7 +209,7 @@ public final class TextBufferWindow extends Window {
 	}
 
 	@Override
-	protected void doLayout() {
+	public void doLayout() {
 		if (lastLineDirty) {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
@@ -273,19 +274,19 @@ public final class TextBufferWindow extends Window {
 
 		if (s != null) {
 			switch (hint) {
-			case Glk.STYLEHINT_INDENTATION:
+			case IGlk.STYLEHINT_INDENTATION:
 				result = (int) ((s.leftIndent * 0.03) * (viewWidth - (2 * H_MARGIN)));
 				break;
-			case Glk.STYLEHINT_PARA_INDENTATION:
+			case IGlk.STYLEHINT_PARA_INDENTATION:
 				result = (int) ((s.parIndent * 0.03) * (viewWidth - (2 * H_MARGIN)));
 				break;
-			case Glk.STYLEHINT_JUSTIFICATION:
+			case IGlk.STYLEHINT_JUSTIFICATION:
 				result = s.justification;
 				break;
-			case Glk.STYLEHINT_SIZE:
+			case IGlk.STYLEHINT_SIZE:
 				result = s.size;
 				break;
-			case Glk.STYLEHINT_WEIGHT:
+			case IGlk.STYLEHINT_WEIGHT:
 				if (s.weight == TextAttribute.WEIGHT_BOLD
 						|| s.weight == TextAttribute.WEIGHT_DEMIBOLD
 						|| s.weight == TextAttribute.WEIGHT_EXTRABOLD
@@ -298,19 +299,19 @@ public final class TextBufferWindow extends Window {
 				else
 					result = -1;
 				break;
-			case Glk.STYLEHINT_OBLIQUE:
+			case IGlk.STYLEHINT_OBLIQUE:
 				result = (s.isOblique ? 1 : 0);
 				break;
-			case Glk.STYLEHINT_PROPORTIONAL:
+			case IGlk.STYLEHINT_PROPORTIONAL:
 				result = (s.isMonospace() ? 0 : 1);
 				break;
-			case Glk.STYLEHINT_TEXT_COLOR:
-				result = Glk.colorToInt(s.textColor);
+			case IGlk.STYLEHINT_TEXT_COLOR:
+				result = Glk.getInstance().colorToInt(s.textColor);
 				break;
-			case Glk.STYLEHINT_BACK_COLOR:
-				result = Glk.colorToInt(s.backColor);
+			case IGlk.STYLEHINT_BACK_COLOR:
+				result = Glk.getInstance().colorToInt(s.backColor);
 				break;
-			case Glk.STYLEHINT_REVERSE_COLOR:
+			case IGlk.STYLEHINT_REVERSE_COLOR:
 				result = ((unhinted.textColor == s.backColor && unhinted.backColor == s.textColor) ? 1
 						: 0);
 				break;

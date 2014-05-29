@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.BevelBorder;
 
+import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.Style;
 
 public class PreferencePane extends JPanel implements ActionListener {
@@ -57,8 +58,8 @@ public class PreferencePane extends JPanel implements ActionListener {
 		bbox.add(okay);
 
 		JTabbedPane jtp = new JTabbedPane();
-		bsp = new StyleEditPane(Glk.WINTYPE_TEXT_BUFFER);
-		gsp = new StyleEditPane(Glk.WINTYPE_TEXT_GRID);
+		bsp = new StyleEditPane(IGlk.WINTYPE_TEXT_BUFFER);
+		gsp = new StyleEditPane(IGlk.WINTYPE_TEXT_GRID);
 		jtp.add("Story Windows", bsp);
 		jtp.add("Grid Windows", gsp);
 		add(jtp);
@@ -99,7 +100,7 @@ public class PreferencePane extends JPanel implements ActionListener {
 		StyleEditPane(int iType) {
 			super();
 			type = iType;
-			styles = new Style[Glk.STYLE_NUMSTYLES];
+			styles = new Style[IGlk.STYLE_NUMSTYLES];
 
 			BoxLayout layout = new BoxLayout(this, BoxLayout.Y_AXIS);
 			setLayout(layout);
@@ -109,9 +110,9 @@ public class PreferencePane extends JPanel implements ActionListener {
 			styleCombo = new JComboBox();
 			styleCombo.setActionCommand("change-style");
 
-			for (int i = 0; i < Glk.STYLE_NUMSTYLES; i++) {
-				styles[i] = (Style) Style.getStyle(Glk.STYLES[i], type).clone();
-				styleCombo.addItem(Glk.STYLES[i]);
+			for (int i = 0; i < IGlk.STYLE_NUMSTYLES; i++) {
+				styles[i] = (Style) Style.getStyle(IGlk.STYLES[i], type).clone();
+				styleCombo.addItem(IGlk.STYLES[i]);
 			}
 
 			styleBox.add(styleCombo);
@@ -136,7 +137,7 @@ public class PreferencePane extends JPanel implements ActionListener {
 		}
 
 		void applyStyles() {
-			for (int i = 0; i < Glk.STYLE_NUMSTYLES; i++) {
+			for (int i = 0; i < IGlk.STYLE_NUMSTYLES; i++) {
 				styles[i].setMap(null);
 				Style.addStyle(styles[i], type);
 			}

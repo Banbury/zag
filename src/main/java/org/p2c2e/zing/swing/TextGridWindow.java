@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 
 import org.p2c2e.zing.CharInputConsumer;
 import org.p2c2e.zing.HyperlinkInputConsumer;
+import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.Int;
 import org.p2c2e.zing.LineInputConsumer;
 import org.p2c2e.zing.MouseInputConsumer;
@@ -58,7 +59,7 @@ public class TextGridWindow extends Window {
 	}
 
 	@Override
-	protected void doLayout() {
+	public void doLayout() {
 		if (drawBackground) {
 			panel.repaint();
 		} else {
@@ -278,19 +279,19 @@ public class TextGridWindow extends Window {
 
 		if (s != null) {
 			switch (hint) {
-			case Glk.STYLEHINT_INDENTATION:
+			case IGlk.STYLEHINT_INDENTATION:
 				result = 0;
 				break;
-			case Glk.STYLEHINT_PARA_INDENTATION:
+			case IGlk.STYLEHINT_PARA_INDENTATION:
 				result = 0;
 				break;
-			case Glk.STYLEHINT_JUSTIFICATION:
+			case IGlk.STYLEHINT_JUSTIFICATION:
 				result = 0;
 				break;
-			case Glk.STYLEHINT_SIZE:
+			case IGlk.STYLEHINT_SIZE:
 				result = s.size;
 				break;
-			case Glk.STYLEHINT_WEIGHT:
+			case IGlk.STYLEHINT_WEIGHT:
 				if (s.weight == TextAttribute.WEIGHT_BOLD
 						|| s.weight == TextAttribute.WEIGHT_DEMIBOLD
 						|| s.weight == TextAttribute.WEIGHT_EXTRABOLD
@@ -303,19 +304,19 @@ public class TextGridWindow extends Window {
 				else
 					result = -1;
 				break;
-			case Glk.STYLEHINT_OBLIQUE:
+			case IGlk.STYLEHINT_OBLIQUE:
 				result = (s.isOblique ? 1 : 0);
 				break;
-			case Glk.STYLEHINT_PROPORTIONAL:
+			case IGlk.STYLEHINT_PROPORTIONAL:
 				result = (s.isMonospace() ? 0 : 1);
 				break;
-			case Glk.STYLEHINT_TEXT_COLOR:
-				result = Glk.colorToInt(s.textColor);
+			case IGlk.STYLEHINT_TEXT_COLOR:
+				result = Glk.getInstance().colorToInt(s.textColor);
 				break;
-			case Glk.STYLEHINT_BACK_COLOR:
-				result = Glk.colorToInt(s.backColor);
+			case IGlk.STYLEHINT_BACK_COLOR:
+				result = Glk.getInstance().colorToInt(s.backColor);
 				break;
-			case Glk.STYLEHINT_REVERSE_COLOR:
+			case IGlk.STYLEHINT_REVERSE_COLOR:
 				result = ((unhinted.textColor == s.backColor && unhinted.backColor == s.textColor) ? 1
 						: 0);
 				break;
@@ -384,7 +385,7 @@ public class TextGridWindow extends Window {
 	}
 
 	@Override
-	protected synchronized boolean requestMouseInput(MouseInputConsumer mic) {
+	public synchronized boolean requestMouseInput(MouseInputConsumer mic) {
 		if (mouseConsumer == null) {
 			mouseConsumer = mic;
 			return true;
@@ -398,7 +399,7 @@ public class TextGridWindow extends Window {
 	}
 
 	@Override
-	protected synchronized boolean requestCharacterInput(CharInputConsumer cic) {
+	public synchronized boolean requestCharacterInput(CharInputConsumer cic) {
 		if (charConsumer != null || lineConsumer != null)
 			return false;
 
@@ -413,7 +414,7 @@ public class TextGridWindow extends Window {
 	}
 
 	@Override
-	protected synchronized boolean requestLineInput(LineInputConsumer lic,
+	public synchronized boolean requestLineInput(LineInputConsumer lic,
 			String initContents, int max) {
 		if (charConsumer != null || lineConsumer != null)
 			return false;

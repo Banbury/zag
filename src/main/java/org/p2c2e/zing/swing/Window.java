@@ -22,6 +22,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
 import org.p2c2e.zing.CharInputConsumer;
+import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.IWindow;
 import org.p2c2e.zing.Int;
 import org.p2c2e.zing.LineInputConsumer;
@@ -127,7 +128,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 		return 0;
 	}
 
-	protected void doLayout() {
+	public void doLayout() {
 		panel.repaint();
 	}
 
@@ -367,27 +368,27 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 		return 0;
 	}
 
-	protected boolean requestMouseInput(MouseInputConsumer c) {
+	public boolean requestMouseInput(MouseInputConsumer c) {
 		return false;
 	}
 
-	protected boolean requestCharacterInput(CharInputConsumer c) {
+	public boolean requestCharacterInput(CharInputConsumer c) {
 		return false;
 	}
 
-	protected boolean requestLineInput(LineInputConsumer c, String init, int max) {
+	public boolean requestLineInput(LineInputConsumer c, String init, int max) {
 		return false;
 	}
 
-	protected void cancelMouseInput() {
+	public void cancelMouseInput() {
 
 	}
 
-	protected void cancelCharacterInput() {
+	public void cancelCharacterInput() {
 
 	}
 
-	protected String cancelLineInput() {
+	public String cancelLineInput() {
 		return null;
 	}
 
@@ -455,14 +456,14 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 				Preferences bufp = Preferences.userRoot().node(
 						"/org/p2c2e/zing/style/buffer");
 
-				for (int i = 0; i < Glk.STYLE_NUMSTYLES; i++) {
-					Style s = Style.getStyle(Glk.STYLES[i],
-							Glk.WINTYPE_TEXT_BUFFER);
-					Style.saveStyle(bufp, s);
+				for (int i = 0; i < IGlk.STYLE_NUMSTYLES; i++) {
+					Style s = Style.getStyle(IGlk.STYLES[i],
+							IGlk.WINTYPE_TEXT_BUFFER);
+					Style.saveStyle(Glk.getInstance(), bufp, s);
 
-					s = Style.getStyle(Glk.STYLES[i], Glk.WINTYPE_TEXT_GRID);
+					s = Style.getStyle(IGlk.STYLES[i], IGlk.WINTYPE_TEXT_GRID);
 
-					Style.saveStyle(gridp, s);
+					Style.saveStyle(Glk.getInstance(), gridp, s);
 				}
 			} catch (BackingStoreException ex) {
 				ex.printStackTrace();

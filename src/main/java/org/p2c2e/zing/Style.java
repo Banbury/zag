@@ -13,7 +13,6 @@ import java.util.prefs.Preferences;
 
 import javax.swing.RootPaneContainer;
 
-import org.p2c2e.zing.swing.Glk;
 import org.p2c2e.zing.swing.Window;
 
 public class Style implements Cloneable {
@@ -45,9 +44,13 @@ public class Style implements Cloneable {
 	boolean isMonospace;
 	boolean isHyperlinked;
 
-	public Style(FontRenderContext frc, String name, String fam, int s,
-			Float w, boolean oblique, boolean underline, int l, int r, int p,
-			int just, Color t, Color b) {
+	private IGlk glk;
+
+	public Style(IGlk glk, FontRenderContext frc, String name, String fam,
+			int s, Float w, boolean oblique, boolean underline, int l, int r,
+			int p, int just, Color t, Color b) {
+		this.glk = glk;
+
 		this.name = name;
 		family = fam;
 		size = s;
@@ -138,13 +141,13 @@ public class Style implements Cloneable {
 	}
 
 	public static Style getStyle(String name, int winType) {
-		if (winType == IWindow.TEXT_GRID || winType == Glk.WINTYPE_ALL_TYPES)
+		if (winType == IWindow.TEXT_GRID || winType == IGlk.WINTYPE_ALL_TYPES)
 			return (Style) GRID_STYLES.get(name);
 		else
 			return (Style) BUFFER_STYLES.get(name);
 	}
 
-	public static void saveStyle(Preferences p, Style s)
+	public static void saveStyle(IGlk glk, Preferences p, Style s)
 			throws BackingStoreException {
 		p = p.node(s.name);
 		p.put("typeface", s.family);
@@ -156,8 +159,8 @@ public class Style implements Cloneable {
 		p.putInt("right-indent", s.rightIndent);
 		p.putInt("paragraph-indent", s.parIndent);
 		p.putInt("justification", s.justification);
-		p.putInt("text-color", Glk.colorToInt(s.textColor));
-		p.putInt("back-color", Glk.colorToInt(s.backColor));
+		p.putInt("text-color", glk.colorToInt(s.textColor));
+		p.putInt("back-color", glk.colorToInt(s.backColor));
 		p.flush();
 	}
 
@@ -177,7 +180,7 @@ public class Style implements Cloneable {
 		map.put(TextAttribute.FOREGROUND, textColor);
 	}
 
-	public static void setupStyles(RootPaneContainer f) {
+	public static void setupStyles(IGlk glk, RootPaneContainer f) {
 		FontRenderContext frc = ((Graphics2D) f.getContentPane().getGraphics())
 				.getFontRenderContext();
 
@@ -188,98 +191,98 @@ public class Style implements Cloneable {
 
 		USE_HINTS = stylep.getBoolean("use-hints", true);
 
-		for (int i = 0; i < Glk.STYLE_NUMSTYLES; i++) {
+		for (int i = 0; i < IGlk.STYLE_NUMSTYLES; i++) {
 			Style.addStyle(
-					constructStyle(frc, gridp, i, Glk.WINTYPE_TEXT_GRID),
-					Glk.WINTYPE_TEXT_GRID);
+					constructStyle(glk, frc, gridp, i, IGlk.WINTYPE_TEXT_GRID),
+					IGlk.WINTYPE_TEXT_GRID);
 			Style.addStyle(
-					constructStyle(frc, bufp, i, Glk.WINTYPE_TEXT_BUFFER),
-					Glk.WINTYPE_TEXT_BUFFER);
+					constructStyle(glk, frc, bufp, i, IGlk.WINTYPE_TEXT_BUFFER),
+					IGlk.WINTYPE_TEXT_BUFFER);
 		}
 	}
 
-	static Style constructStyle(FontRenderContext frc, Preferences p, int i,
-			int type) {
-		String stName = Glk.STYLES[i];
+	private static Style constructStyle(IGlk glk, FontRenderContext frc,
+			Preferences p, int i, int type) {
+		String stName = IGlk.STYLES[i];
 		p = p.node(stName);
 
 		String stFam;
 		int iSize;
 
 		if (Window.OVERRIDE_PROPORTIONAL_FONT
-				&& type == Glk.WINTYPE_TEXT_BUFFER
-				&& i != Glk.STYLE_PREFORMATTED)
+				&& type == IGlk.WINTYPE_TEXT_BUFFER
+				&& i != IGlk.STYLE_PREFORMATTED)
 			stFam = Window.DEFAULT_PROPORTIONAL_FONT;
 		else if (Window.OVERRIDE_FIXED_FONT
-				&& (type == Glk.WINTYPE_TEXT_GRID || i == Glk.STYLE_PREFORMATTED))
+				&& (type == IGlk.WINTYPE_TEXT_GRID || i == IGlk.STYLE_PREFORMATTED))
 			stFam = Window.DEFAULT_FIXED_FONT;
 		else
 			stFam = p
 					.get("typeface",
-							(type == Glk.WINTYPE_TEXT_GRID || i == Glk.STYLE_PREFORMATTED) ? Window.DEFAULT_FIXED_FONT
+							(type == IGlk.WINTYPE_TEXT_GRID || i == IGlk.STYLE_PREFORMATTED) ? Window.DEFAULT_FIXED_FONT
 									: Window.DEFAULT_PROPORTIONAL_FONT);
 
-		if (Window.OVERRIDE_PROP_FONT_SIZE && type == Glk.WINTYPE_TEXT_BUFFER
-				&& i != Glk.STYLE_PREFORMATTED)
+		if (Window.OVERRIDE_PROP_FONT_SIZE && type == IGlk.WINTYPE_TEXT_BUFFER
+				&& i != IGlk.STYLE_PREFORMATTED)
 			iSize = Window.DEFAULT_PROP_FONT_SIZE;
 		else if (Window.OVERRIDE_FIXED_FONT_SIZE
-				&& (type == Glk.WINTYPE_TEXT_GRID || i == Glk.STYLE_PREFORMATTED))
+				&& (type == IGlk.WINTYPE_TEXT_GRID || i == IGlk.STYLE_PREFORMATTED))
 			iSize = Window.DEFAULT_FIXED_FONT_SIZE;
 		else
 			iSize = p
 					.getInt("font-size",
-							(type == Glk.WINTYPE_TEXT_GRID) ? Window.DEFAULT_FIXED_FONT_SIZE
+							(type == IGlk.WINTYPE_TEXT_GRID) ? Window.DEFAULT_FIXED_FONT_SIZE
 									: Window.DEFAULT_PROP_FONT_SIZE);
 		Float ofWeight = new Float(
 				p.getFloat(
 						"font-weight",
-						(i == Glk.STYLE_INPUT || i == Glk.STYLE_SUBHEADER) ? TextAttribute.WEIGHT_BOLD
+						(i == IGlk.STYLE_INPUT || i == IGlk.STYLE_SUBHEADER) ? TextAttribute.WEIGHT_BOLD
 								.floatValue() : TextAttribute.WEIGHT_REGULAR
 								.floatValue()));
 
 		boolean bItalic = p
 				.getBoolean(
 						"font-italic",
-						(i == Glk.STYLE_EMPHASIZED || (type == Glk.WINTYPE_TEXT_GRID && (i == Glk.STYLE_ALERT || i == Glk.STYLE_NOTE))));
+						(i == IGlk.STYLE_EMPHASIZED || (type == IGlk.WINTYPE_TEXT_GRID && (i == IGlk.STYLE_ALERT || i == IGlk.STYLE_NOTE))));
 		boolean bUnderlined = p.getBoolean("font-underline", false);
 		int iLeft = p
 				.getInt("left-indent",
-						(type == Glk.WINTYPE_TEXT_BUFFER && i == Glk.STYLE_BLOCKQUOTE) ? 2
+						(type == IGlk.WINTYPE_TEXT_BUFFER && i == IGlk.STYLE_BLOCKQUOTE) ? 2
 								: 0);
 		int iRight = p
 				.getInt("right-indent",
-						(type == Glk.WINTYPE_TEXT_BUFFER && i == Glk.STYLE_BLOCKQUOTE) ? 2
+						(type == IGlk.WINTYPE_TEXT_BUFFER && i == IGlk.STYLE_BLOCKQUOTE) ? 2
 								: 0);
 		int iPar = p
 				.getInt("paragraph-indent",
-						(type == Glk.WINTYPE_TEXT_BUFFER && (i != Glk.STYLE_HEADER
-								&& i != Glk.STYLE_SUBHEADER
-								&& i != Glk.STYLE_PREFORMATTED
-								&& i != Glk.STYLE_BLOCKQUOTE && i != Glk.STYLE_INPUT)) ? 1
+						(type == IGlk.WINTYPE_TEXT_BUFFER && (i != IGlk.STYLE_HEADER
+								&& i != IGlk.STYLE_SUBHEADER
+								&& i != IGlk.STYLE_PREFORMATTED
+								&& i != IGlk.STYLE_BLOCKQUOTE && i != IGlk.STYLE_INPUT)) ? 1
 								: 0);
 		int iJust = p
 				.getInt("justification",
-						(type == Glk.WINTYPE_TEXT_BUFFER && (i != Glk.STYLE_HEADER
-								&& i != Glk.STYLE_SUBHEADER
-								&& i != Glk.STYLE_PREFORMATTED && i != Glk.STYLE_INPUT)) ? Style.LEFT_RIGHT_FLUSH
+						(type == IGlk.WINTYPE_TEXT_BUFFER && (i != IGlk.STYLE_HEADER
+								&& i != IGlk.STYLE_SUBHEADER
+								&& i != IGlk.STYLE_PREFORMATTED && i != IGlk.STYLE_INPUT)) ? Style.LEFT_RIGHT_FLUSH
 								: Style.LEFT_FLUSH);
 
 		Color cText;
-		int iText = Glk.colorToInt(Color.black);
-		if (type == Glk.WINTYPE_TEXT_GRID && i == Glk.STYLE_ALERT) {
-			iText = Glk.colorToInt(Color.red);
-		} else if (type == Glk.WINTYPE_TEXT_BUFFER) {
-			if (i == Glk.STYLE_ALERT)
-				iText = Glk.colorToInt(Color.red);
-			else if (i == Glk.STYLE_NOTE)
-				iText = Glk.colorToInt(Color.cyan);
+		int iText = glk.colorToInt(Color.black);
+		if (type == IGlk.WINTYPE_TEXT_GRID && i == IGlk.STYLE_ALERT) {
+			iText = glk.colorToInt(Color.red);
+		} else if (type == IGlk.WINTYPE_TEXT_BUFFER) {
+			if (i == IGlk.STYLE_ALERT)
+				iText = glk.colorToInt(Color.red);
+			else if (i == glk.STYLE_NOTE)
+				iText = glk.colorToInt(Color.cyan);
 		}
 
-		cText = Glk.intToColor(p.getInt("text-color", iText));
+		cText = glk.intToColor(p.getInt("text-color", iText));
 
-		Color cBack = Glk.intToColor(p.getInt("back-color", 0x00ffffff));
+		Color cBack = glk.intToColor(p.getInt("back-color", 0x00ffffff));
 
-		return new Style(frc, stName, stFam, iSize, ofWeight, bItalic,
+		return new Style(glk, frc, stName, stFam, iSize, ofWeight, bItalic,
 				bUnderlined, iLeft, iRight, iPar, iJust, cText, cBack);
 	}
 

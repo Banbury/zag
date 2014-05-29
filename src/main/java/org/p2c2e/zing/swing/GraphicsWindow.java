@@ -38,7 +38,7 @@ public class GraphicsWindow extends Window {
 	}
 
 	@Override
-	protected void doLayout() {
+	public void doLayout() {
 		if (change) {
 			panel.repaint();
 			change = false;
@@ -159,7 +159,7 @@ public class GraphicsWindow extends Window {
 	}
 
 	@Override
-	protected synchronized boolean requestMouseInput(MouseInputConsumer mic) {
+	public synchronized boolean requestMouseInput(MouseInputConsumer mic) {
 		if (mouseConsumer == null) {
 			mouseConsumer = mic;
 			return true;

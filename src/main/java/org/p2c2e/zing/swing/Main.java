@@ -50,7 +50,7 @@ import org.p2c2e.blorb.BlorbFile;
 import org.p2c2e.blorb.NotBlorbException;
 import org.p2c2e.zag.GlulxException;
 import org.p2c2e.zag.Zag;
-import org.p2c2e.zing.MaskArea;
+import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.ObjectCallback;
 import org.p2c2e.zing.Style;
 
@@ -139,7 +139,8 @@ public class Main {
 		Rectangle rect = getDefaultFrameRect();
 		String filename = (argv.length > 0) ? argv[0] : null;
 		String conf = (argv.length > 1) ? argv[1] : null;
-		StatusPane status = Glk.getStatusPane();
+		Glk glk = Glk.getInstance();
+		StatusPane status = glk.getStatusPane();
 
 		config = getConfig(conf, rect);
 
@@ -161,9 +162,9 @@ public class Main {
 			frame.setJMenuBar(menubar);
 		}
 		frame.show();
-		Glk.setFrame(frame, config.decorate, config.borders, config.propFont,
+		glk.setFrame(frame, config.decorate, config.borders, config.propFont,
 				config.fixedFont, config.pFontSize, config.fFontSize);
-		Glk.setMorePromptCallback(new StatusMoreCallback((GlassPane) frame
+		glk.setMorePromptCallback(new StatusMoreCallback((GlassPane) frame
 				.getRootPane().getGlassPane(), status, config.decorate));
 
 		hintitem.setState(Style.usingHints());
@@ -199,11 +200,11 @@ public class Main {
 				if (config.decorate)
 					status.show(StatusPane.BLANK);
 
-				Glk.reset();
+				glk.reset();
 				open(f, config);
-				Glk.flush();
+				glk.flush();
 				if (specialConfig)
-					Glk.exit();
+					glk.exit();
 				else
 					status.show(StatusPane.EXIT);
 
@@ -228,7 +229,7 @@ public class Main {
 		try {
 			BlorbFile.Chunk chunk;
 			BlorbFile bf = new BlorbFile(fi);
-			Glk.setBlorbFile(bf);
+			Glk.getInstance().setBlorbFile(bf);
 
 			if (!config.decorate && config.mask >= 0)
 				((GlassPane) frame.getRootPane().getGlassPane())
@@ -265,7 +266,7 @@ public class Main {
 		}
 
 		try {
-			z = new Zag(fi, iStart);
+			z = new Zag(Glk.getInstance(), fi, iStart);
 			z.start();
 			return true;
 		} catch (GlulxException eG) {
@@ -294,6 +295,7 @@ public class Main {
 
 		public void actionPerformed(ActionEvent e) {
 			String st = e.getActionCommand();
+			IGlk glk = Glk.getInstance();
 
 			if ("file-open".equals(st)) {
 				synchronized (o) {
@@ -326,7 +328,7 @@ public class Main {
 				}
 			} else if ("file-close".equals(st)) {
 				if (specialConfig) {
-					Glk.exit();
+					glk.exit();
 				} else if (z != null) {
 					z.setRunning(false);
 					Glk.addEvent(new Glk.GlkEvent());
@@ -347,7 +349,7 @@ public class Main {
 					eBack.printStackTrace();
 				}
 
-				Glk.exit();
+				glk.exit();
 			} else if ("edit-preferences".equals(st)) {
 				prefitem.setEnabled(false);
 				prefFrame.getContentPane().add(
@@ -362,6 +364,7 @@ public class Main {
 	}
 
 	static File loadURL(String stURL) throws IOException {
+		IGlk glk = Glk.getInstance();
 		int total = 0;
 		URL url = new URL(stURL);
 		URLConnection urlcon = url.openConnection();
@@ -380,10 +383,10 @@ public class Main {
 				out.write(buf, 0, iRead);
 				total += iRead;
 				if (len > 0)
-					Glk.progress("Downloading...", 0, len, total);
+					glk.progress("Downloading...", 0, len, total);
 			}
 		}
-		Glk.progress(null, 0, 0, 0);
+		glk.progress(null, 0, 0, 0);
 		out.flush();
 		out.close();
 		in.close();
@@ -514,7 +517,7 @@ public class Main {
 		Area mask;
 
 		void setMask(int i) throws Exception {
-			Image img = Glk.getImage(i, -1, -1);
+			Image img = Glk.getInstance().getImage(i, -1, -1);
 			if (img != null) {
 				Dimension d = getSize();
 				if (img.getWidth(null) == d.getWidth()

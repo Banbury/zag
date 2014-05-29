@@ -2,7 +2,6 @@ package org.p2c2e.zing;
 
 import java.util.*;
 
-import org.p2c2e.zing.swing.Glk;
 
 public class StyleHints implements Cloneable
 {
@@ -101,7 +100,7 @@ public class StyleHints implements Cloneable
   {
     StyleHints hints = null;
 
-    if (winType == IWindow.TEXT_BUFFER || winType == Glk.WINTYPE_ALL_TYPES)
+    if (winType == IWindow.TEXT_BUFFER || winType == IGlk.WINTYPE_ALL_TYPES)
     {
       hints = (StyleHints) BUFFER_HINTS.get(style.name);
 
@@ -111,7 +110,7 @@ public class StyleHints implements Cloneable
         BUFFER_HINTS.put(style.name, hints);
       }
     }
-    if (winType == IWindow.TEXT_GRID || winType == Glk.WINTYPE_ALL_TYPES)
+    if (winType == IWindow.TEXT_GRID || winType == IGlk.WINTYPE_ALL_TYPES)
     {
       hints = (StyleHints) GRID_HINTS.get(style.name);
 

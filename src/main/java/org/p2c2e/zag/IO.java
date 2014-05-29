@@ -12,8 +12,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.p2c2e.util.FastByteBuffer;
+import org.p2c2e.zing.AbstractGlk;
 import org.p2c2e.zing.Dispatch;
 import org.p2c2e.zing.Fileref;
+import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.IWindow;
 import org.p2c2e.zing.InByteBuffer;
 import org.p2c2e.zing.InOutByteBuffer;
@@ -24,11 +26,10 @@ import org.p2c2e.zing.OutByteBuffer;
 import org.p2c2e.zing.OutInt;
 import org.p2c2e.zing.SoundChannel;
 import org.p2c2e.zing.Stream;
-import org.p2c2e.zing.swing.Glk;
 import org.p2c2e.zing.swing.OutWindow;
 import org.p2c2e.zing.swing.Window;
 
-final class IO {
+public final class IO {
 	static final int IFhd = (((byte) 'I') << 24) | (((byte) 'F') << 16)
 			| (((byte) 'h') << 8) | (byte) 'd';
 	static final int CMem = (((byte) 'C') << 24) | (((byte) 'M') << 16)
@@ -77,6 +78,8 @@ final class IO {
 	static final Object[] P9 = new Object[9];
 	static final Object[][] P = { P0, P1, P2, P3, P4, P5, P6, P7, P8, P9 };
 
+	private IGlk glk;
+
 	int sys;
 	int rock;
 
@@ -88,7 +91,8 @@ final class IO {
 
 	HashMap ors;
 
-	IO(Zag z) {
+	public IO(IGlk glk, Zag z) {
+		this.glk = glk;
 		ors = new HashMap();
 		init(z);
 	}
@@ -98,16 +102,16 @@ final class IO {
 		if (stringtbl > 0)
 			htree = new HuffmanTree(z, stringtbl);
 		/*
-		 * if (undoStream != null) { Glk.streamClose(undoStream, null);
+		 * if (undoStream != null) { glk.streamClose(undoStream, null);
 		 * undoStream = null; } if (undoFile != null) {
-		 * Glk.filerefDeleteFile(undoFile); Glk.filerefDestroy(undoFile);
+		 * glk.filerefDeleteFile(undoFile); glk.filerefDestroy(undoFile);
 		 * undoFile = null; } undoData = new LinkedList();
 		 */
 		sys = 0;
 		rock = 0;
 
-		Glk.setCreationCallback(new CreationCallback());
-		Glk.setDestructionCallback(new DestructionCallback());
+		glk.setCreationCallback(new CreationCallback());
+		glk.setDestructionCallback(new DestructionCallback());
 	}
 
 	void wrongNumArgs() {
@@ -181,66 +185,66 @@ final class IO {
 		case PUT_CHAR:
 			if (numargs != 1)
 				wrongNumArgs();
-			Glk.putChar((char) (args[0] & 0xff));
+			glk.putChar((char) (args[0] & 0xff));
 			break;
 		case PUT_CHAR_UNI:
 			if (numargs != 1)
 				wrongNumArgs();
-			Glk.putCharUni(args[0]);
+			glk.putCharUni(args[0]);
 			break;
 		case PUT_CHAR_STREAM:
 			if (numargs != 2)
 				wrongNumArgs();
-			Glk.putCharStream((Stream) ors.get(new Integer(args[0])),
+			glk.putCharStream((Stream) ors.get(new Integer(args[0])),
 					(char) (args[1] & 0xff));
 			break;
 		case PUT_CHAR_STREAM_UNI:
 			if (numargs != 2)
 				wrongNumArgs();
-			Glk.putCharStream((Stream) ors.get(new Integer(args[0])), args[1]);
+			glk.putCharStream((Stream) ors.get(new Integer(args[0])), args[1]);
 			break;
 		case PUT_STRING:
 			if (numargs != 1)
 				wrongNumArgs();
-			Glk.putString(getStringFromMemory(mem, args[0]));
+			glk.putString(getStringFromMemory(mem, args[0]));
 			break;
 		case PUT_STRING_UNI:
 			if (numargs != 1)
 				wrongNumArgs();
-			Glk.putString(getStringFromMemory(mem, args[0]));
+			glk.putString(getStringFromMemory(mem, args[0]));
 			break;
 
 		case PUT_STRING_STREAM:
 		case PUT_STRING_STREAM_UNI:
 			if (numargs != 2)
 				wrongNumArgs();
-			Glk.putStringStream((Stream) ors.get(new Integer(args[0])),
+			glk.putStringStream((Stream) ors.get(new Integer(args[0])),
 					getStringFromMemory(mem, args[1]));
 			break;
 		case PUT_BUFFER:
 			if (numargs != 2)
 				wrongNumArgs();
 			mem.position(args[0]);
-			Glk.putBuffer(new InByteBuffer(mem.slice()), args[1]);
+			glk.putBuffer(new InByteBuffer(mem.slice()), args[1]);
 			break;
 		case PUT_BUFFER_UNI:
 			if (numargs != 2)
 				wrongNumArgs();
 			mem.position(args[0]);
-			Glk.putBufferUni(new InByteBuffer(mem.slice()), args[1]);
+			glk.putBufferUni(new InByteBuffer(mem.slice()), args[1]);
 			break;
 		case PUT_BUFFER_STREAM:
 			if (numargs != 3)
 				wrongNumArgs();
 			mem.position(args[1]);
-			Glk.putBufferStream((Stream) ors.get(new Integer(args[0])),
+			glk.putBufferStream((Stream) ors.get(new Integer(args[0])),
 					new InByteBuffer(mem.slice()), args[2]);
 			break;
 		case PUT_BUFFER_STREAM_UNI:
 			if (numargs != 3)
 				wrongNumArgs();
 			mem.position(args[1]);
-			Glk.putBufferStreamUni((Stream) ors.get(new Integer(args[0])),
+			glk.putBufferStreamUni((Stream) ors.get(new Integer(args[0])),
 					new InByteBuffer(mem.slice()), args[2]);
 			break;
 		case CHAR_TO_LOWER:
@@ -256,18 +260,18 @@ final class IO {
 		case WINDOW_OPEN:
 			if (numargs != 5)
 				wrongNumArgs();
-			ret = Glk.windowOpen((Window) ors.get(new Integer(args[0])),
+			ret = glk.windowOpen((IWindow) ors.get(new Integer(args[0])),
 					args[1], args[2], args[3], args[4]).hashCode();
 			break;
 		case WINDOW_CLEAR:
 			if (numargs != 1)
 				wrongNumArgs();
-			Glk.windowClear((IWindow) ors.get(new Integer(args[0])));
+			glk.windowClear((IWindow) ors.get(new Integer(args[0])));
 			break;
 		case WINDOW_MOVE_CURSOR:
 			if (numargs != 3)
 				wrongNumArgs();
-			Glk.windowMoveCursor((IWindow) ors.get(new Integer(args[0])),
+			glk.windowMoveCursor((IWindow) ors.get(new Integer(args[0])),
 					args[1], args[2]);
 			break;
 		case BUFFER_TO_LOWER_CASE_UNI: {
@@ -371,8 +375,8 @@ final class IO {
 				} else if (c == InOutIntBuffer.class) {
 					mem.position(args[i]);
 					p[i] = new InOutIntBuffer(mem.slice().asIntBuffer());
-				} else if (c == Glk.GlkEvent.class) {
-					p[i] = new Glk.GlkEvent();
+				} else if (c == AbstractGlk.GlkEvent.class) {
+					p[i] = new AbstractGlk.GlkEvent();
 				} else if (c == Stream.Result.class) {
 					p[i] = new Stream.Result();
 				} else if (c == java.awt.Color.class) {
@@ -385,7 +389,7 @@ final class IO {
 
 			Object oRet = null;
 			try {
-				oRet = m.invoke(null, p);
+				oRet = m.invoke(glk, p);
 			} catch (Exception eAccess) {
 				String stError = "Could not dispatch call ["
 						+ Integer.toHexString(selector) + "] to GLK: "
@@ -396,16 +400,16 @@ final class IO {
 				} else {
 					eAccess.printStackTrace();
 				}
-				z.fatal(stError);
+				Zag.fatal(stError);
 			}
 
-			Class retType = (oRet == null) ? null : m.getReturnType();
+			Class<?> retType = (oRet == null) ? null : m.getReturnType();
 
 			for (int i = 0; i < numargs; i++) {
 				c = f[i];
 				addr = args[i];
-				if (c == Glk.GlkEvent.class) {
-					Glk.GlkEvent e = (Glk.GlkEvent) p[i];
+				if (c == AbstractGlk.GlkEvent.class) {
+					AbstractGlk.GlkEvent e = (AbstractGlk.GlkEvent) p[i];
 					if (addr == -1) {
 						z.stack.putInt(z.sp, e.type);
 						z.sp += 4;
@@ -504,7 +508,7 @@ final class IO {
 		switch (sys) {
 		case GLK:
 			for (int i = position; i < len; i++)
-				Glk.putChar(s.charAt(i));
+				glk.putChar(s.charAt(i));
 			if (started) {
 				r = z.popCallstubString();
 				if (r.pc != 0)
@@ -539,7 +543,7 @@ final class IO {
 			z.enterFunction(z.memory, rock, 1, new int[] { c });
 			break;
 		case GLK:
-			Glk.putChar((char) c);
+			glk.putChar((char) c);
 			break;
 		default:
 		}
@@ -552,7 +556,7 @@ final class IO {
 			z.enterFunction(z.memory, rock, 1, new int[] { c });
 			break;
 		case GLK:
-			Glk.putCharUni((char) c);
+			glk.putCharUni((char) c);
 			break;
 		default:
 		}
@@ -619,7 +623,7 @@ final class IO {
 					case 0x02:
 						switch (sys) {
 						case GLK:
-							Glk.putChar((char) ((n.c) & 0xff));
+							glk.putChar((char) ((n.c) & 0xff));
 							break;
 						case FILTER:
 							if (!started) {
@@ -640,7 +644,7 @@ final class IO {
 						switch (sys) {
 						case GLK:
 							z.memory.position(n.addr);
-							Glk.putBuffer(new InByteBuffer(z.memory.slice()),
+							glk.putBuffer(new InByteBuffer(z.memory.slice()),
 									n.numargs);
 							n = troot;
 							break;
@@ -662,7 +666,7 @@ final class IO {
 					case 0x04:
 						switch (sys) {
 						case GLK:
-							Glk.putCharUni(n.u);
+							glk.putCharUni(n.u);
 							break;
 						case FILTER:
 							if (!started) {
@@ -683,7 +687,7 @@ final class IO {
 						switch (sys) {
 						case GLK:
 							z.memory.position(n.addr);
-							Glk.putBufferUni(
+							glk.putBufferUni(
 									new InByteBuffer(z.memory.slice()),
 									n.numargs);
 							n = troot;
@@ -745,7 +749,7 @@ final class IO {
 				switch (sys) {
 				case GLK:
 					while ((ch = z.memory.get(addr++)) != 0)
-						Glk.putChar((char) ((ch) & 0xff));
+						glk.putChar((char) ((ch) & 0xff));
 					break;
 				case FILTER:
 					if (!started) {
@@ -769,7 +773,7 @@ final class IO {
 				switch (sys) {
 				case GLK:
 					while ((uch = z.memory.getInt(addr += 4)) != 0)
-						Glk.putCharUni(uch);
+						glk.putCharUni(uch);
 					break;
 				case FILTER:
 					if (!started) {
@@ -809,9 +813,9 @@ final class IO {
 
 	int saveUndo(Zag z) {
 		if (undoFile == null) {
-			undoFile = Glk.filerefCreateTemp(Glk.FILEUSAGE_DATA
-					| Glk.FILEUSAGE_BINARY_MODE, 0);
-			undoStream = Glk.streamOpenFile(undoFile, Glk.FILEMODE_READ_WRITE,
+			undoFile = glk.filerefCreateTemp(glk.FILEUSAGE_DATA
+					| glk.FILEUSAGE_BINARY_MODE, 0);
+			undoStream = glk.streamOpenFile(undoFile, glk.FILEMODE_READ_WRITE,
 					0);
 		}
 		int pos = undoStream.getPosition();
@@ -838,17 +842,17 @@ final class IO {
 			end = s.getPosition();
 
 			val = savesize.size;
-			s.setPosition(pos + 4, Glk.SEEKMODE_START);
+			s.setPosition(pos + 4, glk.SEEKMODE_START);
 			s.putInt(val);
 
-			s.setPosition(pos + 152, Glk.SEEKMODE_START);
+			s.setPosition(pos + 152, glk.SEEKMODE_START);
 			s.putInt(savesize.memSize);
 
 			s.setPosition(s.getPosition() + savesize.memSize
 					+ (((savesize.memSize & 1) == 0) ? 4 : 5),
-					Glk.SEEKMODE_START);
+					glk.SEEKMODE_START);
 			s.putInt(savesize.stackSize);
-			s.setPosition(end, Glk.SEEKMODE_START);
+			s.setPosition(end, glk.SEEKMODE_START);
 
 			return 0;
 		} catch (IOException e) {
@@ -880,9 +884,9 @@ final class IO {
 
 		try {
 			int pos = ((Integer) undoData.removeFirst()).intValue();
-			undoStream.setPosition(pos, Glk.SEEKMODE_START);
+			undoStream.setPosition(pos, glk.SEEKMODE_START);
 			res = restoreState(z, undoStream) ? 0 : 1;
-			undoStream.setPosition(pos, Glk.SEEKMODE_START);
+			undoStream.setPosition(pos, glk.SEEKMODE_START);
 		} catch (Exception e) {
 			e.printStackTrace();
 			res = 1;
@@ -997,7 +1001,7 @@ final class IO {
 
 			default:
 				chunkSize = in.getInt();
-				in.setPosition(chunkSize, Glk.SEEKMODE_CURRENT);
+				in.setPosition(chunkSize, glk.SEEKMODE_CURRENT);
 			}
 
 			// remoced - DMT

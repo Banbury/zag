@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 import org.p2c2e.util.FastByteBuffer;
-import org.p2c2e.zing.swing.Glk;
+import org.p2c2e.zing.IGlk;
 
 public final class Zag implements OpConstants {
 	File gamefile;
@@ -23,6 +23,7 @@ public final class Zag implements OpConstants {
 	// stack
 	FastByteBuffer stack;
 
+	private IGlk glk;
 	IO io;
 
 	private boolean running;
@@ -61,7 +62,8 @@ public final class Zag implements OpConstants {
 	int num_attr_bytes;
 	int cpv_start;
 
-	public Zag(File gf, int iStart) throws IOException {
+	public Zag(IGlk glk, File gf, int iStart) throws IOException {
+		this.glk = glk;
 		gamefile = gf;
 		fileStartPos = iStart;
 		if (verify(true) != 0)
@@ -112,7 +114,7 @@ public final class Zag implements OpConstants {
 			pc = buf.getInt(24);
 
 			if (io == null)
-				io = new IO(this);
+				io = new IO(glk, this);
 			else
 				io.init(this);
 		} else {
@@ -1111,7 +1113,7 @@ public final class Zag implements OpConstants {
 					new FileInputStream(f.getFD())));
 			for (int i = 0; i < len / 4; i++) {
 				if (progress && ((i & 0x100) != 0))
-					Glk.progress("Verifying file...", 0, (len / 4), i);
+					glk.progress("Verifying file...", 0, (len / 4), i);
 
 				val = in.readInt();
 				sum += (i == 8) ? 0 : val;
@@ -1120,7 +1122,7 @@ public final class Zag implements OpConstants {
 			f.close();
 
 			if (progress)
-				Glk.progress(null, 0, 0, 0);
+				glk.progress(null, 0, 0, 0);
 
 			okay &= (sum == check);
 

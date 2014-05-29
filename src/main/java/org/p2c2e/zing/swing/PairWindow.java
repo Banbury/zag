@@ -70,7 +70,7 @@ public class PairWindow extends Window {
 	}
 
 	@Override
-	protected void doLayout() {
+	public void doLayout() {
 		if (first != null)
 			first.doLayout();
 		if (second != null)
@@ -132,7 +132,7 @@ public class PairWindow extends Window {
 		return keySize;
 	}
 
-	public synchronized void setArrangement(int method, int size, Window keywin) {
+	public synchronized void setArrangement(int method, int size, IWindow keywin) {
 		int placement = (method & 0x0f);
 		int splitType = ((method & FIXED) != 0) ? FIXED : PROPORTIONAL;
 
@@ -143,13 +143,13 @@ public class PairWindow extends Window {
 			keySize = size;
 
 			if (keywin != null) {
-				PairWindow p = keywin.parent;
+				PairWindow p = keywin.getParent();
 
 				while (p != null && p != this)
 					p = p.parent;
 
 				if (p == this)
-					key = keywin;
+					key = (Window) keywin;
 			}
 
 			rearrange(currentBounds);
