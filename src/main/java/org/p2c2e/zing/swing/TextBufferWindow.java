@@ -1408,10 +1408,10 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 
 			synchronized (paragraphs) {
 				np = paragraphs.size();
-				ListIterator pit = paragraphs.listIterator();
+				ListIterator<Paragraph> pit = paragraphs.listIterator();
 
 				for (i = 0; i < np; i++) {
-					p = (Paragraph) pit.next();
+					p = pit.next();
 					l1 = p.lines.getFirst();
 					l2 = p.lines.getLast();
 
@@ -1451,10 +1451,10 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 						}
 
 						nl = p.lines.size();
-						ListIterator lit = p.lines.listIterator();
+						ListIterator<Line> lit = p.lines.listIterator();
 
 						for (j = 0; j < nl; j++) {
-							l1 = (Line) lit.next();
+							l1 = lit.next();
 							r.y = l1.top;
 							r.height = l1.bottom - l1.top;
 

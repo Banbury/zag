@@ -586,6 +586,7 @@ public class Main {
 				int x, y;
 				Graphics2D g2d = (Graphics2D) g;
 				FontRenderContext frc = g2d.getFontRenderContext();
+				frc = new FontRenderContext(null, true, true);
 				Rectangle2D r = GFONT.getStringBounds(stText, frc);
 				LineMetrics m = GFONT.getLineMetrics(stText, frc);
 				int h = getHeight();

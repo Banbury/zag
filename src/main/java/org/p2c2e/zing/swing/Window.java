@@ -279,6 +279,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 		Window w;
 		FontRenderContext context = ((Graphics2D) FRAME.getContentPane()
 				.getGraphics()).getFontRenderContext();
+		context = new FontRenderContext(null, true, true);
 
 		switch (winType) {
 		case BLANK:

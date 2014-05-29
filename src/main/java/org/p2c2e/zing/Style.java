@@ -183,6 +183,7 @@ public class Style implements Cloneable {
 	public static void setupStyles(IGlk glk, RootPaneContainer f) {
 		FontRenderContext frc = ((Graphics2D) f.getContentPane().getGraphics())
 				.getFontRenderContext();
+		frc = new FontRenderContext(null, true, true);
 
 		Preferences stylep = Preferences.userRoot().node(
 				"/org/p2c2e/zing/style");
