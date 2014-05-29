@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -41,6 +42,7 @@ import javax.swing.SwingUtilities;
 import org.p2c2e.zing.CharInputConsumer;
 import org.p2c2e.zing.HyperlinkInputConsumer;
 import org.p2c2e.zing.IGlk;
+import org.p2c2e.zing.ITextBufferWindow;
 import org.p2c2e.zing.Int;
 import org.p2c2e.zing.LineInputConsumer;
 import org.p2c2e.zing.ObjectCallback;
@@ -48,7 +50,7 @@ import org.p2c2e.zing.Style;
 import org.p2c2e.zing.StyleHints;
 import org.p2c2e.zing.TextSplitMeasurer;
 
-public final class TextBufferWindow extends Window {
+public final class TextBufferWindow extends Window implements ITextBufferWindow {
 	static ObjectCallback MORE_CALLBACK;
 
 	static final int H_MARGIN = 15;
@@ -72,19 +74,19 @@ public final class TextBufferWindow extends Window {
 	boolean lastLineDirty = false;
 
 	// This maps positions in the buffer to style changes.
-	TreeMap mStyles;
+	private TreeMap<Integer, Style> mStyles;
 	boolean restyled;
 
 	// This maps positions to graphics
-	TreeMap mMarginGraphics;
-	TreeMap mInlineGraphics;
-	TreeMap mHyperlinks;
+	TreeMap<Integer, MarginImgStruct> mMarginGraphics;
+	TreeMap<Integer, InlineImgStruct> mInlineGraphics;
+	TreeMap<Integer, Integer> mHyperlinks;
 
 	TextBufferPanel view;
 
 	int viewWidth = 0;
 
-	LinkedList paragraphs;
+	LinkedList<Paragraph> paragraphs;
 	Line lastLineSeen = null;
 
 	MediaTracker tracker;
@@ -99,16 +101,16 @@ public final class TextBufferWindow extends Window {
 	int inputHistoryIndex;
 	Style oldStyle;
 	Style nonHyper;
-	LinkedList inputHistory;
+	LinkedList<String> inputHistory;
 
 	public TextBufferWindow(FontRenderContext context) {
 		super(context);
 		buffer = new StringBuffer("\n");
-		mStyles = new TreeMap();
-		mMarginGraphics = new TreeMap();
-		mInlineGraphics = new TreeMap();
-		mHyperlinks = new TreeMap();
-		paragraphs = new LinkedList();
+		mStyles = new TreeMap<Integer, Style>();
+		mMarginGraphics = new TreeMap<Integer, TextBufferWindow.MarginImgStruct>();
+		mInlineGraphics = new TreeMap<Integer, TextBufferWindow.InlineImgStruct>();
+		mHyperlinks = new TreeMap<Integer, Integer>();
+		paragraphs = new LinkedList<TextBufferWindow.Paragraph>();
 		view = new TextBufferPanel();
 		tracker = new MediaTracker(view);
 		oldStyle = curStyle;
@@ -121,7 +123,7 @@ public final class TextBufferWindow extends Window {
 		((JScrollPane) panel).getVerticalScrollBar().setFocusable(false);
 		((JScrollPane) panel).setBorder(null);
 		view.addMouseListener(this);
-		inputHistory = new LinkedList();
+		inputHistory = new LinkedList<String>();
 	}
 
 	@Override
@@ -143,14 +145,14 @@ public final class TextBufferWindow extends Window {
 				oldStyle = oldRep;
 		}
 
-		Map.Entry e;
-		TreeMap mNewStyles = new TreeMap();
-		Iterator it = mStyles.entrySet().iterator();
+		Map.Entry<Integer, Style> e;
+		TreeMap<Integer, Style> mNewStyles = new TreeMap<Integer, Style>();
+		Iterator<Map.Entry<Integer, Style>> it = mStyles.entrySet().iterator();
 
 		while (it.hasNext()) {
-			e = (Map.Entry) it.next();
-			Integer pos = (Integer) e.getKey();
-			Style s = (Style) e.getValue();
+			e = it.next();
+			Integer pos = e.getKey();
+			Style s = e.getValue();
 			Style rep = (Style) hintedStyles.get(s.name);
 
 			mNewStyles.put(pos, ((s.isHyperlinked()) ? rep.getHyperlinked()
@@ -183,11 +185,13 @@ public final class TextBufferWindow extends Window {
 		return pixHeight / (int) m.getHeight();
 	}
 
+	@Override
 	public void requestHyperlinkInput(HyperlinkInputConsumer hic) {
 		if (hyperConsumer == null)
 			hyperConsumer = hic;
 	}
 
+	@Override
 	public void cancelHyperlinkInput() {
 		hyperConsumer = null;
 	}
@@ -336,8 +340,6 @@ public final class TextBufferWindow extends Window {
 	}
 
 	public boolean drawImage(Image img, int align) {
-		char last;
-
 		tracker.addImage(img, imageNum++);
 		try {
 			tracker.waitForAll();
@@ -350,8 +352,7 @@ public final class TextBufferWindow extends Window {
 			int pos = buffer.length();
 
 			// this is a margin image
-			MarginImgStruct s = (MarginImgStruct) mMarginGraphics
-					.get(new Integer(pos));
+			MarginImgStruct s = mMarginGraphics.get(new Integer(pos));
 			if (s == null) {
 				s = new MarginImgStruct();
 				mMarginGraphics.put(new Integer(pos), s);
@@ -391,10 +392,8 @@ public final class TextBufferWindow extends Window {
 	// here we actually have to worry about, for instance, indentation.
 	@Override
 	protected Style createHintedStyle(Style style) {
-		boolean isBold, isItalic;
 		int val;
 		Color tmp;
-		Font newface;
 		Style hintedStyle;
 		StyleHints hints = (StyleHints) mHints.get(style.name);
 
@@ -478,16 +477,14 @@ public final class TextBufferWindow extends Window {
 
 	@Override
 	protected int getSplit(int numLines, int axis) {
-		int split;
-		Dimension d;
-		Insets i;
 		Style normal = (Style) hintedStyles.get("normal");
 
-		split = TextSplitMeasurer.getSplit(panel, numLines, axis, frc, normal,
-				MEASURE_ARR);
+		int split = TextSplitMeasurer.getSplit(panel, numLines, axis, frc,
+				normal, MEASURE_ARR);
 
 		if (axis == BoxLayout.X_AXIS) {
-			d = ((JScrollPane) panel).getVerticalScrollBar().getPreferredSize();
+			Dimension d = ((JScrollPane) panel).getVerticalScrollBar()
+					.getPreferredSize();
 			split += d.width;
 		} else {
 			split += TOP_MARGIN;
@@ -500,7 +497,6 @@ public final class TextBufferWindow extends Window {
 	public void rearrange(Rectangle r) {
 		Dimension d;
 		Insets i;
-		int iNewWidth;
 
 		// I *think* that basically two things need to get done here.
 		// First: we have to set the preferred size. This is pretty trivial.
@@ -535,8 +531,8 @@ public final class TextBufferWindow extends Window {
 		int iParaStart;
 		int iStyleLen;
 		int iFlowBreakPos;
-		ArrayList imgPos;
-		ArrayList breakPos;
+		ArrayList<Integer> imgPos;
+		ArrayList<Integer> breakPos;
 		StringBuffer paraBuf;
 		AttributedString stStyle;
 		int iBuf;
@@ -572,7 +568,7 @@ public final class TextBufferWindow extends Window {
 					break;
 				case FLOW_BREAK:
 					if (breakPos == null)
-						breakPos = new ArrayList();
+						breakPos = new ArrayList<Integer>();
 
 					breakPos.add(new Integer(iBuf));
 					if (iFlowBreakPos < 0)
@@ -581,7 +577,7 @@ public final class TextBufferWindow extends Window {
 					break;
 				case INLINE_IMAGE:
 					if (imgPos == null)
-						imgPos = new ArrayList();
+						imgPos = new ArrayList<Integer>();
 
 					imgPos.add(new Integer(iBuf));
 					paraBuf.append('?');
@@ -625,7 +621,7 @@ public final class TextBufferWindow extends Window {
 				synchronized (paragraphs) {
 					paragraphs.add(para);
 				}
-				lastLine = (Line) para.lines.getLast();
+				lastLine = para.lines.getLast();
 				para = new Paragraph();
 				curLine = new Line();
 				curLine.para = para;
@@ -648,8 +644,8 @@ public final class TextBufferWindow extends Window {
 		// FIXME: margin images may extend further than text, but we have no
 		// way of determining this right now
 		if (!paragraphs.isEmpty()) {
-			p = (Paragraph) paragraphs.getLast();
-			l = (Line) p.lines.getLast();
+			p = paragraphs.getLast();
+			l = p.lines.getLast();
 			v = ((JScrollPane) panel).getViewport();
 			// viewportHeight = v.getHeight();
 			viewportHeight = view.preferredViewportSize.height;
@@ -669,11 +665,10 @@ public final class TextBufferWindow extends Window {
 		if (viewHeight == 0)
 			viewHeight = view.getHeight();
 
-		JScrollPane sp = (JScrollPane) panel;
 		boolean found = false;
 
-		Line l = (lastLineSeen == null) ? (Line) ((Paragraph) paragraphs
-				.getFirst()).lines.getFirst() : lastLineSeen;
+		Line l = (lastLineSeen == null) ? (Line) paragraphs.getFirst().lines
+				.getFirst() : lastLineSeen;
 		int rectBottom = Math.min(l.top + portHeight, viewHeight);
 		Point viewPos = v.getViewPosition();
 		int newY = Math.max(0, rectBottom - portHeight);
@@ -693,15 +688,15 @@ public final class TextBufferWindow extends Window {
 		Line l2 = l;
 		synchronized (paragraphs) {
 			int np = paragraphs.size();
-			ListIterator pit = paragraphs.listIterator(np);
+			ListIterator<Paragraph> pit = paragraphs.listIterator(np);
 			while (!found && pit.hasPrevious()) {
-				Paragraph p = (Paragraph) pit.previous();
+				Paragraph p = pit.previous();
 				int nl = p.lines.size();
-				ListIterator lit = p.lines.listIterator(nl);
+				ListIterator<Line> lit = p.lines.listIterator(nl);
 
 				while (!found && lit.hasPrevious()) {
 					l2 = l;
-					l = (Line) lit.previous();
+					l = lit.previous();
 					if (l.bottom < rectBottom)
 						found = true;
 				}
@@ -719,10 +714,10 @@ public final class TextBufferWindow extends Window {
 		Line l = null;
 		LineBreakMeasurer lbm = new LineBreakMeasurer(s.getIterator(), frc);
 		int nl = para.lines.size();
-		ListIterator lit = para.lines.listIterator();
+		ListIterator<Line> lit = para.lines.listIterator();
 
 		for (i = 0; i < nl; i++) {
-			l = (Line) lit.next();
+			l = lit.next();
 			if (iPos >= l.start && iPos < l.end)
 				break;
 		}
@@ -732,7 +727,7 @@ public final class TextBufferWindow extends Window {
 				l.end--;
 				return true;
 			} else {
-				l = (Line) lit.next();
+				l = lit.next();
 				i++;
 			}
 		}
@@ -773,14 +768,6 @@ public final class TextBufferWindow extends Window {
 
 	void createLines(Paragraph para, AttributedString s, int start, int iLen,
 			Line curLine, Line lastLine) {
-		SortedMap head;
-		Style cur;
-		int indentTotal;
-		int availWidth;
-		int widthBase;
-		TextLayout layout;
-		MarginImgStruct struct;
-		MarginImage mimg;
 		LineBreakMeasurer lbm = new LineBreakMeasurer(s.getIterator(), frc);
 
 		if (curLine == null) {
@@ -806,11 +793,12 @@ public final class TextBufferWindow extends Window {
 			if (para.lines.isEmpty()) {
 				// find the indentation and justification parameters for this
 				// paragraph
-				cur = (Style) mStyles.get(new Integer(start + 1));
+				Style cur = mStyles.get(new Integer(start + 1));
 				if (cur == null) {
-					head = mStyles.headMap(new Integer(start + 1));
+					SortedMap<Integer, Style> head = mStyles
+							.headMap(new Integer(start + 1));
 					if (!head.isEmpty())
-						cur = (Style) mStyles.get(head.lastKey());
+						cur = mStyles.get(head.lastKey());
 					else
 						cur = (Style) hintedStyles.get("normal");
 				}
@@ -820,8 +808,9 @@ public final class TextBufferWindow extends Window {
 				// paragraph.
 				// Why the "+1"? Because the first line of a paragraph always
 				// starts with a newline character.
-				struct = (MarginImgStruct) mMarginGraphics.get(new Integer(
+				MarginImgStruct struct = mMarginGraphics.get(new Integer(
 						curLine.start + 1));
+				MarginImage mimg;
 
 				if (struct != null && struct.left != null) {
 					for (int i = 0; i < struct.left.size(); i++) {
@@ -924,15 +913,15 @@ public final class TextBufferWindow extends Window {
 						+ layout.getLeading() + 2);
 	}
 
-	void replaceImages(AttributedString s, int start, ArrayList imgPos) {
+	void replaceImages(AttributedString s, int start, ArrayList<Integer> imgPos) {
 		ImageGraphicAttribute iga;
 		InlineImgStruct struct;
 		Integer oi;
-		Iterator it = imgPos.iterator();
+		Iterator<Integer> it = imgPos.iterator();
 
 		while (it.hasNext()) {
-			oi = (Integer) it.next();
-			struct = (InlineImgStruct) mInlineGraphics.get(oi);
+			oi = it.next();
+			struct = mInlineGraphics.get(oi);
 
 			switch (struct.align) {
 			case INLINE_UP:
@@ -956,12 +945,13 @@ public final class TextBufferWindow extends Window {
 		}
 	}
 
-	void replaceBreaks(AttributedString s, int start, ArrayList breakPos) {
+	void replaceBreaks(AttributedString s, int start,
+			ArrayList<Integer> breakPos) {
 		Integer oi;
-		Iterator it = breakPos.iterator();
+		Iterator<Integer> it = breakPos.iterator();
 
 		while (it.hasNext()) {
-			oi = (Integer) it.next();
+			oi = it.next();
 			s.addAttribute(TextAttribute.CHAR_REPLACEMENT,
 					FlowBreakAttribute.SINGLETON, oi.intValue() - start,
 					(oi.intValue() + 1) - start);
@@ -970,30 +960,28 @@ public final class TextBufferWindow extends Window {
 	}
 
 	void applyStyles(AttributedString s, int start, int iLen) {
-		Map.Entry e;
-		Iterator it;
 		int iLast = 0;
 		Integer oi = null;
 		int iKey;
-		SortedMap head = mStyles.headMap(new Integer(start));
-		SortedMap sub = mStyles.subMap(new Integer(start), new Integer(start
-				+ iLen));
+		SortedMap<Integer, Style> head = mStyles.headMap(new Integer(start));
+		SortedMap<Integer, Style> sub = mStyles.subMap(new Integer(start),
+				new Integer(start + iLen));
 		Style cur = (Style) hintedStyles.get("normal");
 
 		if (!head.isEmpty())
-			oi = (Integer) head.lastKey();
+			oi = head.lastKey();
 
 		if (oi != null)
-			cur = (Style) mStyles.get(oi);
+			cur = mStyles.get(oi);
 
 		// replace initial newline
 		s.addAttribute(TextAttribute.CHAR_REPLACEMENT,
 				new NewlineAttribute(cur.getMap(), frc), 0, 1);
 
-		it = sub.entrySet().iterator();
+		Iterator<Entry<Integer, Style>> it = sub.entrySet().iterator();
 		while (it.hasNext()) {
-			e = (Map.Entry) it.next();
-			oi = (Integer) e.getKey();
+			Entry<Integer, Style> e = it.next();
+			oi = e.getKey();
 			iKey = oi.intValue();
 
 			if (iKey > start && iKey < start + iLen) {
@@ -1001,7 +989,7 @@ public final class TextBufferWindow extends Window {
 			}
 
 			iLast = iKey - start;
-			cur = (Style) e.getValue();
+			cur = e.getValue();
 		}
 
 		s.addAttributes(cur.getMap(), iLast, iLen);
@@ -1025,7 +1013,7 @@ public final class TextBufferWindow extends Window {
 						- l.top);
 				int pos = thi.getCharIndex() + l.start;
 				Integer oiPos = new Integer(pos);
-				Integer oiVal = (Integer) mHyperlinks.get(oiPos);
+				Integer oiVal = mHyperlinks.get(oiPos);
 
 				if (oiVal == null) {
 					SortedMap m = mHyperlinks.headMap(oiPos);
@@ -1056,7 +1044,7 @@ public final class TextBufferWindow extends Window {
 
 		while (pit.hasPrevious()) {
 			Paragraph p = (Paragraph) pit.previous();
-			int pstart = ((Line) p.lines.getFirst()).top;
+			int pstart = p.lines.getFirst().top;
 
 			if (pstart <= y) {
 				int nl = p.lines.size();
@@ -1106,7 +1094,7 @@ public final class TextBufferWindow extends Window {
 		maxLineInput = max;
 		LameFocusManager.requestFocus(this);
 		if (!mStyles.isEmpty())
-			oldStyle = (Style) mStyles.get(mStyles.lastKey());
+			oldStyle = mStyles.get(mStyles.lastKey());
 		setStyle((Style) hintedStyles.get("input"));
 		if (initContents != null) {
 			if (initContents.length() > max)
@@ -1203,7 +1191,7 @@ public final class TextBufferWindow extends Window {
 
 						buffer.delete(iLineStartPos, buffer.length());
 						iLineCursorPos = iLineStartPos;
-						oldReply = (String) inputHistory.get(inputHistoryIndex);
+						oldReply = inputHistory.get(inputHistoryIndex);
 						inputHistoryIndex++;
 						buffer.append(oldReply);
 						iLineCursorPos += oldReply.length();
@@ -1219,8 +1207,7 @@ public final class TextBufferWindow extends Window {
 						inputHistoryIndex--;
 
 						if (inputHistoryIndex > 0) {
-							newReply = (String) inputHistory
-									.get(inputHistoryIndex - 1);
+							newReply = inputHistory.get(inputHistoryIndex - 1);
 							buffer.append(newReply);
 							iLineCursorPos += newReply.length();
 						}
@@ -1343,10 +1330,10 @@ public final class TextBufferWindow extends Window {
 					}
 				}
 				if (l1 != p1.lines.getFirst()) {
-					l2 = (Line) p1.lines.get(j);
+					l2 = p1.lines.get(j);
 				} else if (p1 != paragraphs.getFirst()) {
-					p2 = (Paragraph) paragraphs.get(i);
-					l2 = (Line) p2.lines.getLast();
+					p2 = paragraphs.get(i);
+					l2 = p2.lines.getLast();
 				}
 			}
 		}
@@ -1425,14 +1412,14 @@ public final class TextBufferWindow extends Window {
 
 				for (i = 0; i < np; i++) {
 					p = (Paragraph) pit.next();
-					l1 = (Line) p.lines.getFirst();
-					l2 = (Line) p.lines.getLast();
+					l1 = p.lines.getFirst();
+					l2 = p.lines.getLast();
 
 					r.y = l1.top;
 					r.height = l2.bottom - l1.top;
 
 					if (r.intersects(clip)) {
-						l1 = (Line) p.lines.getFirst();
+						l1 = p.lines.getFirst();
 
 						mi = l1.leftImg;
 						while (mi != null) {
@@ -1520,10 +1507,10 @@ public final class TextBufferWindow extends Window {
 		Style style;
 		int leftBase = 0;
 		int rightBase = 0;
-		LinkedList lines = new LinkedList();
+		LinkedList<Line> lines = new LinkedList<Line>();
 
 		Line getLastLine() {
-			return (lines.isEmpty() ? null : (Line) lines.getLast());
+			return (lines.isEmpty() ? null : lines.getLast());
 		}
 
 		int getLeftIndent(int availWidth) {

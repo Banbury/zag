@@ -22,6 +22,7 @@ import javax.swing.JPanel;
 import org.p2c2e.zing.CharInputConsumer;
 import org.p2c2e.zing.HyperlinkInputConsumer;
 import org.p2c2e.zing.IGlk;
+import org.p2c2e.zing.ITextGridWindow;
 import org.p2c2e.zing.Int;
 import org.p2c2e.zing.LineInputConsumer;
 import org.p2c2e.zing.MouseInputConsumer;
@@ -29,7 +30,7 @@ import org.p2c2e.zing.Style;
 import org.p2c2e.zing.StyleHints;
 import org.p2c2e.zing.TextSplitMeasurer;
 
-public class TextGridWindow extends Window {
+public class TextGridWindow extends Window implements ITextGridWindow {
 	private static final int MARGIN = 5;
 
 	int rows, cols, x, y;
@@ -106,11 +107,13 @@ public class TextGridWindow extends Window {
 		return lineConsumer != null || charConsumer != null;
 	}
 
+	@Override
 	public void requestHyperlinkInput(HyperlinkInputConsumer hic) {
 		if (hyperConsumer == null)
 			hyperConsumer = hic;
 	}
 
+	@Override
 	public void cancelHyperlinkInput() {
 		hyperConsumer = null;
 	}

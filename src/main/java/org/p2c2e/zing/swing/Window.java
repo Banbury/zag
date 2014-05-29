@@ -22,6 +22,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
 import org.p2c2e.zing.CharInputConsumer;
+import org.p2c2e.zing.HyperlinkInputConsumer;
 import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.IWindow;
 import org.p2c2e.zing.Int;
@@ -238,7 +239,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	public static Stream.Result close(IWindow w) {
 		PairWindow grand;
 		Window sibling;
-		PairWindow p = w.getParent();
+		PairWindow p = (PairWindow) w.getParent();
 
 		if (p == null) {
 			FRAME.getContentPane().remove(root.panel);
@@ -426,6 +427,10 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	public int compareTo(Object o) {
 		return hashCode() - o.hashCode();
 	}
+
+	public abstract void requestHyperlinkInput(HyperlinkInputConsumer hic);
+
+	public abstract void cancelHyperlinkInput();
 
 	public static void useHints(boolean useHints) {
 		if (useHints != Style.USE_HINTS) {

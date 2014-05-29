@@ -7,6 +7,7 @@ import java.awt.font.FontRenderContext;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import org.p2c2e.zing.HyperlinkInputConsumer;
 import org.p2c2e.zing.IWindow;
 import org.p2c2e.zing.Stream;
 
@@ -143,7 +144,7 @@ public class PairWindow extends Window {
 			keySize = size;
 
 			if (keywin != null) {
-				PairWindow p = keywin.getParent();
+				PairWindow p = (PairWindow) keywin.getParent();
 
 				while (p != null && p != this)
 					p = p.parent;
@@ -249,5 +250,13 @@ public class PairWindow extends Window {
 		if (second != null)
 			second.closeStream();
 		return super.closeStream();
+	}
+
+	@Override
+	public void cancelHyperlinkInput() {
+	}
+
+	@Override
+	public void requestHyperlinkInput(HyperlinkInputConsumer hic) {
 	}
 }

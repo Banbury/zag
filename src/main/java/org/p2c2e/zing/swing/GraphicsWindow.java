@@ -15,9 +15,11 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import org.p2c2e.zing.HyperlinkInputConsumer;
+import org.p2c2e.zing.IGraphicsWindow;
 import org.p2c2e.zing.MouseInputConsumer;
 
-public class GraphicsWindow extends Window {
+public class GraphicsWindow extends Window implements IGraphicsWindow {
 	static GraphicsConfiguration graphConfig = GraphicsEnvironment
 			.getLocalGraphicsEnvironment().getDefaultScreenDevice()
 			.getDefaultConfiguration();
@@ -181,6 +183,14 @@ public class GraphicsWindow extends Window {
 		if (mouseConsumer != null) {
 			mouseConsumer.consume(e.getX(), e.getY());
 		}
+	}
+
+	@Override
+	public void cancelHyperlinkInput() {
+	}
+
+	@Override
+	public void requestHyperlinkInput(HyperlinkInputConsumer hic) {
 	}
 
 	class GraphicsWindowPanel extends JPanel {

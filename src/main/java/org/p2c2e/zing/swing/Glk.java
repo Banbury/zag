@@ -305,7 +305,7 @@ public class Glk extends AbstractGlk {
 	}
 
 	protected void windowCloseRecurse(IWindow w) {
-		Window wnd = (Window) w;
+		IWindow wnd = (IWindow) w;
 
 		if (wnd instanceof PairWindow) {
 			PairWindow pw = (PairWindow) wnd;

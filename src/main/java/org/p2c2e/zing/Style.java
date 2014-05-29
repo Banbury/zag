@@ -39,7 +39,7 @@ public class Style implements Cloneable {
 	public Color textColor;
 	public Color backColor;
 
-	HashMap map;
+	HashMap<TextAttribute, Object> map;
 
 	boolean isMonospace;
 	boolean isHyperlinked;
@@ -110,14 +110,14 @@ public class Style implements Cloneable {
 		return isHyperlinked;
 	}
 
-	public Map getMap() {
+	public Map<TextAttribute, Object> getMap() {
 		if (map == null)
 			createMap();
 
 		return map;
 	}
 
-	public void setMap(HashMap map) {
+	public void setMap(HashMap<TextAttribute, Object> map) {
 		this.map = map;
 	}
 
@@ -165,7 +165,7 @@ public class Style implements Cloneable {
 	}
 
 	private void createMap() {
-		map = new HashMap();
+		map = new HashMap<TextAttribute, Object>();
 
 		map.put(TextAttribute.FAMILY, family);
 		map.put(TextAttribute.POSTURE,
