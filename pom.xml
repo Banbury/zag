@@ -1,11 +1,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>zag</groupId>
-	<artifactId>zag</artifactId>
-	<version>1.0.7-SNAPSHOT</version>
-	<name>Zag</name>
+	<groupId>zag2</groupId>
+	<artifactId>zag2</artifactId>
+	<version>1.0.8-SNAPSHOT</version>
+	<name>Zag2</name>
 	<description>An implementation of Glulx for Java</description>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>objectstyle</id>
+			<name>ObjectStyle Repository</name>
+			<url>http://maven.objectstyle.org/nexus/content/repositories/releases</url>
+			<layout>default</layout>
+		</pluginRepository>
+		<pluginRepository>
+			<id>pentaho-releases</id>
+			<url>http://repository.pentaho.org/artifactory/repo/</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<build>
 		<plugins>
@@ -21,6 +34,82 @@
 						</manifest>
 					</archive>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.objectstyle.japp</groupId>
+				<artifactId>japp-maven-plugin</artifactId>
+				<version>3.0</version>
+				<executions>
+					<execution>
+						<id>Linux</id>
+						<configuration>
+							<name>zag2</name>
+							<mainClass>org.p2c2e.zing.swing.Main</mainClass>
+							<!-- <icon>src/japplication/resources/My.icns</icon> -->
+							<os>java</os>
+							<jvm>1.5+</jvm>
+							<jvmOptions>-Xmx512m</jvmOptions>
+						</configuration>
+						<phase>package</phase>
+						<goals>
+							<goal>japp</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>Mac</id>
+						<configuration>
+							<name>zag2</name>
+							<mainClass>org.p2c2e.zing.swing.Main</mainClass>
+							<!-- <icon>src/japplication/resources/My.icns</icon> -->
+							<os>mac</os>
+							<jvm>1.5+</jvm>
+							<jvmOptions>-Xmx512m -Dapple.laf.useScreenMenuBar=true</jvmOptions>
+						</configuration>
+						<phase>package</phase>
+						<goals>
+							<goal>japp</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.akathist.maven.plugins.launch4j</groupId>
+				<artifactId>launch4j-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>l4j-gui</id>
+						<phase>package</phase>
+						<goals>
+							<goal>launch4j</goal>
+						</goals>
+						<configuration>
+							<headerType>gui</headerType>
+							<outfile>target/zag2.exe</outfile>
+							<jar>target/zag2.jar</jar>
+							<errTitle>Zag</errTitle>
+							<classPath>
+								<mainClass>org.p2c2e.zing.swing.Main</mainClass>
+							</classPath>
+							<jre>
+								<minVersion>1.5.0</minVersion>
+								<opts>
+									<opt>-Xmx512M</opt>
+								</opts>
+							</jre>
+							<versionInfo>
+								<fileVersion>1.0.8.0</fileVersion>
+								<fileDescription>Zag2 - a Glulx interpreter</fileDescription>
+								<copyright>2014 by Banbury</copyright>
+								<productVersion>1.0.8.0</productVersion>
+								<productName>Zag2</productName>
+								<internalName>zag2</internalName>
+								<originalFilename>zag2.exe</originalFilename>
+								<txtFileVersion>1.0.8.0</txtFileVersion>
+								<txtProductVersion>1.0.8.0</txtProductVersion>
+							</versionInfo>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

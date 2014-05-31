@@ -169,7 +169,7 @@ public class Main {
 			frame.getRootPane().setBorder(BorderFactory.createEtchedBorder());
 			frame.setJMenuBar(menubar);
 		}
-		frame.show();
+		frame.setVisible(true);
 		glk.setFrame(frame, config.decorate, config.borders, config.propFont,
 				config.fixedFont, config.pFontSize, config.fFontSize);
 		glk.setMorePromptCallback(new StatusMoreCallback((GlassPane) frame
