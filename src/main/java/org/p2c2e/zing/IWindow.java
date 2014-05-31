@@ -2,6 +2,9 @@ package org.p2c2e.zing;
 
 import java.util.TreeMap;
 
+import org.p2c2e.zing.types.Int;
+import org.p2c2e.zing.types.StreamResult;
+
 public interface IWindow {
 
 	public static final int BLANK = 2;
@@ -30,7 +33,7 @@ public interface IWindow {
 
 	public IWindow getSibling();
 
-	public Stream.Result closeStream();
+	public StreamResult closeStream();
 
 	public int compareTo(Object o);
 

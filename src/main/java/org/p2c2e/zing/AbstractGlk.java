@@ -11,8 +11,20 @@ import java.util.LinkedList;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.p2c2e.blorb.BlorbFile;
-import org.p2c2e.zing.swing.OutWindow;
+import org.p2c2e.zing.types.GlkDate;
+import org.p2c2e.zing.types.GlkEvent;
+import org.p2c2e.zing.types.GlkTimeval;
+import org.p2c2e.zing.types.InByteBuffer;
+import org.p2c2e.zing.types.InOutByteBuffer;
+import org.p2c2e.zing.types.InOutIntBuffer;
+import org.p2c2e.zing.types.Int;
+import org.p2c2e.zing.types.OutByteBuffer;
+import org.p2c2e.zing.types.OutInt;
+import org.p2c2e.zing.types.OutWindow;
+import org.p2c2e.zing.types.StreamResult;
 
 public abstract class AbstractGlk implements IGlk {
 	public Comparator HC_COMP = new HashCodeComparator();
@@ -142,7 +154,7 @@ public abstract class AbstractGlk implements IGlk {
 	public abstract IWindow windowOpen(IWindow w, int method, int size,
 			int wintype, int rock);
 
-	public abstract void windowClose(IWindow w, Stream.Result streamresult);
+	public abstract void windowClose(IWindow w, StreamResult streamresult);
 
 	public abstract void windowSetEchoStream(IWindow win, Stream s);
 
@@ -295,13 +307,13 @@ public abstract class AbstractGlk implements IGlk {
 		return -1;
 	}
 
-	public void streamClose(Stream s, Stream.Result b) {
+	public void streamClose(Stream s, StreamResult b) {
 		if (s == null) {
 			nullRef("Glk.streamClose");
 			return;
 		}
 
-		Stream.Result res = s.close();
+		StreamResult res = s.close();
 		if (b != null) {
 			b.readcount = res.readcount;
 			b.writecount = res.writecount;
@@ -675,6 +687,8 @@ public abstract class AbstractGlk implements IGlk {
 			return 1;
 		case GESTALT_UNICODE:
 			return 1;
+		case GESTALT_DATETIME:
+			return 1;
 		default:
 			return 0;
 		}
@@ -838,6 +852,47 @@ public abstract class AbstractGlk implements IGlk {
 			EVENT_QUEUE.addLast(e);
 			EVENT_QUEUE.notifyAll();
 		}
+	}
+
+	public void getCurrentTime(GlkTimeval timeval) {
+		long t = System.currentTimeMillis();
+		long ut = t / 1000;
+
+		timeval.setOut(true);
+		timeval.setHighsec((int) (ut >> 32));
+		timeval.setLowsec((int) ut);
+		timeval.setMicrosec((int) (t & 1000));
+	}
+
+	public int getCurrentSimpleTime(int factor) {
+		return (int) System.currentTimeMillis() / 1000 / factor;
+	}
+
+	public void convertTimeToDateUtc(GlkTimeval time, GlkDate date) {
+		DateTime dt = new DateTime(time.getUnixTime());
+		date.setOut(true);
+		date.setYear(dt.getYear());
+		date.setMonth(dt.getMonthOfYear());
+		date.setDay(dt.getDayOfMonth());
+		date.setWeekday(dt.getDayOfWeek());
+		date.setHour(dt.getHourOfDay());
+		date.setMinute(dt.getMinuteOfHour());
+		date.setSecond(dt.getSecondOfMinute());
+		date.setMicrosec(time.getMicrosec());
+	}
+
+	public void convertTimeToDateLocal(GlkTimeval time, GlkDate date) {
+		DateTime udt = new DateTime(time.getUnixTime());
+		date.setOut(true);
+		LocalDateTime dt = udt.toLocalDateTime();
+		date.setYear(dt.getYear());
+		date.setMonth(dt.getMonthOfYear());
+		date.setDay(dt.getDayOfMonth());
+		date.setWeekday(dt.getDayOfWeek());
+		date.setHour(dt.getHourOfDay());
+		date.setMinute(dt.getMinuteOfHour());
+		date.setSecond(dt.getSecondOfMinute());
+		date.setMicrosec(time.getMicrosec());
 	}
 
 	public abstract Image getImage(int id, int xscale, int yscale);

@@ -54,6 +54,7 @@ import org.p2c2e.zag.Zag;
 import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.ObjectCallback;
 import org.p2c2e.zing.Style;
+import org.p2c2e.zing.types.GlkEvent;
 
 public class Main {
 	static JFrame frame;
@@ -338,7 +339,7 @@ public class Main {
 					glk.exit();
 				} else if (z != null) {
 					z.setRunning(false);
-					Glk.addEvent(new Glk.GlkEvent());
+					Glk.addEvent(new GlkEvent());
 				}
 			} else if ("file-quit".equals(st)) {
 				try {

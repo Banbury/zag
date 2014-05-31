@@ -25,12 +25,13 @@ import org.p2c2e.zing.CharInputConsumer;
 import org.p2c2e.zing.HyperlinkInputConsumer;
 import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.IWindow;
-import org.p2c2e.zing.Int;
 import org.p2c2e.zing.LineInputConsumer;
 import org.p2c2e.zing.MouseInputConsumer;
 import org.p2c2e.zing.Stream;
 import org.p2c2e.zing.Style;
 import org.p2c2e.zing.StyleHints;
+import org.p2c2e.zing.types.Int;
+import org.p2c2e.zing.types.StreamResult;
 
 public abstract class Window implements MouseListener, Comparable, IWindow {
 	public static String DEFAULT_PROPORTIONAL_FONT = "Serif";
@@ -232,11 +233,11 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	 * 
 	 * @see org.p2c2e.zing.IWindow#closeStream()
 	 */
-	public Stream.Result closeStream() {
+	public StreamResult closeStream() {
 		return stream.close();
 	}
 
-	public static Stream.Result close(IWindow w) {
+	public static StreamResult close(IWindow w) {
 		PairWindow grand;
 		Window sibling;
 		PairWindow p = (PairWindow) w.getParent();

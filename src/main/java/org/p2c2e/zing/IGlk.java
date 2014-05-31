@@ -4,7 +4,16 @@ import java.awt.Color;
 import java.awt.Image;
 
 import org.p2c2e.blorb.BlorbFile;
-import org.p2c2e.zing.swing.OutWindow;
+import org.p2c2e.zing.types.GlkDate;
+import org.p2c2e.zing.types.GlkEvent;
+import org.p2c2e.zing.types.GlkTimeval;
+import org.p2c2e.zing.types.InByteBuffer;
+import org.p2c2e.zing.types.InOutByteBuffer;
+import org.p2c2e.zing.types.InOutIntBuffer;
+import org.p2c2e.zing.types.OutByteBuffer;
+import org.p2c2e.zing.types.OutInt;
+import org.p2c2e.zing.types.OutWindow;
+import org.p2c2e.zing.types.StreamResult;
 
 public interface IGlk {
 
@@ -128,7 +137,7 @@ public interface IGlk {
 
 	public int streamGetPosition(Stream s);
 
-	public void streamClose(Stream s, Stream.Result b);
+	public void streamClose(Stream s, StreamResult b);
 
 	public int getLineStreamUni(Stream s, OutByteBuffer b, int len);
 
@@ -178,7 +187,7 @@ public interface IGlk {
 
 	public void windowSetEchoStream(IWindow win, Stream s);
 
-	public void windowClose(IWindow w, Stream.Result streamresult);
+	public void windowClose(IWindow w, StreamResult streamresult);
 
 	public IWindow windowOpen(IWindow w, int method, int size, int wintype,
 			int rock);
@@ -233,6 +242,14 @@ public interface IGlk {
 
 	public void flush();
 
+	public void getCurrentTime(GlkTimeval timeval);
+
+	public int getCurrentSimpleTime(int factor);
+
+	public void convertTimeToDateUtc(GlkTimeval time, GlkDate date);
+
+	public void convertTimeToDateLocal(GlkTimeval time, GlkDate date);
+
 	public static final int GESTALT_VERSION = 0;
 	public static final int GESTALT_CHAR_INPUT = 1;
 	public static final int GESTALT_LINE_INPUT = 2;
@@ -252,6 +269,13 @@ public interface IGlk {
 	public static final int GESTALT_SOUND_MUSIC = 13;
 	public static final int GESTALT_GRAPHICS_TRANSPARENCY = 14;
 	public static final int GESTALT_UNICODE = 15;
+	public static final int GESTALT_UNICODENORM = 16;
+	public static final int GESTALT_LINEINPUTECHO = 17;
+	public static final int GESTALT_LINETERMINATORS = 18;
+	public static final int GESTALT_LINETERMINATORKEY = 19;
+	public static final int GESTALT_DATETIME = 20;
+	public static final int GESTALT_SOUND2 = 21;
+	public static final int GESTALT_RESOURCESTREAM = 22;
 	public static final int EVTYPE_NONE = 0;
 	public static final int EVTYPE_TIMER = 1;
 	public static final int EVTYPE_CHAR_INPUT = 2;
@@ -261,12 +285,6 @@ public interface IGlk {
 	public static final int EVTYPE_REDRAW = 6;
 	public static final int EVTYPE_SOUND_NOTIFY = 7;
 	public static final int EVTYPE_HYPERLINK = 8;
-
-	public static class GlkEvent {
-		public int type;
-		public IWindow win;
-		public int val1, val2;
-	}
 
 	public static final int KEYCODE_UNKNOWN = 0xffffffff;
 	public static final int KEYCODE_LEFT = 0xfffffffe;

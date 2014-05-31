@@ -12,22 +12,25 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.p2c2e.util.FastByteBuffer;
-import org.p2c2e.zing.AbstractGlk;
 import org.p2c2e.zing.Dispatch;
 import org.p2c2e.zing.Fileref;
 import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.IWindow;
-import org.p2c2e.zing.InByteBuffer;
-import org.p2c2e.zing.InOutByteBuffer;
-import org.p2c2e.zing.InOutIntBuffer;
-import org.p2c2e.zing.Int;
 import org.p2c2e.zing.ObjectCallback;
-import org.p2c2e.zing.OutByteBuffer;
-import org.p2c2e.zing.OutInt;
 import org.p2c2e.zing.SoundChannel;
 import org.p2c2e.zing.Stream;
-import org.p2c2e.zing.swing.OutWindow;
 import org.p2c2e.zing.swing.Window;
+import org.p2c2e.zing.types.GlkDate;
+import org.p2c2e.zing.types.GlkEvent;
+import org.p2c2e.zing.types.GlkTimeval;
+import org.p2c2e.zing.types.GlkType;
+import org.p2c2e.zing.types.InByteBuffer;
+import org.p2c2e.zing.types.InOutByteBuffer;
+import org.p2c2e.zing.types.InOutIntBuffer;
+import org.p2c2e.zing.types.OutByteBuffer;
+import org.p2c2e.zing.types.OutInt;
+import org.p2c2e.zing.types.OutWindow;
+import org.p2c2e.zing.types.StreamResult;
 
 public final class IO {
 	static final int IFhd = (((byte) 'I') << 24) | (((byte) 'F') << 16)
@@ -375,13 +378,18 @@ public final class IO {
 				} else if (c == InOutIntBuffer.class) {
 					mem.position(args[i]);
 					p[i] = new InOutIntBuffer(mem.slice().asIntBuffer());
-				} else if (c == AbstractGlk.GlkEvent.class) {
-					p[i] = new AbstractGlk.GlkEvent();
-				} else if (c == Stream.Result.class) {
-					p[i] = new Stream.Result();
+				} else if (c == GlkEvent.class) {
+					p[i] = new GlkEvent();
+				} else if (c == StreamResult.class) {
+					p[i] = new StreamResult();
 				} else if (c == java.awt.Color.class) {
 					p[i] = new java.awt.Color((args[i] >>> 16) & 0xff,
 							(args[i] >>> 8) & 0xff, args[i] & 0xff);
+				} else if (c == GlkTimeval.class) {
+					p[i] = new GlkTimeval(args[1], args[2], args[3]);
+				} else if (c == GlkDate.class) {
+					p[i] = new GlkDate(args[1], args[2], args[3], args[4],
+							args[5], args[6], args[7], args[8]);
 				} else {
 					Zag.fatal("Unimplemented parameter type: " + c.getName());
 				}
@@ -408,58 +416,14 @@ public final class IO {
 			for (int i = 0; i < numargs; i++) {
 				c = f[i];
 				addr = args[i];
-				if (c == AbstractGlk.GlkEvent.class) {
-					AbstractGlk.GlkEvent e = (AbstractGlk.GlkEvent) p[i];
-					if (addr == -1) {
-						z.stack.putInt(z.sp, e.type);
-						z.sp += 4;
-						z.stack.putInt(z.sp,
-								((e.win == null) ? 0 : e.win.hashCode()));
-						z.sp += 4;
-						z.stack.putInt(z.sp, e.val1);
-						z.sp += 4;
-						z.stack.putInt(z.sp, e.val2);
-						z.sp += 4;
-					} else if (addr != 0) {
-						mem.putInt(addr, e.type);
-						addr += 4;
-						mem.putInt(addr,
-								((e.win == null) ? 0 : e.win.hashCode()));
-						addr += 4;
-						mem.putInt(addr, e.val1);
-						addr += 4;
-						mem.putInt(addr, e.val2);
-						addr += 4;
-					}
-				} else if (c == Stream.Result.class) {
-					Stream.Result r = (Stream.Result) p[i];
-					if (addr == -1) {
-						z.stack.putInt(z.sp, r.readcount);
-						z.sp += 4;
-						z.stack.putInt(z.sp, r.writecount);
-						z.sp += 4;
-					} else if (addr != 0) {
-						mem.putInt(addr, r.readcount);
-						addr += 4;
-						mem.putInt(addr, r.writecount);
-						addr += 4;
-					}
-				} else if (c == OutWindow.class) {
-					if (addr == -1) {
-						z.stack.putInt(z.sp,
-								((OutWindow) p[i]).window.hashCode());
-						z.sp += 4;
-					} else if (addr != 0) {
-						mem.putInt(addr, ((OutWindow) p[i]).window.hashCode());
-						addr += 4;
-					}
-				} else if (c == OutInt.class) {
-					if (addr == -1) {
-						z.stack.putInt(z.sp, ((Int) p[i]).val);
-						z.sp += 4;
-					} else if (addr != 0) {
-						mem.putInt(addr, ((Int) p[i]).val);
-						addr += 4;
+				if (GlkType.class.isAssignableFrom(c)) {
+					GlkType t = (GlkType) p[i];
+					if (t.isOut()) {
+						if (addr == -1) {
+							z.sp = t.pushToBuffer(z.sp, z.stack);
+						} else if (addr != 0) {
+							addr = t.pushToBuffer(addr, mem);
+						}
 					}
 				}
 			}

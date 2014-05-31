@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import org.p2c2e.zing.swing.TextBufferWindow;
 import org.p2c2e.zing.swing.TextGridWindow;
 import org.p2c2e.zing.swing.Window;
+import org.p2c2e.zing.types.StreamResult;
 
 public abstract class Stream implements Comparable {
 	protected int filemode;
@@ -162,17 +163,12 @@ public abstract class Stream implements Comparable {
 		return i;
 	}
 
-	public Result close() {
-		Result r = new Result();
+	public StreamResult close() {
+		StreamResult r = new StreamResult();
 		r.readcount = rcount;
 		r.writecount = wcount;
 
 		return r;
-	}
-
-	public static class Result {
-		public int readcount;
-		public int writecount;
 	}
 
 	public static class MemoryStream extends Stream {
@@ -921,7 +917,7 @@ public abstract class Stream implements Comparable {
 		}
 
 		@Override
-		public Result close() {
+		public StreamResult close() {
 			try {
 				if (filemode != IGlk.FILEMODE_READ) {
 					if (!reading)

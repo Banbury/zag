@@ -25,6 +25,7 @@ import micromod.resamplers.FIRResampler;
 import org.p2c2e.blorb.Aiff;
 import org.p2c2e.blorb.BlorbFile;
 import org.p2c2e.zing.swing.Glk;
+import org.p2c2e.zing.types.GlkEvent;
 
 public class SoundChannel {
 	PlayerThread pt;
@@ -257,7 +258,7 @@ public class SoundChannel {
 					donePlaying();
 
 					if (iNotify != 0) {
-						Glk.GlkEvent ev = new Glk.GlkEvent();
+						GlkEvent ev = new GlkEvent();
 						ev.type = IGlk.EVTYPE_SOUND_NOTIFY;
 						ev.win = null;
 						ev.val1 = soundId;
@@ -360,7 +361,7 @@ public class SoundChannel {
 					donePlaying();
 
 					if (iNotify != 0) {
-						Glk.GlkEvent e = new Glk.GlkEvent();
+						GlkEvent e = new GlkEvent();
 						e.type = IGlk.EVTYPE_SOUND_NOTIFY;
 						e.win = null;
 						e.val1 = soundId;

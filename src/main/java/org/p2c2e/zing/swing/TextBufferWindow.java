@@ -43,12 +43,12 @@ import org.p2c2e.zing.CharInputConsumer;
 import org.p2c2e.zing.HyperlinkInputConsumer;
 import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.ITextBufferWindow;
-import org.p2c2e.zing.Int;
 import org.p2c2e.zing.LineInputConsumer;
 import org.p2c2e.zing.ObjectCallback;
 import org.p2c2e.zing.Style;
 import org.p2c2e.zing.StyleHints;
 import org.p2c2e.zing.TextSplitMeasurer;
+import org.p2c2e.zing.types.Int;
 
 public final class TextBufferWindow extends Window implements ITextBufferWindow {
 	static ObjectCallback MORE_CALLBACK;

@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 
 import org.p2c2e.zing.HyperlinkInputConsumer;
 import org.p2c2e.zing.IWindow;
-import org.p2c2e.zing.Stream;
+import org.p2c2e.zing.types.StreamResult;
 
 public class PairWindow extends Window {
 	int axis;
@@ -244,7 +244,7 @@ public class PairWindow extends Window {
 	}
 
 	@Override
-	public Stream.Result closeStream() {
+	public StreamResult closeStream() {
 		if (first != null)
 			first.closeStream();
 		if (second != null)

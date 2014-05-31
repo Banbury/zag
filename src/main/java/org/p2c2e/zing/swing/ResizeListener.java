@@ -6,6 +6,7 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 
 import org.p2c2e.zing.IGlk;
+import org.p2c2e.zing.types.GlkEvent;
 
 
 public class ResizeListener extends ComponentAdapter implements
@@ -15,7 +16,7 @@ public class ResizeListener extends ComponentAdapter implements
 		if (Window.getRoot() != null)
 			LameFocusManager.rootRearrange();
 
-		Glk.GlkEvent ev = new Glk.GlkEvent();
+		GlkEvent ev = new GlkEvent();
 		ev.type = IGlk.EVTYPE_ARRANGE;
 		ev.win = null;
 		ev.val1 = 0;
@@ -28,7 +29,7 @@ public class ResizeListener extends ComponentAdapter implements
 			// if (Window.root != null)
 			// LameFocusManager.rootRearrange();
 
-			Glk.GlkEvent ev = new Glk.GlkEvent();
+			GlkEvent ev = new GlkEvent();
 			ev.type = IGlk.EVTYPE_ARRANGE;
 			ev.win = null;
 			ev.val1 = 0;

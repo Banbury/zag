@@ -22,11 +22,14 @@ import org.p2c2e.util.Bytes;
 import org.p2c2e.zing.AbstractGlk;
 import org.p2c2e.zing.IWindow;
 import org.p2c2e.zing.ObjectCallback;
-import org.p2c2e.zing.OutInt;
 import org.p2c2e.zing.SoundChannel;
 import org.p2c2e.zing.Stream;
 import org.p2c2e.zing.Style;
 import org.p2c2e.zing.StyleHints;
+import org.p2c2e.zing.types.GlkEvent;
+import org.p2c2e.zing.types.OutInt;
+import org.p2c2e.zing.types.OutWindow;
+import org.p2c2e.zing.types.StreamResult;
 
 import com.sixlegs.image.png.PngImage;
 
@@ -290,13 +293,13 @@ public class Glk extends AbstractGlk {
 	}
 
 	@Override
-	public void windowClose(IWindow w, Stream.Result streamresult) {
+	public void windowClose(IWindow w, StreamResult streamresult) {
 		if (w == null) {
 			nullRef("Glk.windowClose");
 			return;
 		}
 
-		Stream.Result r = Window.close(w);
+		StreamResult r = Window.close(w);
 		if (streamresult != null) {
 			streamresult.readcount = r.readcount;
 			streamresult.writecount = r.writecount;

@@ -7,6 +7,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 
 import org.p2c2e.zing.swing.Glk;
+import org.p2c2e.zing.types.GlkEvent;
+import org.p2c2e.zing.types.InOutByteBuffer;
 
 public class Test {
 	public static void main(String[] argv) throws Exception {
@@ -156,7 +158,7 @@ public class Test {
 		glk.requestLineEvent(w4, new InOutByteBuffer(b), 64, 15);
 		// glk.requestTimerEvents(10000);
 
-		Glk.GlkEvent ev = new Glk.GlkEvent();
+		GlkEvent ev = new GlkEvent();
 		while (true) {
 			glk.select(ev);
 			if (ev.type == glk.EVTYPE_HYPERLINK)
