@@ -386,10 +386,14 @@ public final class IO {
 					p[i] = new java.awt.Color((args[i] >>> 16) & 0xff,
 							(args[i] >>> 8) & 0xff, args[i] & 0xff);
 				} else if (c == GlkTimeval.class) {
-					p[i] = new GlkTimeval(args[1], args[2], args[3]);
+					mem.position(args[i]);
+					p[i] = new GlkTimeval(mem.getInt(), mem.getInt(),
+							mem.getInt());
 				} else if (c == GlkDate.class) {
-					p[i] = new GlkDate(args[1], args[2], args[3], args[4],
-							args[5], args[6], args[7], args[8]);
+					mem.position(args[i]);
+					p[i] = new GlkDate(mem.getInt(), mem.getInt(),
+							mem.getInt(), mem.getInt(), mem.getInt(),
+							mem.getInt(), mem.getInt(), mem.getInt());
 				} else {
 					Zag.fatal("Unimplemented parameter type: " + c.getName());
 				}

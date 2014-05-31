@@ -12,6 +12,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.p2c2e.blorb.BlorbFile;
 import org.p2c2e.zing.types.GlkDate;
@@ -856,7 +857,7 @@ public abstract class AbstractGlk implements IGlk {
 
 	public void getCurrentTime(GlkTimeval timeval) {
 		long t = System.currentTimeMillis();
-		long ut = t / 1000;
+		long ut = t / 1000L;
 
 		timeval.setOut(true);
 		timeval.setHighsec((int) (ut >> 32));
@@ -865,11 +866,12 @@ public abstract class AbstractGlk implements IGlk {
 	}
 
 	public int getCurrentSimpleTime(int factor) {
-		return (int) System.currentTimeMillis() / 1000 / factor;
+		return Math.round(System.currentTimeMillis() / 1000L / factor);
 	}
 
 	public void convertTimeToDateUtc(GlkTimeval time, GlkDate date) {
-		DateTime dt = new DateTime(time.getUnixTime());
+		DateTime dt = new DateTime(time.getUnixTime() * 1000L)
+				.toDateTime(DateTimeZone.UTC);
 		date.setOut(true);
 		date.setYear(dt.getYear());
 		date.setMonth(dt.getMonthOfYear());
@@ -882,7 +884,7 @@ public abstract class AbstractGlk implements IGlk {
 	}
 
 	public void convertTimeToDateLocal(GlkTimeval time, GlkDate date) {
-		DateTime udt = new DateTime(time.getUnixTime());
+		DateTime udt = new DateTime(time.getUnixTime() * 1000L);
 		date.setOut(true);
 		LocalDateTime dt = udt.toLocalDateTime();
 		date.setYear(dt.getYear());
@@ -893,6 +895,71 @@ public abstract class AbstractGlk implements IGlk {
 		date.setMinute(dt.getMinuteOfHour());
 		date.setSecond(dt.getSecondOfMinute());
 		date.setMicrosec(time.getMicrosec());
+	}
+
+	public void convertSimpleTimeToDateLocal(int time, int factor, GlkDate date) {
+		DateTime udt = new DateTime(time * 1000L * factor);
+		date.setOut(true);
+		LocalDateTime dt = udt.toLocalDateTime();
+		date.setYear(dt.getYear());
+		date.setMonth(dt.getMonthOfYear());
+		date.setDay(dt.getDayOfMonth());
+		date.setWeekday(dt.getDayOfWeek());
+		date.setHour(dt.getHourOfDay());
+		date.setMinute(dt.getMinuteOfHour());
+		date.setSecond(dt.getSecondOfMinute());
+		date.setMicrosec(0);
+	}
+
+	public void convertSimpleTimeToDateUtc(int time, int factor, GlkDate date) {
+		DateTime udt = new DateTime(time * 1000L * factor)
+				.toDateTime(DateTimeZone.UTC);
+		date.setOut(true);
+		LocalDateTime dt = udt.toLocalDateTime();
+		date.setYear(dt.getYear());
+		date.setMonth(dt.getMonthOfYear());
+		date.setDay(dt.getDayOfMonth());
+		date.setWeekday(dt.getDayOfWeek());
+		date.setHour(dt.getHourOfDay());
+		date.setMinute(dt.getMinuteOfHour());
+		date.setSecond(dt.getSecondOfMinute());
+		date.setMicrosec(0);
+	}
+
+	public void convertDateToTimeUtc(GlkDate date, GlkTimeval time) {
+		DateTime udt = new DateTime(date.getYear(), date.getMonth(),
+				date.getDay(), date.getHour(), date.getMinute(),
+				date.getSecond(), DateTimeZone.UTC);
+		long t = udt.getMillis() / 1000L;
+		time.setOut(true);
+		time.setHighsec((int) (t >> 32));
+		time.setLowsec((int) t);
+		time.setMicrosec(0);
+	}
+
+	public void convertDateToTimeLocal(GlkDate date, GlkTimeval time) {
+		DateTime udt = new DateTime(date.getYear(), date.getMonth(),
+				date.getDay(), date.getHour(), date.getMinute(),
+				date.getSecond());
+		long t = udt.getMillis() / 1000;
+		time.setOut(true);
+		time.setHighsec((int) (t >> 32));
+		time.setLowsec((int) t);
+		time.setMicrosec(0);
+	}
+
+	public int convertDateToSimpleTimeUtc(GlkDate date, int factor) {
+		DateTime udt = new DateTime(date.getYear(), date.getMonth(),
+				date.getDay(), date.getHour(), date.getMinute(),
+				date.getSecond(), DateTimeZone.UTC);
+		return Math.round(udt.getMillis() / 1000L / factor);
+	}
+
+	public int convertDateToSimpleTimeLocal(GlkDate date, int factor) {
+		DateTime udt = new DateTime(date.getYear(), date.getMonth(),
+				date.getDay(), date.getHour(), date.getMinute(),
+				date.getSecond());
+		return Math.round(udt.getMillis() / 1000L / factor);
 	}
 
 	public abstract Image getImage(int id, int xscale, int yscale);

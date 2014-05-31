@@ -250,6 +250,18 @@ public interface IGlk {
 
 	public void convertTimeToDateLocal(GlkTimeval time, GlkDate date);
 
+	public void convertSimpleTimeToDateLocal(int time, int factor, GlkDate date);
+
+	public void convertSimpleTimeToDateUtc(int time, int factor, GlkDate date);
+
+	public void convertDateToTimeUtc(GlkDate date, GlkTimeval time);
+
+	public void convertDateToTimeLocal(GlkDate date, GlkTimeval time);
+
+	public int convertDateToSimpleTimeUtc(GlkDate date, int factor);
+
+	public int convertDateToSimpleTimeLocal(GlkDate date, int factor);
+
 	public static final int GESTALT_VERSION = 0;
 	public static final int GESTALT_CHAR_INPUT = 1;
 	public static final int GESTALT_LINE_INPUT = 2;

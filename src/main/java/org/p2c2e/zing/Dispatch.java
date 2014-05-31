@@ -7,14 +7,14 @@ import java.util.Comparator;
 import org.p2c2e.zing.swing.Glk;
 
 public abstract class Dispatch {
-	static Method[] METHODS = new Method[362];
+	static Method[] METHODS = new Method[368];
 
 	public static Method getMethod(int selector) {
 		return METHODS[selector];
 	}
 
 	static {
-		String[] NAMES = new String[362];
+		String[] NAMES = new String[368];
 
 		NAMES[0x0001] = "exit";
 		NAMES[0x0002] = "setInterruptHandler";
@@ -124,6 +124,12 @@ public abstract class Dispatch {
 		NAMES[353] = "getCurrentSimpleTime";
 		NAMES[360] = "convertTimeToDateUtc";
 		NAMES[361] = "convertTimeToDateLocal";
+		NAMES[362] = "convertSimpleTimeToDateUtc";
+		NAMES[363] = "convertSimpleTimeToDateLocal";
+		NAMES[364] = "convertDateToTimeUtc";
+		NAMES[365] = "convertDateToTimeLocal";
+		NAMES[366] = "convertDateToSimpleTimeUtc";
+		NAMES[367] = "convertDateToSimpleTimeLocal";
 
 		Method[] members = Glk.class.getMethods();
 		Comparator methodComp = new MethodNameComparator();
