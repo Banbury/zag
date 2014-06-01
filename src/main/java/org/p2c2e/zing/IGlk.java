@@ -274,6 +274,10 @@ public interface IGlk {
 
 	public int bufferToTitleCaseUni(InOutByteBuffer buf, int len, int numchars);
 
+	public int decomposeBufferCanon(InOutByteBuffer buf, int len, int numchars);
+
+	public int normalizeBufferCanon(InOutByteBuffer buf, int len, int numchars);
+
 	public static final int GESTALT_VERSION = 0;
 	public static final int GESTALT_CHAR_INPUT = 1;
 	public static final int GESTALT_LINE_INPUT = 2;

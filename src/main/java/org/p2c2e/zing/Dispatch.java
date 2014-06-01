@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import org.p2c2e.zing.swing.Glk;
 
+@Deprecated
 public final class Dispatch {
 	private static HashMap<Integer, Method> METHODS = new HashMap<Integer, Method>(
 			512);
@@ -155,6 +156,7 @@ public final class Dispatch {
 	}
 
 	static class MethodNameComparator implements Comparator<Object> {
+		@Override
 		public int compare(Object o1, Object o2) {
 			String s1, s2;
 

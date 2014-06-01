@@ -6,6 +6,7 @@ import java.awt.MediaTracker;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -871,6 +872,8 @@ public abstract class AbstractGlk implements IGlk {
 			return 1;
 		case GESTALT_UNICODE:
 			return 1;
+		case GESTALT_UNICODENORM:
+			return 1;
 		case GESTALT_DATETIME:
 			return 1;
 		default:
@@ -1308,6 +1311,53 @@ public abstract class AbstractGlk implements IGlk {
 			}
 			e.type = EVTYPE_NONE;
 		}
+	}
+
+	@Override
+	@GlkMethod(0x123)
+	public int decomposeBufferCanon(InOutByteBuffer buf, int len, int numchars) {
+		String s = convertBufferToString(buf, numchars);
+
+		if (s == null)
+			return 0;
+
+		String s1 = Normalizer.normalize(s, Normalizer.Form.NFD);
+		writeStringToBuffer(buf, s1);
+		return s1.length();
+	}
+
+	@Override
+	@GlkMethod(0x124)
+	public int normalizeBufferCanon(InOutByteBuffer buf, int len, int numchars) {
+		String s = convertBufferToString(buf, numchars);
+
+		if (s == null)
+			return 0;
+
+		String s1 = Normalizer.normalize(s, Normalizer.Form.NFC);
+		writeStringToBuffer(buf, s1);
+		return s1.length();
+	}
+
+	private void writeStringToBuffer(InOutByteBuffer buf, String s) {
+		buf.buffer.clear();
+
+		for (int i = 0; i < s.length(); i++) {
+			buf.buffer.putInt(s.codePointAt(i));
+		}
+	}
+
+	private String convertBufferToString(InOutByteBuffer buf, int numchars) {
+		String s = null;
+		if (numchars > 0) {
+			StringBuffer sb = new StringBuffer();
+			for (int i = 0; i < numchars; i++) {
+				int t = buf.buffer.getInt(i * 4);
+				sb.appendCodePoint(t);
+			}
+			s = sb.toString();
+		}
+		return s;
 	}
 
 	protected static final class HashCodeComparator implements Comparator {
