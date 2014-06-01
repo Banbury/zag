@@ -301,6 +301,7 @@ public class Main {
 					ActionEvent.ACTION_LAST, "file-quit"));
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			String st = e.getActionCommand();
 			IGlk glk = Glk.getInstance();
@@ -492,6 +493,7 @@ public class Main {
 	}
 
 	static class ZagCC implements PreferencePane.CloseCallback {
+		@Override
 		public void close() {
 			prefFrame.setVisible(false);
 			prefitem.setEnabled(true);
@@ -557,6 +559,7 @@ public class Main {
 				iw = 255;
 
 				fader = new ActionListener() {
+					@Override
 					public void actionPerformed(ActionEvent e) {
 						bl = new Color(0, 0, 0, ib);
 						wh = new Color(0, 0, 0, iw);
@@ -629,6 +632,7 @@ public class Main {
 			this.decorated = decorated;
 		}
 
+		@Override
 		public void callback(Object o) {
 			if (decorated)
 				p.show((Component) o);
@@ -642,12 +646,13 @@ public class Main {
 		@Override
 		public boolean accept(File f) {
 			String s = f.getName().toLowerCase();
-			return f.isDirectory() || s.endsWith(".ulx") || s.endsWith(".blb");
+			return f.isDirectory() || s.endsWith(".ulx") || s.endsWith(".blb")
+					|| s.endsWith(".gblorb");
 		}
 
 		@Override
 		public String getDescription() {
-			return "Glulx (.ulx) & Blorb (.blb)";
+			return "Glulx (*.ulx,*.blb,*.gblorb)";
 		}
 	}
 }
