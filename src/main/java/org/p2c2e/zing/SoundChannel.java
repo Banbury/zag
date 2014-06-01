@@ -229,6 +229,7 @@ public class SoundChannel {
 			stopped = false;
 		}
 
+		@Override
 		public void setVolume(int vol) {
 			FloatControl ctl = (FloatControl) l
 					.getControl(FloatControl.Type.MASTER_GAIN);
@@ -239,6 +240,7 @@ public class SoundChannel {
 				ctl.setValue(dB);
 		}
 
+		@Override
 		public synchronized void stopPlaying() throws Exception {
 			if (!stopped) {
 				l.flush();
@@ -250,6 +252,7 @@ public class SoundChannel {
 			}
 		}
 
+		@Override
 		public void update(LineEvent e) {
 			try {
 				LineEvent.Type t = e.getType();
@@ -280,8 +283,8 @@ public class SoundChannel {
 
 			try {
 				while (iRepeat-- != 0) {
-					while (read >= 0) {
-						read = in.read(data, 0, data.length);
+					while (in.available() > 0) {
+						read = in.read(data, 0, in.available());
 						l.write(data, 0, read);
 					}
 					if (iRepeat != 0) {
@@ -318,6 +321,7 @@ public class SoundChannel {
 			stopped = false;
 		}
 
+		@Override
 		public synchronized void setVolume(int vol) {
 			Line l = out.getLine();
 			FloatControl ctl = (FloatControl) l
@@ -329,6 +333,7 @@ public class SoundChannel {
 				ctl.setValue(dB);
 		}
 
+		@Override
 		public synchronized void stopPlaying() {
 			if (!stopped) {
 				running = false;
