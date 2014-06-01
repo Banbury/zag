@@ -774,8 +774,10 @@ public abstract class Stream implements Comparable {
 							tot = 0;
 						}
 					}
-					pos += (len - tot);
-					return len - tot;
+					int diff = len - tot;
+					pos += diff;
+					rcount += diff;
+					return diff;
 				}
 			} catch (IOException eio) {
 				eio.printStackTrace();
