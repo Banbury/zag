@@ -27,10 +27,11 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
-					<annotationProcessors>
-						<annotationProcessor>org.p2c2e.util.GlkMethodProcessor</annotationProcessor>
-					</annotationProcessors>
-					<showWarnings>true</showWarnings>
+<!-- 					<annotationProcessors> -->
+<!-- 						<annotationProcessor>org.p2c2e.util.GlkMethodProcessor</annotationProcessor> -->
+<!-- 					</annotationProcessors> -->
+<!-- 					<generatedSourcesDirectory>${project.build.sourceDirectory}</generatedSourcesDirectory> 	 -->
+<!-- 					<showWarnings>true</showWarnings> -->
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
