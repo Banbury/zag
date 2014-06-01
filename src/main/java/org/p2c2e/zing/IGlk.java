@@ -262,6 +262,18 @@ public interface IGlk {
 
 	public int convertDateToSimpleTimeLocal(GlkDate date, int factor);
 
+	public IWindow windowGetRoot();
+
+	public Fileref filerefCreateByPrompt(int usage, int fmode, int rock);
+
+	public void select(GlkEvent e);
+
+	public int bufferToLowerCaseUni(InOutByteBuffer buf, int len, int numchars);
+
+	public int bufferToUpperCaseUni(InOutByteBuffer buf, int len, int numchars);
+
+	public int bufferToTitleCaseUni(InOutByteBuffer buf, int len, int numchars);
+
 	public static final int GESTALT_VERSION = 0;
 	public static final int GESTALT_CHAR_INPUT = 1;
 	public static final int GESTALT_LINE_INPUT = 2;

@@ -32,6 +32,7 @@ public abstract class Stream implements Comparable {
 
 	}
 
+	@Override
 	public int compareTo(Object o) {
 		return hashCode() - o.hashCode();
 	}
@@ -594,26 +595,26 @@ public abstract class Stream implements Comparable {
 			try {
 				switch (fmode) {
 				case IGlk.FILEMODE_READ:
-					f.f.createNewFile();
-					rf = new RandomAccessFile(f.f, "r");
+					f.getFile().createNewFile();
+					rf = new RandomAccessFile(f.getFile(), "r");
 					rbuf = ByteBuffer.allocate(8192);
 					break;
 				case IGlk.FILEMODE_WRITE:
-					rf = new RandomAccessFile(f.f, "rw");
+					rf = new RandomAccessFile(f.getFile(), "rw");
 					rf.setLength(0L);
 					wbuf = ByteBuffer.allocate(8192);
 					break;
 				case IGlk.FILEMODE_READ_WRITE:
-					if (!f.f.exists())
-						f.f.createNewFile();
-					rf = new RandomAccessFile(f.f, "rw");
+					if (!f.getFile().exists())
+						f.getFile().createNewFile();
+					rf = new RandomAccessFile(f.getFile(), "rw");
 					rbuf = ByteBuffer.allocate(8192);
 					wbuf = ByteBuffer.allocate(8192);
 					break;
 				case IGlk.FILEMODE_WRITE_APPEND:
-					if (!f.f.exists())
-						f.f.createNewFile();
-					rf = new RandomAccessFile(f.f, "rw");
+					if (!f.getFile().exists())
+						f.getFile().createNewFile();
+					rf = new RandomAccessFile(f.getFile(), "rw");
 					pos = (int) rf.length();
 					isEOF = true;
 					rf.seek(pos);
@@ -629,7 +630,7 @@ public abstract class Stream implements Comparable {
 				eio.printStackTrace();
 			}
 
-			isText = ((f.u & IGlk.FILEUSAGE_TEXT_MODE) != 0);
+			isText = ((f.getUsage() & IGlk.FILEUSAGE_TEXT_MODE) != 0);
 		}
 
 		int fillReadBuf() throws IOException {

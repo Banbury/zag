@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.TreeMap;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -20,13 +21,13 @@ import javax.swing.SwingConstants;
 import org.p2c2e.blorb.BlorbFile;
 import org.p2c2e.util.Bytes;
 import org.p2c2e.zing.AbstractGlk;
+import org.p2c2e.zing.Fileref;
 import org.p2c2e.zing.IWindow;
 import org.p2c2e.zing.ObjectCallback;
 import org.p2c2e.zing.SoundChannel;
 import org.p2c2e.zing.Stream;
 import org.p2c2e.zing.Style;
 import org.p2c2e.zing.StyleHints;
-import org.p2c2e.zing.types.GlkEvent;
 import org.p2c2e.zing.types.OutInt;
 import org.p2c2e.zing.types.OutWindow;
 import org.p2c2e.zing.types.StreamResult;
@@ -170,6 +171,7 @@ public class Glk extends AbstractGlk {
 		TextBufferWindow.MORE_CALLBACK = c;
 	}
 
+	@Override
 	public IWindow windowGetRoot() {
 		return Window.getRoot();
 	}
@@ -308,7 +310,7 @@ public class Glk extends AbstractGlk {
 	}
 
 	protected void windowCloseRecurse(IWindow w) {
-		IWindow wnd = (IWindow) w;
+		IWindow wnd = w;
 
 		if (wnd instanceof PairWindow) {
 			PairWindow pw = (PairWindow) wnd;
@@ -349,85 +351,6 @@ public class Glk extends AbstractGlk {
 			return null;
 		} else {
 			return win.getStream();
-		}
-	}
-
-	public void select(GlkEvent e) {
-		long cur = 0l;
-		GlkEvent ev = null;
-		boolean done = false;
-
-		synchronized (EVENT_QUEUE) {
-			if (Window.getRoot() != null)
-				Window.getRoot().doLayout();
-
-			while (!done) {
-				if (!EVENT_QUEUE.isEmpty()) {
-					ev = (GlkEvent) EVENT_QUEUE.removeFirst();
-					if (ev != null)
-						done = true;
-				} else if (TIMER > 0
-						&& (cur = System.currentTimeMillis()) - TIMESTAMP >= TIMER) {
-					e.type = EVTYPE_TIMER;
-					e.win = null;
-					e.val1 = 0;
-					e.val2 = 0;
-					TIMESTAMP = cur;
-					done = true;
-				} else {
-					try {
-						if (TIMER > 0)
-							EVENT_QUEUE.wait(TIMER - (cur - TIMESTAMP));
-						else
-							EVENT_QUEUE.wait();
-					} catch (InterruptedException ex) {
-					}
-				}
-			}
-			if (ev != null) {
-				e.type = ev.type;
-				e.win = ev.win;
-				e.val1 = ev.val1;
-				e.val2 = ev.val2;
-			}
-		}
-	}
-
-	@Override
-	public void selectPoll(GlkEvent e) {
-		long cur;
-		GlkEvent ev = null;
-		ListIterator li;
-
-		synchronized (EVENT_QUEUE) {
-			if (Window.getRoot() != null)
-				Window.getRoot().doLayout();
-
-			li = EVENT_QUEUE.listIterator();
-			while (li.hasNext()) {
-				ev = (GlkEvent) li.next();
-				if (ev.type == EVTYPE_TIMER || ev.type == EVTYPE_ARRANGE
-						|| ev.type == EVTYPE_SOUND_NOTIFY) {
-					li.remove();
-					e.type = ev.type;
-					e.win = ev.win;
-					e.val1 = ev.val1;
-					e.val2 = ev.val2;
-					break;
-				}
-			}
-			if (TIMER > 0) {
-				cur = System.currentTimeMillis();
-				if ((cur - TIMESTAMP) >= TIMER) {
-					e.type = EVTYPE_TIMER;
-					e.win = null;
-					e.val1 = 0;
-					e.val2 = 0;
-					TIMESTAMP = cur;
-					return;
-				}
-			}
-			e.type = EVTYPE_NONE;
 		}
 	}
 
@@ -584,5 +507,24 @@ public class Glk extends AbstractGlk {
 		default:
 			// NOOP
 		}
+	}
+
+	@Override
+	public Fileref filerefCreateByPrompt(int usage, int fmode, int rock) {
+		String name = null;
+
+		JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
+
+		if (fmode == Fileref.FILEMODE_WRITE
+				|| fmode == Fileref.FILEMODE_WRITEAPPEND) {
+			if (fc.showSaveDialog(Window.getFrame().getRootPane().getParent()) == JFileChooser.APPROVE_OPTION) {
+				name = fc.getName();
+			}
+		} else {
+			if (fc.showOpenDialog(Window.getFrame().getRootPane().getParent()) == JFileChooser.APPROVE_OPTION) {
+				name = fc.getName();
+			}
+		}
+		return filerefCreateByName(usage, name, rock);
 	}
 }

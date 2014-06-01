@@ -112,6 +112,7 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 		mHyperlinks = new TreeMap<Integer, Integer>();
 		paragraphs = new LinkedList<TextBufferWindow.Paragraph>();
 		view = new TextBufferPanel();
+		view.setFocusable(true);
 		tracker = new MediaTracker(view);
 		oldStyle = curStyle;
 		mHyperlinks.put(new Integer(0), new Integer(0));
@@ -216,6 +217,7 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 	public void doLayout() {
 		if (lastLineDirty) {
 			SwingUtilities.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					doPaint(layoutLastLine(buffer.length()));
 				}
@@ -377,6 +379,7 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 		return true;
 	}
 
+	@Override
 	public void flowBreak() {
 		if (buffer.length() != 0
 				&& buffer.charAt(buffer.length() - 1) != FLOW_BREAK)
@@ -1358,23 +1361,28 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 		Dimension preferredViewportSize = new Dimension(0, 0);
 		int lSize = ((Style) hintedStyles.get("normal")).size + 2;
 
+		@Override
 		public Dimension getPreferredScrollableViewportSize() {
 			return preferredViewportSize;
 		}
 
+		@Override
 		public int getScrollableBlockIncrement(Rectangle visibleRect,
 				int orientation, int direction) {
 			return preferredViewportSize.height - lSize;
 		}
 
+		@Override
 		public boolean getScrollableTracksViewportHeight() {
 			return false;
 		}
 
+		@Override
 		public boolean getScrollableTracksViewportWidth() {
 			return true;
 		}
 
+		@Override
 		public int getScrollableUnitIncrement(Rectangle visibleRect,
 				int orientation, int direction) {
 			return lSize;

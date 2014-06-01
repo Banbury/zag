@@ -3,20 +3,29 @@ package org.p2c2e.zing;
 import java.io.File;
 import java.io.IOException;
 
-import javax.swing.JFileChooser;
-
 public class Fileref implements Comparable {
-	static final JFileChooser fc = new JFileChooser(
-			System.getProperty("user.dir"));
+	public final static int FILEMODE_WRITE = 0x01;
+	public final static int FILEMODE_READ = 0x02;
+	public final static int FILEMODE_READWRITE = 0x03;
+	public final static int FILEMODE_WRITEAPPEND = 0x05;
 
-	File f;
-	int u;
+	private File file;
+	private int usage;
 
 	Fileref(File file, int usage) {
-		f = file;
-		u = usage;
+		this.file = file;
+		this.usage = usage;
 	}
 
+	public File getFile() {
+		return file;
+	}
+
+	public int getUsage() {
+		return usage;
+	}
+
+	@Override
 	public int compareTo(Object o) {
 		return hashCode() - o.hashCode();
 	}
@@ -32,18 +41,18 @@ public class Fileref implements Comparable {
 	}
 
 	public static Fileref createFromFileref(int usage, Fileref ref) {
-		return new Fileref(ref.f, usage);
+		return new Fileref(ref.file, usage);
 	}
 
 	public static void deleteFile(Fileref ref) {
-		ref.f.delete();
+		ref.file.delete();
 	}
 
 	public void destroy() {
-		f = null;
+		file = null;
 	}
 
 	public boolean fileExists() {
-		return f.exists();
+		return file.exists();
 	}
 }

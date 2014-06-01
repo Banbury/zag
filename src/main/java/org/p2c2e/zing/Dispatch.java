@@ -3,17 +3,23 @@ package org.p2c2e.zing;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import org.p2c2e.zing.swing.Glk;
 
-public abstract class Dispatch {
-	static Method[] METHODS = new Method[368];
+public final class Dispatch {
+	private static HashMap<Integer, Method> METHODS = new HashMap<Integer, Method>(
+			512);
 
 	public static Method getMethod(int selector) {
-		return METHODS[selector];
+		return METHODS.get(selector);
 	}
 
 	static {
+		createMethodList();
+	}
+
+	private static void createMethodList() {
 		String[] NAMES = new String[368];
 
 		NAMES[0x0001] = "exit";
@@ -132,7 +138,7 @@ public abstract class Dispatch {
 		NAMES[367] = "convertDateToSimpleTimeLocal";
 
 		Method[] members = Glk.class.getMethods();
-		Comparator methodComp = new MethodNameComparator();
+		Comparator<Object> methodComp = new MethodNameComparator();
 		int len = NAMES.length;
 		int index;
 
@@ -143,12 +149,12 @@ public abstract class Dispatch {
 				index = Arrays.binarySearch(members, NAMES[i], methodComp);
 
 				if (index >= 0)
-					METHODS[i] = members[index];
+					METHODS.put(i, members[index]);
 			}
 		}
 	}
 
-	static class MethodNameComparator implements Comparator {
+	static class MethodNameComparator implements Comparator<Object> {
 		public int compare(Object o1, Object o2) {
 			String s1, s2;
 

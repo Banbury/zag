@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -15,6 +16,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.p2c2e.blorb.BlorbFile;
+import org.p2c2e.util.GlkMethod;
+import org.p2c2e.zing.swing.Window;
 import org.p2c2e.zing.types.GlkDate;
 import org.p2c2e.zing.types.GlkEvent;
 import org.p2c2e.zing.types.GlkTimeval;
@@ -51,40 +54,53 @@ public abstract class AbstractGlk implements IGlk {
 		public Image scaled;
 	}
 
+	@Override
 	public abstract void flush();
 
+	@Override
 	public abstract void reset();
 
+	@Override
 	public abstract void progress(String stJob, int min, int max, int cur);
 
 	public BlorbFile getBlorbFile() {
 		return blorbFile;
 	}
 
+	@Override
 	public void setBlorbFile(BlorbFile f) {
 		blorbFile = f;
 		IMAGE_CACHE.clear();
 
 	}
 
+	@Override
 	public abstract void setMorePromptCallback(ObjectCallback c);
 
+	@Override
 	public void setCreationCallback(ObjectCallback c) {
 		CREATE_CALLBACK = c;
 	}
 
+	@Override
 	public void setDestructionCallback(ObjectCallback c) {
 		DESTROY_CALLBACK = c;
 	}
 
+	@Override
+	@GlkMethod(3)
 	public void tick() {
 
 	}
 
+	@Override
+	@GlkMethod(2)
 	public void setInterruptHandler(Object o) {
 
 	}
 
+	@Override
+	@GlkMethod(1)
 	public void exit() {
 		System.exit(0);
 	}
@@ -110,72 +126,118 @@ public abstract class AbstractGlk implements IGlk {
 		}
 	}
 
+	@Override
+	@GlkMethod(0x20)
 	public IWindow windowIterate(IWindow win, OutInt rock) {
 		return (IWindow) objIterate(WINDOWS, win, rock);
 	}
 
+	@Override
+	@GlkMethod(0x40)
 	public Stream streamIterate(Stream s, OutInt rock) {
 		return (Stream) objIterate(STREAMS, s, rock);
 	}
 
+	@Override
+	@GlkMethod(0x64)
 	public Fileref filerefIterate(Fileref f, OutInt rock) {
 		return (Fileref) objIterate(FILE_REFS, f, rock);
 	}
 
+	@Override
+	@GlkMethod(0xF0)
 	public SoundChannel schannelIterate(SoundChannel s, OutInt rock) {
 		return (SoundChannel) objIterate(SOUND_CHANNELS, s, rock);
 	}
 
+	@Override
+	@GlkMethod(0xA0)
 	public char charToLower(char ch) {
 		return Character.toLowerCase(ch);
 	}
 
+	@Override
+	@GlkMethod(0xA1)
 	public char charToUpper(char ch) {
 		return Character.toUpperCase(ch);
 	}
 
+	@Override
+	@GlkMethod(0x27)
 	public abstract void windowGetArrangement(IWindow win, OutInt method,
 			OutInt size, OutWindow key);
 
+	@Override
+	@GlkMethod(0x26)
 	public abstract void windowSetArrangement(IWindow win, int method,
 			int size, IWindow newKey);
 
+	@Override
+	@GlkMethod(0x25)
 	public abstract void windowGetSize(IWindow win, OutInt b1, OutInt b2);
 
+	@Override
+	@GlkMethod(0x30)
 	public abstract IWindow windowGetSibling(IWindow win);
 
+	@Override
+	@GlkMethod(0x29)
 	public abstract IWindow windowGetParent(IWindow win);
 
+	@Override
+	@GlkMethod(0x28)
 	public abstract int windowGetType(IWindow win);
 
+	@Override
+	@GlkMethod(0x21)
 	public abstract int windowGetRock(IWindow w);
 
+	@Override
+	@GlkMethod(0x2A)
 	public abstract void windowClear(IWindow win);
 
+	@Override
+	@GlkMethod(0x23)
 	public abstract IWindow windowOpen(IWindow w, int method, int size,
 			int wintype, int rock);
 
+	@Override
+	@GlkMethod(0x24)
 	public abstract void windowClose(IWindow w, StreamResult streamresult);
 
+	@Override
+	@GlkMethod(0x2D)
 	public abstract void windowSetEchoStream(IWindow win, Stream s);
 
+	@Override
+	@GlkMethod(0x2E)
 	public abstract Stream windowGetEchoStream(IWindow win);
 
+	@Override
+	@GlkMethod(0x2C)
 	public abstract Stream windowGetStream(IWindow win);
 
+	@Override
+	@GlkMethod(0x2F)
 	public void setWindow(IWindow win) {
 		CURRENT_STREAM = (win == null) ? null : win.getStream();
 	}
 
+	@Override
+	@GlkMethod(0x47)
 	public void streamSetCurrent(Stream s) {
 		if (s == null || s.canWrite())
 			CURRENT_STREAM = s;
 	}
 
+	@Override
+	@GlkMethod(0x48)
 	public Stream streamGetCurrent() {
 		return CURRENT_STREAM;
 	}
 
+	@Override
+	@GlkMethod(0x80)
 	public void putChar(char ch) {
 		if (CURRENT_STREAM == null)
 			nullRef("Glk.putChar");
@@ -183,6 +245,8 @@ public abstract class AbstractGlk implements IGlk {
 			CURRENT_STREAM.putChar(ch);
 	}
 
+	@Override
+	@GlkMethod(0x128)
 	public void putCharUni(int ch) {
 		if (CURRENT_STREAM == null)
 			nullRef("Glk.putCharUni");
@@ -190,6 +254,8 @@ public abstract class AbstractGlk implements IGlk {
 			CURRENT_STREAM.putCharUni(ch);
 	}
 
+	@Override
+	@GlkMethod(0x82)
 	public void putString(String s) {
 		if (CURRENT_STREAM == null)
 			nullRef("Glk.putString");
@@ -197,6 +263,8 @@ public abstract class AbstractGlk implements IGlk {
 			CURRENT_STREAM.putString(s);
 	}
 
+	@Override
+	@GlkMethod(0x129)
 	public void putStringUni(String s) {
 		if (CURRENT_STREAM == null)
 			nullRef("Glk.putStringUni");
@@ -204,6 +272,8 @@ public abstract class AbstractGlk implements IGlk {
 			CURRENT_STREAM.putStringUni(s);
 	}
 
+	@Override
+	@GlkMethod(0x84)
 	public void putBuffer(InByteBuffer b, int len) {
 		if (CURRENT_STREAM == null)
 			nullRef("Glk.putBuffer");
@@ -211,6 +281,8 @@ public abstract class AbstractGlk implements IGlk {
 			CURRENT_STREAM.putBuffer(b.buffer, len);
 	}
 
+	@Override
+	@GlkMethod(0x12A)
 	public void putBufferUni(InByteBuffer b, int len) {
 		if (CURRENT_STREAM == null)
 			nullRef("Glk.putBufferUni");
@@ -218,6 +290,8 @@ public abstract class AbstractGlk implements IGlk {
 			CURRENT_STREAM.putBufferUni(b.buffer, len);
 	}
 
+	@Override
+	@GlkMethod(0x81)
 	public void putCharStream(Stream s, int ch) {
 		if (s == null)
 			nullRef("Glk.putCharStream");
@@ -225,6 +299,8 @@ public abstract class AbstractGlk implements IGlk {
 			s.putChar(ch);
 	}
 
+	@Override
+	@GlkMethod(0x12B)
 	public void putCharStreamUni(Stream s, int ch) {
 		if (s == null)
 			nullRef("Glk.putCharStreamUni");
@@ -232,6 +308,8 @@ public abstract class AbstractGlk implements IGlk {
 			s.putCharUni(ch);
 	}
 
+	@Override
+	@GlkMethod(0x83)
 	public void putStringStream(Stream stm, String s) {
 		if (stm == null)
 			nullRef("Glk.putStringStream");
@@ -239,6 +317,8 @@ public abstract class AbstractGlk implements IGlk {
 			stm.putString(s);
 	}
 
+	@Override
+	@GlkMethod(0x12C)
 	public void putStringStreamUni(Stream stm, String s) {
 		if (stm == null)
 			nullRef("Glk.putStringStreamUni");
@@ -246,6 +326,8 @@ public abstract class AbstractGlk implements IGlk {
 			stm.putStringUni(s);
 	}
 
+	@Override
+	@GlkMethod(0x85)
 	public void putBufferStream(Stream s, InByteBuffer b, int len) {
 		if (s == null)
 			nullRef("Glk.putBufferStream");
@@ -253,6 +335,8 @@ public abstract class AbstractGlk implements IGlk {
 			s.putBuffer(b.buffer, len);
 	}
 
+	@Override
+	@GlkMethod(0x12D)
 	public void putBufferStreamUni(Stream s, InByteBuffer b, int len) {
 		if (s == null)
 			nullRef("Glk.putBufferStreamUni");
@@ -260,6 +344,29 @@ public abstract class AbstractGlk implements IGlk {
 			s.putBufferUni(b.buffer, len);
 	}
 
+	@Override
+	@GlkMethod(0x120)
+	public int bufferToLowerCaseUni(InOutByteBuffer buf, int len, int numchars) {
+		// TODO Implement glk_buffer_to_lower_case_uni
+		return 0;
+	}
+
+	@Override
+	@GlkMethod(0x121)
+	public int bufferToUpperCaseUni(InOutByteBuffer buf, int len, int numchars) {
+		// TODO implement glk_buffer_to_upper_case_uni
+		return 0;
+	}
+
+	@Override
+	@GlkMethod(0x122)
+	public int bufferToTitleCaseUni(InOutByteBuffer buf, int len, int numchars) {
+		// TODO Implement glk_buffer_to_title_case_uni
+		return 0;
+	}
+
+	@Override
+	@GlkMethod(0x90)
 	public int getCharStream(Stream s) {
 		if (s != null)
 			return s.getChar();
@@ -268,6 +375,8 @@ public abstract class AbstractGlk implements IGlk {
 		return -1;
 	}
 
+	@Override
+	@GlkMethod(0x130)
 	public int getCharStreamUni(Stream s) {
 		if (s != null)
 			return s.getCharUni();
@@ -276,6 +385,8 @@ public abstract class AbstractGlk implements IGlk {
 		return -1;
 	}
 
+	@Override
+	@GlkMethod(0x92)
 	public int getBufferStream(Stream s, OutByteBuffer b, int len) {
 		if (s != null)
 			return s.getBuffer(b.buffer, len);
@@ -284,6 +395,8 @@ public abstract class AbstractGlk implements IGlk {
 		return -1;
 	}
 
+	@Override
+	@GlkMethod(0x131)
 	public int getBufferStreamUni(Stream s, OutByteBuffer b, int len) {
 		if (s != null)
 			return s.getBufferUni(b.buffer, len);
@@ -292,6 +405,8 @@ public abstract class AbstractGlk implements IGlk {
 		return -1;
 	}
 
+	@Override
+	@GlkMethod(0x91)
 	public int getLineStream(Stream s, OutByteBuffer b, int len) {
 		if (s != null)
 			return s.getLine(b.buffer, len);
@@ -300,6 +415,8 @@ public abstract class AbstractGlk implements IGlk {
 		return -1;
 	}
 
+	@Override
+	@GlkMethod(0x132)
 	public int getLineStreamUni(Stream s, OutByteBuffer b, int len) {
 		if (s != null)
 			return s.getLineUni(b.buffer, len);
@@ -308,6 +425,8 @@ public abstract class AbstractGlk implements IGlk {
 		return -1;
 	}
 
+	@Override
+	@GlkMethod(0x44)
 	public void streamClose(Stream s, StreamResult b) {
 		if (s == null) {
 			nullRef("Glk.streamClose");
@@ -325,6 +444,8 @@ public abstract class AbstractGlk implements IGlk {
 			DESTROY_CALLBACK.callback(s);
 	}
 
+	@Override
+	@GlkMethod(0x46)
 	public int streamGetPosition(Stream s) {
 		if (s == null) {
 			nullRef("Glk.streamGetPosition");
@@ -334,6 +455,8 @@ public abstract class AbstractGlk implements IGlk {
 		return s.getPosition();
 	}
 
+	@Override
+	@GlkMethod(0x45)
 	public void streamSetPosition(Stream s, int pos, int seekmode) {
 		if (s == null) {
 			nullRef("Glk.streamSetPosition");
@@ -343,6 +466,8 @@ public abstract class AbstractGlk implements IGlk {
 		s.setPosition(pos, seekmode);
 	}
 
+	@Override
+	@GlkMethod(0x43)
 	public Stream streamOpenMemory(InOutByteBuffer b, int len, int mode,
 			int rock) {
 		Stream s = new Stream.MemoryStream(b.buffer, len, mode);
@@ -353,6 +478,8 @@ public abstract class AbstractGlk implements IGlk {
 		return s;
 	}
 
+	@Override
+	@GlkMethod(0x139)
 	public Stream streamOpenMemoryUni(InOutByteBuffer b, int len, int mode,
 			int rock) {
 		Stream s = new Stream.UnicodeMemoryStream(b.buffer, len, mode);
@@ -363,6 +490,8 @@ public abstract class AbstractGlk implements IGlk {
 		return s;
 	}
 
+	@Override
+	@GlkMethod(0x42)
 	public Stream streamOpenFile(Fileref ref, int mode, int rock) {
 		if (ref == null) {
 			nullRef("Glk.streamOpenFile");
@@ -377,6 +506,8 @@ public abstract class AbstractGlk implements IGlk {
 		return s;
 	}
 
+	@Override
+	@GlkMethod(0x138)
 	public Stream streamOpenFileUni(Fileref ref, int mode, int rock) {
 		if (ref == null) {
 			nullRef("Glk.streamOpenFileUni");
@@ -391,6 +522,8 @@ public abstract class AbstractGlk implements IGlk {
 		return s;
 	}
 
+	@Override
+	@GlkMethod(0x41)
 	public int streamGetRock(Stream s) {
 		if (s == null) {
 			nullRef("Glk.streamGetRock");
@@ -400,6 +533,8 @@ public abstract class AbstractGlk implements IGlk {
 		return ((Integer) STREAMS.get(s)).intValue();
 	}
 
+	@Override
+	@GlkMethod(0x87)
 	public void setStyleStream(Stream s, int style) {
 		if (s == null) {
 			nullRef("Glk.setStyleStream");
@@ -412,21 +547,29 @@ public abstract class AbstractGlk implements IGlk {
 			s.setStyle(STYLES[STYLE_NORMAL]);
 	}
 
+	@Override
+	@GlkMethod(0x86)
 	public void setStyle(int style) {
 		if (CURRENT_STREAM != null)
 			setStyleStream(CURRENT_STREAM, style);
 	}
 
+	@Override
+	@GlkMethod(0xB0)
 	public void stylehintSet(int wintype, int style, int hint, int val) {
 		StyleHints.setHint(wintype, Style.getStyle(STYLES[style], wintype),
 				hint, val);
 	}
 
+	@Override
+	@GlkMethod(0xB1)
 	public void stylehintClear(int wintype, int style, int hint) {
 		StyleHints.clearHint(wintype, Style.getStyle(STYLES[style], wintype),
 				hint);
 	}
 
+	@Override
+	@GlkMethod(0xB2)
 	public boolean styleDistinguish(IWindow win, int s1, int s2) {
 		if (win == null) {
 			nullRef("Glk.styleDistinguish");
@@ -461,6 +604,8 @@ public abstract class AbstractGlk implements IGlk {
 		return false;
 	}
 
+	@Override
+	@GlkMethod(0xB3)
 	public boolean styleMeasure(IWindow win, int style, int hint, OutInt result) {
 		if (win == null) {
 			nullRef("Glk.styleMeasure");
@@ -470,6 +615,8 @@ public abstract class AbstractGlk implements IGlk {
 		return win.measureStyle(STYLES[style], hint, result);
 	}
 
+	@Override
+	@GlkMethod(0x60)
 	public Fileref filerefCreateTemp(int usage, int rock) {
 		try {
 			Fileref ref = Fileref.createTemp(usage);
@@ -486,6 +633,8 @@ public abstract class AbstractGlk implements IGlk {
 		}
 	}
 
+	@Override
+	@GlkMethod(0x61)
 	public Fileref filerefCreateByName(int usage, String name, int rock) {
 		Fileref ref = Fileref.createByName(usage, name);
 		if (ref != null) {
@@ -498,6 +647,12 @@ public abstract class AbstractGlk implements IGlk {
 		}
 	}
 
+	@Override
+	@GlkMethod(0x62)
+	public abstract Fileref filerefCreateByPrompt(int usage, int fmode, int rock);
+
+	@Override
+	@GlkMethod(0x68)
 	public Fileref filerefCreateFromFileref(int usage, Fileref r, int rock) {
 		if (r == null) {
 			nullRef("Glk.filerefCreateFromFileref");
@@ -511,6 +666,8 @@ public abstract class AbstractGlk implements IGlk {
 		return ref;
 	}
 
+	@Override
+	@GlkMethod(0x63)
 	public void filerefDestroy(Fileref ref) {
 		if (ref == null) {
 			nullRef("Glk.filerefDestroy");
@@ -524,6 +681,8 @@ public abstract class AbstractGlk implements IGlk {
 			DESTROY_CALLBACK.callback(ref);
 	}
 
+	@Override
+	@GlkMethod(0x66)
 	public void filerefDeleteFile(Fileref ref) {
 		if (ref == null) {
 			nullRef("Glk.filerefDeleteFile");
@@ -533,6 +692,8 @@ public abstract class AbstractGlk implements IGlk {
 		Fileref.deleteFile(ref);
 	}
 
+	@Override
+	@GlkMethod(0x67)
 	public boolean filerefDoesFileExist(Fileref ref) {
 		if (ref == null) {
 			nullRef("Glk.filerefDoesFileExist");
@@ -542,6 +703,8 @@ public abstract class AbstractGlk implements IGlk {
 		return ref.fileExists();
 	}
 
+	@Override
+	@GlkMethod(0x65)
 	public int filerefGetRock(Fileref ref) {
 		if (ref == null) {
 			nullRef("Glk.filerefGetRock");
@@ -551,6 +714,8 @@ public abstract class AbstractGlk implements IGlk {
 		return ((Integer) FILE_REFS.get(ref)).intValue();
 	}
 
+	@Override
+	@GlkMethod(0xF1)
 	public int schannelGetRock(SoundChannel c) {
 		if (c == null) {
 			nullRef("Glk.schannelGetRock");
@@ -560,6 +725,8 @@ public abstract class AbstractGlk implements IGlk {
 		return ((Integer) SOUND_CHANNELS.get(c)).intValue();
 	}
 
+	@Override
+	@GlkMethod(0xF2)
 	public SoundChannel schannelCreate(int rock) {
 		SoundChannel c = new SoundChannel();
 		SOUND_CHANNELS.put(c, new Integer(rock));
@@ -569,6 +736,8 @@ public abstract class AbstractGlk implements IGlk {
 		return c;
 	}
 
+	@Override
+	@GlkMethod(0xF3)
 	public void schannelDestroy(SoundChannel c) {
 		if (c == null) {
 			nullRef("Glk.schannelDestroy");
@@ -586,6 +755,8 @@ public abstract class AbstractGlk implements IGlk {
 			DESTROY_CALLBACK.callback(c);
 	}
 
+	@Override
+	@GlkMethod(0xF9)
 	public boolean schannelPlayExt(SoundChannel c, int soundId, int repeat,
 			int notify) {
 		if (c == null) {
@@ -601,10 +772,14 @@ public abstract class AbstractGlk implements IGlk {
 		}
 	}
 
+	@Override
+	@GlkMethod(0xF8)
 	public boolean schannelPlay(SoundChannel c, int soundId) {
 		return schannelPlayExt(c, soundId, 1, 0);
 	}
 
+	@Override
+	@GlkMethod(0xFA)
 	public void schannelStop(SoundChannel c) {
 		if (c == null) {
 			nullRef("Glk.schannelStop");
@@ -618,6 +793,8 @@ public abstract class AbstractGlk implements IGlk {
 		}
 	}
 
+	@Override
+	@GlkMethod(0xFB)
 	public void schannelSetVolume(SoundChannel c, int vol) {
 		if (c == null)
 			nullRef("Glk.schannelSetVolume");
@@ -625,14 +802,20 @@ public abstract class AbstractGlk implements IGlk {
 			c.setVolume(vol);
 	}
 
+	@Override
+	@GlkMethod(0xFC)
 	public void soundLoadHint(int soundId, int val) {
-
+		// TODO Implement preloading of sounds.
 	}
 
+	@Override
+	@GlkMethod(4)
 	public int gestalt(int sel, int val) {
 		return gestaltExt(sel, val, null, 0);
 	}
 
+	@Override
+	@GlkMethod(5)
 	public int gestaltExt(int sel, int val, InOutIntBuffer arr, int len) {
 		switch (sel) {
 		case GESTALT_VERSION:
@@ -695,6 +878,8 @@ public abstract class AbstractGlk implements IGlk {
 		}
 	}
 
+	@Override
+	@GlkMethod(0xD2)
 	public void requestCharEvent(IWindow win) {
 		if (win == null)
 			nullRef("Glk.requestCharEvent");
@@ -702,6 +887,8 @@ public abstract class AbstractGlk implements IGlk {
 			win.requestCharacterInput(new GlkCharConsumer(win));
 	}
 
+	@Override
+	@GlkMethod(0x140)
 	public void requestCharEventUni(IWindow win) {
 		if (win == null)
 			nullRef("Glk.requestCharEvent");
@@ -709,6 +896,8 @@ public abstract class AbstractGlk implements IGlk {
 			win.requestCharacterInput(new GlkCharConsumer(win));
 	}
 
+	@Override
+	@GlkMethod(0xD3)
 	public void cancelCharEvent(IWindow win) {
 		if (win == null)
 			nullRef("Glk.cancelCharEvent");
@@ -716,6 +905,8 @@ public abstract class AbstractGlk implements IGlk {
 			win.cancelCharacterInput();
 	}
 
+	@Override
+	@GlkMethod(0xD0)
 	public void requestLineEvent(IWindow win, InOutByteBuffer b, int maxlen,
 			int initlen) {
 		if (win == null) {
@@ -735,6 +926,8 @@ public abstract class AbstractGlk implements IGlk {
 				maxlen);
 	}
 
+	@Override
+	@GlkMethod(0x141)
 	public void requestLineEventUni(IWindow win, InOutByteBuffer b, int maxlen,
 			int initlen) {
 		if (win == null) {
@@ -756,6 +949,8 @@ public abstract class AbstractGlk implements IGlk {
 				maxlen);
 	}
 
+	@Override
+	@GlkMethod(0xD1)
 	public void cancelLineEvent(IWindow win, GlkEvent e) {
 		if (win == null) {
 			nullRef("Glk.cancelLineEvent");
@@ -772,6 +967,8 @@ public abstract class AbstractGlk implements IGlk {
 		}
 	}
 
+	@Override
+	@GlkMethod(0xD4)
 	public void requestMouseEvent(IWindow win) {
 		if (win == null)
 			nullRef("Glk.requestMouseEvent");
@@ -779,6 +976,8 @@ public abstract class AbstractGlk implements IGlk {
 			win.requestMouseInput(new GlkMouseConsumer(win));
 	}
 
+	@Override
+	@GlkMethod(0xD5)
 	public void cancelMouseEvent(IWindow win) {
 		if (win == null)
 			nullRef("Glk.cancelMouseEvent");
@@ -786,40 +985,58 @@ public abstract class AbstractGlk implements IGlk {
 			win.cancelMouseInput();
 	}
 
+	@Override
+	@GlkMethod(0xD6)
 	public void requestTimerEvents(int delta) {
 		TIMESTAMP = System.currentTimeMillis();
 		TIMER = delta;
 	}
 
+	@Override
+	@GlkMethod(0xE1)
 	public abstract boolean imageDraw(IWindow win, int imgid, int val1, int val2);
 
+	@Override
+	@GlkMethod(0xE2)
 	public abstract boolean imageDrawScaled(IWindow win, int imgid, int val1,
 			int val2, int width, int height);
 
+	@Override
+	@GlkMethod(0xE0)
 	public abstract boolean imageGetInfo(int imgid, OutInt width, OutInt height);
 
+	@Override
+	@GlkMethod(0xEB)
 	public void windowSetBackgroundColor(IWindow win, Color c) {
 		if (win instanceof IGraphicsWindow)
 			((IGraphicsWindow) win).setBackgroundColor(c);
 	}
 
+	@Override
+	@GlkMethod(0xEA)
 	public void windowFillRect(IWindow win, Color c, int left, int top,
 			int width, int height) {
 		if (win instanceof IGraphicsWindow)
 			((IGraphicsWindow) win).fillRect(c, left, top, width, height);
 	}
 
+	@Override
+	@GlkMethod(0xE9)
 	public void windowEraseRect(IWindow win, int left, int top, int width,
 			int height) {
 		if (win instanceof IGraphicsWindow)
 			((IGraphicsWindow) win).eraseRect(left, top, width, height);
 	}
 
+	@Override
+	@GlkMethod(0xE8)
 	public void windowFlowBreak(IWindow win) {
 		if (win instanceof ITextBufferWindow)
 			((ITextBufferWindow) win).flowBreak();
 	}
 
+	@Override
+	@GlkMethod(0x2B)
 	public void windowMoveCursor(IWindow win, int x, int y) {
 		if (win == null)
 			nullRef("Glk.windowMoveCursor");
@@ -827,10 +1044,14 @@ public abstract class AbstractGlk implements IGlk {
 			((ITextGridWindow) win).setCursor(x, y);
 	}
 
+	@Override
+	@GlkMethod(0x100)
 	public void setHyperlink(int val) {
 		setHyperlinkStream(CURRENT_STREAM, val);
 	}
 
+	@Override
+	@GlkMethod(0x101)
 	public void setHyperlinkStream(Stream s, int val) {
 		if (s == null)
 			nullRef("Glk.setHyperlinkStream");
@@ -838,15 +1059,17 @@ public abstract class AbstractGlk implements IGlk {
 			s.setHyperlink(val);
 	}
 
+	@Override
+	@GlkMethod(0x102)
 	public void requestHyperlinkEvent(IWindow w) {
 		w.requestHyperlinkInput(new GlkHyperConsumer(w));
 	}
 
+	@Override
+	@GlkMethod(0x103)
 	public void cancelHyperlinkEvent(IWindow w) {
 		w.cancelHyperlinkInput();
 	}
-
-	public abstract void selectPoll(GlkEvent e);
 
 	public static void addEvent(GlkEvent e) {
 		synchronized (EVENT_QUEUE) {
@@ -855,6 +1078,8 @@ public abstract class AbstractGlk implements IGlk {
 		}
 	}
 
+	@Override
+	@GlkMethod(0x160)
 	public void getCurrentTime(GlkTimeval timeval) {
 		long t = System.currentTimeMillis();
 		long ut = t / 1000L;
@@ -865,10 +1090,14 @@ public abstract class AbstractGlk implements IGlk {
 		timeval.setMicrosec((int) (t & 1000));
 	}
 
+	@Override
+	@GlkMethod(0x161)
 	public int getCurrentSimpleTime(int factor) {
 		return Math.round(System.currentTimeMillis() / 1000L / factor);
 	}
 
+	@Override
+	@GlkMethod(0x168)
 	public void convertTimeToDateUtc(GlkTimeval time, GlkDate date) {
 		DateTime dt = new DateTime(time.getUnixTime() * 1000L)
 				.toDateTime(DateTimeZone.UTC);
@@ -883,6 +1112,8 @@ public abstract class AbstractGlk implements IGlk {
 		date.setMicrosec(time.getMicrosec());
 	}
 
+	@Override
+	@GlkMethod(0x169)
 	public void convertTimeToDateLocal(GlkTimeval time, GlkDate date) {
 		DateTime udt = new DateTime(time.getUnixTime() * 1000L);
 		date.setOut(true);
@@ -897,6 +1128,8 @@ public abstract class AbstractGlk implements IGlk {
 		date.setMicrosec(time.getMicrosec());
 	}
 
+	@Override
+	@GlkMethod(0x16B)
 	public void convertSimpleTimeToDateLocal(int time, int factor, GlkDate date) {
 		DateTime udt = new DateTime(time * 1000L * factor);
 		date.setOut(true);
@@ -911,6 +1144,8 @@ public abstract class AbstractGlk implements IGlk {
 		date.setMicrosec(0);
 	}
 
+	@Override
+	@GlkMethod(0x16A)
 	public void convertSimpleTimeToDateUtc(int time, int factor, GlkDate date) {
 		DateTime udt = new DateTime(time * 1000L * factor)
 				.toDateTime(DateTimeZone.UTC);
@@ -926,6 +1161,8 @@ public abstract class AbstractGlk implements IGlk {
 		date.setMicrosec(0);
 	}
 
+	@Override
+	@GlkMethod(0x16C)
 	public void convertDateToTimeUtc(GlkDate date, GlkTimeval time) {
 		DateTime udt = new DateTime(date.getYear(), date.getMonth(),
 				date.getDay(), date.getHour(), date.getMinute(),
@@ -937,6 +1174,8 @@ public abstract class AbstractGlk implements IGlk {
 		time.setMicrosec(0);
 	}
 
+	@Override
+	@GlkMethod(0x16D)
 	public void convertDateToTimeLocal(GlkDate date, GlkTimeval time) {
 		DateTime udt = new DateTime(date.getYear(), date.getMonth(),
 				date.getDay(), date.getHour(), date.getMinute(),
@@ -948,6 +1187,8 @@ public abstract class AbstractGlk implements IGlk {
 		time.setMicrosec(0);
 	}
 
+	@Override
+	@GlkMethod(0x16E)
 	public int convertDateToSimpleTimeUtc(GlkDate date, int factor) {
 		DateTime udt = new DateTime(date.getYear(), date.getMonth(),
 				date.getDay(), date.getHour(), date.getMinute(),
@@ -955,6 +1196,8 @@ public abstract class AbstractGlk implements IGlk {
 		return Math.round(udt.getMillis() / 1000L / factor);
 	}
 
+	@Override
+	@GlkMethod(0x16F)
 	public int convertDateToSimpleTimeLocal(GlkDate date, int factor) {
 		DateTime udt = new DateTime(date.getYear(), date.getMonth(),
 				date.getDay(), date.getHour(), date.getMinute(),
@@ -962,12 +1205,15 @@ public abstract class AbstractGlk implements IGlk {
 		return Math.round(udt.getMillis() / 1000L / factor);
 	}
 
+	@Override
 	public abstract Image getImage(int id, int xscale, int yscale);
 
+	@Override
 	public int colorToInt(Color c) {
 		return ((c.getRed() << 16) | (c.getGreen() << 8) | c.getBlue());
 	}
 
+	@Override
 	public Color intToColor(int i) {
 		int iRed = (i >>> 16) & 0xff;
 		int iGreen = (i >>> 8) & 0xff;
@@ -975,9 +1221,97 @@ public abstract class AbstractGlk implements IGlk {
 		return new Color(iRed, iGreen, iBlue);
 	}
 
+	@Override
 	public abstract void nullRef(String func);
 
+	@Override
+	@GlkMethod(0x22)
+	public abstract IWindow windowGetRoot();
+
+	@Override
+	@GlkMethod(0xC0)
+	public void select(GlkEvent e) {
+		long cur = 0l;
+		GlkEvent ev = null;
+		boolean done = false;
+
+		synchronized (EVENT_QUEUE) {
+			if (Window.getRoot() != null)
+				Window.getRoot().doLayout();
+
+			while (!done) {
+				if (!EVENT_QUEUE.isEmpty()) {
+					ev = (GlkEvent) EVENT_QUEUE.removeFirst();
+					if (ev != null)
+						done = true;
+				} else if (TIMER > 0
+						&& (cur = System.currentTimeMillis()) - TIMESTAMP >= TIMER) {
+					e.type = EVTYPE_TIMER;
+					e.win = null;
+					e.val1 = 0;
+					e.val2 = 0;
+					TIMESTAMP = cur;
+					done = true;
+				} else {
+					try {
+						if (TIMER > 0)
+							EVENT_QUEUE.wait(TIMER - (cur - TIMESTAMP));
+						else
+							EVENT_QUEUE.wait();
+					} catch (InterruptedException ex) {
+					}
+				}
+			}
+			if (ev != null) {
+				e.type = ev.type;
+				e.win = ev.win;
+				e.val1 = ev.val1;
+				e.val2 = ev.val2;
+			}
+		}
+	}
+
+	@Override
+	@GlkMethod(0xC1)
+	public void selectPoll(GlkEvent e) {
+		long cur;
+		GlkEvent ev = null;
+		ListIterator li;
+
+		synchronized (EVENT_QUEUE) {
+			if (Window.getRoot() != null)
+				Window.getRoot().doLayout();
+
+			li = EVENT_QUEUE.listIterator();
+			while (li.hasNext()) {
+				ev = (GlkEvent) li.next();
+				if (ev.type == EVTYPE_TIMER || ev.type == EVTYPE_ARRANGE
+						|| ev.type == EVTYPE_SOUND_NOTIFY) {
+					li.remove();
+					e.type = ev.type;
+					e.win = ev.win;
+					e.val1 = ev.val1;
+					e.val2 = ev.val2;
+					break;
+				}
+			}
+			if (TIMER > 0) {
+				cur = System.currentTimeMillis();
+				if ((cur - TIMESTAMP) >= TIMER) {
+					e.type = EVTYPE_TIMER;
+					e.win = null;
+					e.val1 = 0;
+					e.val2 = 0;
+					TIMESTAMP = cur;
+					return;
+				}
+			}
+			e.type = EVTYPE_NONE;
+		}
+	}
+
 	protected static final class HashCodeComparator implements Comparator {
+		@Override
 		public int compare(Object o1, Object o2) {
 			return o1.hashCode() - o2.hashCode();
 		}
@@ -995,6 +1329,7 @@ public abstract class AbstractGlk implements IGlk {
 			w = win;
 		}
 
+		@Override
 		public void consume(int val) {
 			GlkEvent e = new GlkEvent();
 			e.type = EVTYPE_HYPERLINK;
@@ -1013,6 +1348,7 @@ public abstract class AbstractGlk implements IGlk {
 			w = win;
 		}
 
+		@Override
 		public void consume(java.awt.event.KeyEvent e) {
 			GlkEvent ev = new GlkEvent();
 			ev.type = EVTYPE_CHAR_INPUT;
@@ -1130,6 +1466,7 @@ public abstract class AbstractGlk implements IGlk {
 			this.unicode = unicode;
 		}
 
+		@Override
 		public void consume(String s) {
 			GlkEvent ev = new GlkEvent();
 			cancel(s);
@@ -1140,6 +1477,7 @@ public abstract class AbstractGlk implements IGlk {
 			addEvent(ev);
 		}
 
+		@Override
 		public void cancel(String s) {
 			int l = s.length();
 			if (unicode) {
@@ -1160,6 +1498,7 @@ public abstract class AbstractGlk implements IGlk {
 			w = win;
 		}
 
+		@Override
 		public void consume(int x, int y) {
 			GlkEvent e = new GlkEvent();
 			e.type = EVTYPE_MOUSE_INPUT;

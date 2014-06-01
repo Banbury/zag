@@ -85,6 +85,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	 * 
 	 * @see org.p2c2e.zing.IWindow#getStream()
 	 */
+	@Override
 	public Stream getStream() {
 		return stream;
 	}
@@ -94,6 +95,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	 * 
 	 * @see org.p2c2e.zing.IWindow#getEchoStream()
 	 */
+	@Override
 	public Stream getEchoStream() {
 		return echo;
 	}
@@ -103,6 +105,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	 * 
 	 * @see org.p2c2e.zing.IWindow#setEchoStream(org.p2c2e.zing.Stream)
 	 */
+	@Override
 	public void setEchoStream(Stream s) {
 		if (s != stream)
 			echo = s;
@@ -113,6 +116,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	 * 
 	 * @see org.p2c2e.zing.IWindow#getWindowWidth()
 	 */
+	@Override
 	public int getWindowWidth() {
 		if (panel != null)
 			return panel.getWidth();
@@ -124,6 +128,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	 * 
 	 * @see org.p2c2e.zing.IWindow#getWindowHeight()
 	 */
+	@Override
 	public int getWindowHeight() {
 		if (panel != null)
 			return panel.getHeight();
@@ -143,28 +148,34 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 			curStyle = style;
 	}
 
+	@Override
 	public TreeMap getHintedStyles() {
 		return hintedStyles;
 	}
 
+	@Override
 	public void putChar(int c) {
 		// NOOP
 	}
 
+	@Override
 	public void putCharUni(int c) {
 		// NOOP
 	}
 
+	@Override
 	public void putString(String s) {
 		int len = s.length();
 		for (int i = 0; i < len; i++)
 			putChar(s.charAt(i));
 	}
 
+	@Override
 	public void clear() {
 
 	}
 
+	@Override
 	public boolean measureStyle(String stName, int hint, Int b) {
 		return false;
 	}
@@ -210,6 +221,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	 * 
 	 * @see org.p2c2e.zing.IWindow#getParent()
 	 */
+	@Override
 	public PairWindow getParent() {
 		return parent;
 	}
@@ -219,6 +231,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	 * 
 	 * @see org.p2c2e.zing.IWindow#getSibling()
 	 */
+	@Override
 	public IWindow getSibling() {
 		if (parent == null)
 			return null;
@@ -233,6 +246,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	 * 
 	 * @see org.p2c2e.zing.IWindow#closeStream()
 	 */
+	@Override
 	public StreamResult closeStream() {
 		return stream.close();
 	}
@@ -371,48 +385,59 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 		return 0;
 	}
 
+	@Override
 	public boolean requestMouseInput(MouseInputConsumer c) {
 		return false;
 	}
 
+	@Override
 	public boolean requestCharacterInput(CharInputConsumer c) {
 		return false;
 	}
 
+	@Override
 	public boolean requestLineInput(LineInputConsumer c, String init, int max) {
 		return false;
 	}
 
+	@Override
 	public void cancelMouseInput() {
 
 	}
 
+	@Override
 	public void cancelCharacterInput() {
 
 	}
 
+	@Override
 	public String cancelLineInput() {
 		return null;
 	}
 
+	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (LameFocusManager.FOCUSED_WINDOW != this) {
 			LameFocusManager.grabFocus(this);
 		}
 	}
 
+	@Override
 	public void mouseEntered(MouseEvent e) {
 
 	}
 
+	@Override
 	public void mouseExited(MouseEvent e) {
 
 	}
 
+	@Override
 	public void mousePressed(MouseEvent e) {
 
 	}
 
+	@Override
 	public void mouseReleased(MouseEvent e) {
 
 	}
@@ -426,12 +451,15 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	 * 
 	 * @see org.p2c2e.zing.IWindow#compareTo(java.lang.Object)
 	 */
+	@Override
 	public int compareTo(Object o) {
 		return hashCode() - o.hashCode();
 	}
 
+	@Override
 	public abstract void requestHyperlinkInput(HyperlinkInputConsumer hic);
 
+	@Override
 	public abstract void cancelHyperlinkInput();
 
 	public static void useHints(boolean useHints) {

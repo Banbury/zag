@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.p2c2e.util.FastByteBuffer;
-import org.p2c2e.zing.Dispatch;
+import org.p2c2e.zing.Dispatch2;
 import org.p2c2e.zing.Fileref;
 import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.IWindow;
@@ -342,7 +342,7 @@ public final class IO {
 		default:
 			int addr;
 			Class c;
-			Method m = Dispatch.getMethod(selector);
+			Method m = Dispatch2.getMethod(selector);
 			if (m == null)
 				noSuchMethod(selector);
 			Class[] f = m.getParameterTypes();
@@ -1149,12 +1149,14 @@ public final class IO {
 	}
 
 	final class CreationCallback implements ObjectCallback {
+		@Override
 		public void callback(Object o) {
 			ors.put(new Integer(o.hashCode()), o);
 		}
 	}
 
 	final class DestructionCallback implements ObjectCallback {
+		@Override
 		public void callback(Object o) {
 			if (o instanceof SoundChannel)
 				try {
