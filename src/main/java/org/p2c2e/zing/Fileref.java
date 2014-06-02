@@ -37,7 +37,11 @@ public class Fileref implements Comparable {
 	}
 
 	public static Fileref createByName(int usage, String name) {
-		String fname = name;
+		String fname = name.replaceAll("[^a-zA-Z0-9_\\-\\.]", "");
+		fname = fname.split("\\.")[0];
+
+		if (fname.isEmpty())
+			fname = "null";
 
 		switch (usage) {
 		case IGlk.FILEUSAGE_DATA:
