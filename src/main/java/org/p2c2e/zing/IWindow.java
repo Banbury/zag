@@ -2,6 +2,7 @@ package org.p2c2e.zing;
 
 import java.util.TreeMap;
 
+import org.p2c2e.zing.streams.Stream;
 import org.p2c2e.zing.types.Int;
 import org.p2c2e.zing.types.StreamResult;
 

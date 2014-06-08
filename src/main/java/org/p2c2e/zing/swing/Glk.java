@@ -6,10 +6,7 @@ import java.awt.Frame;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.ListIterator;
-import java.util.TreeMap;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -24,10 +21,8 @@ import org.p2c2e.zing.AbstractGlk;
 import org.p2c2e.zing.Fileref;
 import org.p2c2e.zing.IWindow;
 import org.p2c2e.zing.ObjectCallback;
-import org.p2c2e.zing.SoundChannel;
-import org.p2c2e.zing.Stream;
 import org.p2c2e.zing.Style;
-import org.p2c2e.zing.StyleHints;
+import org.p2c2e.zing.streams.Stream;
 import org.p2c2e.zing.types.OutInt;
 import org.p2c2e.zing.types.OutWindow;
 import org.p2c2e.zing.types.StreamResult;
@@ -89,44 +84,20 @@ public class Glk extends AbstractGlk {
 
 	@Override
 	public void flush() {
+		super.flush();
+
 		if (Window.getRoot() != null)
 			Window.getRoot().doLayout();
-
-		try {
-			Iterator it = SOUND_CHANNELS.keySet().iterator();
-			while (it.hasNext())
-				((SoundChannel) it.next()).stop();
-			it = STREAMS.keySet().iterator();
-			while (it.hasNext())
-				((Stream) it.next()).close();
-		} catch (Exception e) {
-			System.err
-					.println("problem while attempting to stop sound channel: "
-							+ e);
-		}
 	}
 
 	@Override
 	public void reset() {
+		super.reset();
 		if (Window.getRoot() != null) {
 			Window.close(Window.getRoot());
 			Window.getFrame().getContentPane().validate();
 			Window.getFrame().getContentPane().repaint();
 		}
-
-		WINDOWS = new TreeMap(HC_COMP);
-		STREAMS = new TreeMap(HC_COMP);
-		FILE_REFS = new TreeMap(HC_COMP);
-		SOUND_CHANNELS = new TreeMap(HC_COMP);
-
-		CURRENT_STREAM = null;
-		EVENT_QUEUE = new LinkedList();
-		TIMER = 0;
-		TIMESTAMP = 0L;
-		blorbFile = null;
-		IMAGE_CACHE = new LinkedList();
-
-		StyleHints.clearAll();
 	}
 
 	public StatusPane getStatusPane() {

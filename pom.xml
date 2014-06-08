@@ -3,11 +3,36 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>zag2</groupId>
 	<artifactId>zag2</artifactId>
-	<version>1.0.8-SNAPSHOT</version>
+	<version>${app.version}-SNAPSHOT</version>
 	<name>Zag2</name>
 	<description>An implementation of Glulx for Java</description>
 
+	<properties>
+		<app.version>1.0.8</app.version>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>mvncentral</id>
+			<name>Maven Central</name>
+			<url>http://repo1.maven.org/maven</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>sonatype</id>
+			<name>Sonatype</name>
+			<url>http://oss.sonatype.org/content/repositories/snapshots/</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+
 	<pluginRepositories>
+		<pluginRepository>
+			<id>mvncentral</id>
+			<name>Maven Central</name>
+			<url>http://repo1.maven.org/maven</url>
+			<layout>default</layout>
+		</pluginRepository>
 		<pluginRepository>
 			<id>objectstyle</id>
 			<name>ObjectStyle Repository</name>
@@ -27,13 +52,14 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
-<!-- 					<annotationProcessors> -->
-<!-- 						<annotationProcessor>org.p2c2e.util.GlkMethodProcessor</annotationProcessor> -->
-<!-- 					</annotationProcessors> -->
-<!-- 					<generatedSourcesDirectory>${project.build.sourceDirectory}</generatedSourcesDirectory> 	 -->
-<!-- 					<showWarnings>true</showWarnings> -->
+					<!-- <annotationProcessors> -->
+					<!-- <annotationProcessor>org.p2c2e.util.GlkMethodProcessor</annotationProcessor> -->
+					<!-- </annotationProcessors> -->
+					<!-- <generatedSourcesDirectory>${project.build.sourceDirectory}</generatedSourcesDirectory> -->
+					<!-- <showWarnings>true</showWarnings> -->
 					<source>1.6</source>
 					<target>1.6</target>
+					<compilerArgument>-proc:none</compilerArgument>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -111,15 +137,15 @@
 								</opts>
 							</jre>
 							<versionInfo>
-								<fileVersion>1.0.8.0</fileVersion>
+								<fileVersion>${app.version}.0</fileVersion>
 								<fileDescription>Zag2 - a Glulx interpreter</fileDescription>
 								<copyright>2014 by Banbury</copyright>
-								<productVersion>1.0.8.0</productVersion>
+								<productVersion>${app.version}.0</productVersion>
 								<productName>Zag2</productName>
 								<internalName>zag2</internalName>
 								<originalFilename>zag2.exe</originalFilename>
-								<txtFileVersion>1.0.8.0</txtFileVersion>
-								<txtProductVersion>1.0.8.0</txtProductVersion>
+								<txtFileVersion>${app.version}.0</txtFileVersion>
+								<txtProductVersion>${app.version}.0</txtProductVersion>
 							</versionInfo>
 						</configuration>
 					</execution>
@@ -138,6 +164,17 @@
 			<artifactId>zag-processor</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>edu.ucar</groupId>
+			<artifactId>unidataCommon</artifactId>
+			<version>4.2.20</version>
+		</dependency>
+		<dependency>
+			<groupId>org.spockframework</groupId>
+			<artifactId>spock-core</artifactId>
+			<version>1.0-groovy-2.0-SNAPSHOT</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

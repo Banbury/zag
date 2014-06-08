@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 
+import org.p2c2e.zing.streams.Stream;
 import org.p2c2e.zing.swing.Glk;
 import org.p2c2e.zing.types.GlkEvent;
 import org.p2c2e.zing.types.InOutByteBuffer;

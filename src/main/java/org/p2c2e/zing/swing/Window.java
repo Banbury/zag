@@ -27,9 +27,10 @@ import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.IWindow;
 import org.p2c2e.zing.LineInputConsumer;
 import org.p2c2e.zing.MouseInputConsumer;
-import org.p2c2e.zing.Stream;
 import org.p2c2e.zing.Style;
 import org.p2c2e.zing.StyleHints;
+import org.p2c2e.zing.streams.Stream;
+import org.p2c2e.zing.streams.WindowStream;
 import org.p2c2e.zing.types.Int;
 import org.p2c2e.zing.types.StreamResult;
 
@@ -67,7 +68,7 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 		hintedStyles = new TreeMap();
 		createHintedStyles(getStyleMap(), Style.USE_HINTS);
 		curStyle = (Style) hintedStyles.get("normal");
-		stream = new Stream.WindowStream(this);
+		stream = new WindowStream(this);
 	}
 
 	protected int getWindowType() {

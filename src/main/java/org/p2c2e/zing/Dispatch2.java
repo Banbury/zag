@@ -28,7 +28,7 @@ public final class Dispatch2 {
 				.getMethod("windowIterate", org.p2c2e.zing.IWindow.class,
 						org.p2c2e.zing.types.OutInt.class));
 		METHODS.put(64, AbstractGlk.class.getMethod("streamIterate",
-				org.p2c2e.zing.Stream.class, org.p2c2e.zing.types.OutInt.class));
+				org.p2c2e.zing.streams.Stream.class, org.p2c2e.zing.types.OutInt.class));
 		METHODS.put(100, AbstractGlk.class
 				.getMethod("filerefIterate", org.p2c2e.zing.Fileref.class,
 						org.p2c2e.zing.types.OutInt.class));
@@ -66,7 +66,7 @@ public final class Dispatch2 {
 				org.p2c2e.zing.IWindow.class,
 				org.p2c2e.zing.types.StreamResult.class));
 		METHODS.put(45, AbstractGlk.class.getMethod("windowSetEchoStream",
-				org.p2c2e.zing.IWindow.class, org.p2c2e.zing.Stream.class));
+				org.p2c2e.zing.IWindow.class, org.p2c2e.zing.streams.Stream.class));
 		METHODS.put(46, AbstractGlk.class.getMethod("windowGetEchoStream",
 				org.p2c2e.zing.IWindow.class));
 		METHODS.put(44, AbstractGlk.class.getMethod("windowGetStream",
@@ -74,7 +74,7 @@ public final class Dispatch2 {
 		METHODS.put(47, AbstractGlk.class.getMethod("setWindow",
 				org.p2c2e.zing.IWindow.class));
 		METHODS.put(71, AbstractGlk.class.getMethod("streamSetCurrent",
-				org.p2c2e.zing.Stream.class));
+				org.p2c2e.zing.streams.Stream.class));
 		METHODS.put(72, AbstractGlk.class.getMethod("streamGetCurrent"));
 		METHODS.put(128, AbstractGlk.class.getMethod("putChar", char.class));
 		METHODS.put(296, AbstractGlk.class.getMethod("putCharUni", int.class));
@@ -87,18 +87,18 @@ public final class Dispatch2 {
 		METHODS.put(298, AbstractGlk.class.getMethod("putBufferUni",
 				org.p2c2e.zing.types.InByteBuffer.class, int.class));
 		METHODS.put(129, AbstractGlk.class.getMethod("putCharStream",
-				org.p2c2e.zing.Stream.class, int.class));
+				org.p2c2e.zing.streams.Stream.class, int.class));
 		METHODS.put(299, AbstractGlk.class.getMethod("putCharStreamUni",
-				org.p2c2e.zing.Stream.class, int.class));
+				org.p2c2e.zing.streams.Stream.class, int.class));
 		METHODS.put(131, AbstractGlk.class.getMethod("putStringStream",
-				org.p2c2e.zing.Stream.class, java.lang.String.class));
+				org.p2c2e.zing.streams.Stream.class, java.lang.String.class));
 		METHODS.put(300, AbstractGlk.class.getMethod("putStringStreamUni",
-				org.p2c2e.zing.Stream.class, java.lang.String.class));
+				org.p2c2e.zing.streams.Stream.class, java.lang.String.class));
 		METHODS.put(133, AbstractGlk.class.getMethod("putBufferStream",
-				org.p2c2e.zing.Stream.class,
+				org.p2c2e.zing.streams.Stream.class,
 				org.p2c2e.zing.types.InByteBuffer.class, int.class));
 		METHODS.put(301, AbstractGlk.class.getMethod("putBufferStreamUni",
-				org.p2c2e.zing.Stream.class,
+				org.p2c2e.zing.streams.Stream.class,
 				org.p2c2e.zing.types.InByteBuffer.class, int.class));
 		METHODS.put(288, AbstractGlk.class.getMethod("bufferToLowerCaseUni",
 				org.p2c2e.zing.types.InOutByteBuffer.class, int.class,
@@ -110,28 +110,28 @@ public final class Dispatch2 {
 				org.p2c2e.zing.types.InOutByteBuffer.class, int.class,
 				int.class));
 		METHODS.put(144, AbstractGlk.class.getMethod("getCharStream",
-				org.p2c2e.zing.Stream.class));
+				org.p2c2e.zing.streams.Stream.class));
 		METHODS.put(304, AbstractGlk.class.getMethod("getCharStreamUni",
-				org.p2c2e.zing.Stream.class));
+				org.p2c2e.zing.streams.Stream.class));
 		METHODS.put(146, AbstractGlk.class.getMethod("getBufferStream",
-				org.p2c2e.zing.Stream.class,
+				org.p2c2e.zing.streams.Stream.class,
 				org.p2c2e.zing.types.OutByteBuffer.class, int.class));
 		METHODS.put(305, AbstractGlk.class.getMethod("getBufferStreamUni",
-				org.p2c2e.zing.Stream.class,
+				org.p2c2e.zing.streams.Stream.class,
 				org.p2c2e.zing.types.OutByteBuffer.class, int.class));
 		METHODS.put(145, AbstractGlk.class.getMethod("getLineStream",
-				org.p2c2e.zing.Stream.class,
+				org.p2c2e.zing.streams.Stream.class,
 				org.p2c2e.zing.types.OutByteBuffer.class, int.class));
 		METHODS.put(306, AbstractGlk.class.getMethod("getLineStreamUni",
-				org.p2c2e.zing.Stream.class,
+				org.p2c2e.zing.streams.Stream.class,
 				org.p2c2e.zing.types.OutByteBuffer.class, int.class));
 		METHODS.put(68, AbstractGlk.class.getMethod("streamClose",
-				org.p2c2e.zing.Stream.class,
+				org.p2c2e.zing.streams.Stream.class,
 				org.p2c2e.zing.types.StreamResult.class));
 		METHODS.put(70, AbstractGlk.class.getMethod("streamGetPosition",
-				org.p2c2e.zing.Stream.class));
+				org.p2c2e.zing.streams.Stream.class));
 		METHODS.put(69, AbstractGlk.class.getMethod("streamSetPosition",
-				org.p2c2e.zing.Stream.class, int.class, int.class));
+				org.p2c2e.zing.streams.Stream.class, int.class, int.class));
 		METHODS.put(67, AbstractGlk.class.getMethod("streamOpenMemory",
 				org.p2c2e.zing.types.InOutByteBuffer.class, int.class,
 				int.class, int.class));
@@ -143,9 +143,9 @@ public final class Dispatch2 {
 		METHODS.put(312, AbstractGlk.class.getMethod("streamOpenFileUni",
 				org.p2c2e.zing.Fileref.class, int.class, int.class));
 		METHODS.put(65, AbstractGlk.class.getMethod("streamGetRock",
-				org.p2c2e.zing.Stream.class));
+				org.p2c2e.zing.streams.Stream.class));
 		METHODS.put(135, AbstractGlk.class.getMethod("setStyleStream",
-				org.p2c2e.zing.Stream.class, int.class));
+				org.p2c2e.zing.streams.Stream.class, int.class));
 		METHODS.put(134, AbstractGlk.class.getMethod("setStyle", int.class));
 		METHODS.put(176, AbstractGlk.class.getMethod("stylehintSet", int.class,
 				int.class, int.class, int.class));
@@ -241,7 +241,7 @@ public final class Dispatch2 {
 				org.p2c2e.zing.IWindow.class, int.class, int.class));
 		METHODS.put(256, AbstractGlk.class.getMethod("setHyperlink", int.class));
 		METHODS.put(257, AbstractGlk.class.getMethod("setHyperlinkStream",
-				org.p2c2e.zing.Stream.class, int.class));
+				org.p2c2e.zing.streams.Stream.class, int.class));
 		METHODS.put(258, AbstractGlk.class.getMethod("requestHyperlinkEvent",
 				org.p2c2e.zing.IWindow.class));
 		METHODS.put(259, AbstractGlk.class.getMethod("cancelHyperlinkEvent",

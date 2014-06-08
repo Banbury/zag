@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Image;
 
 import org.p2c2e.blorb.BlorbFile;
+import org.p2c2e.zing.streams.Stream;
 import org.p2c2e.zing.types.GlkDate;
 import org.p2c2e.zing.types.GlkEvent;
 import org.p2c2e.zing.types.GlkTimeval;

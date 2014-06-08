@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.Normalizer;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.SortedMap;
@@ -18,6 +19,10 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.p2c2e.blorb.BlorbFile;
 import org.p2c2e.util.GlkMethod;
+import org.p2c2e.zing.streams.FileStream;
+import org.p2c2e.zing.streams.MemoryStream;
+import org.p2c2e.zing.streams.Stream;
+import org.p2c2e.zing.streams.UnicodeMemoryStream;
 import org.p2c2e.zing.swing.Window;
 import org.p2c2e.zing.types.GlkDate;
 import org.p2c2e.zing.types.GlkEvent;
@@ -56,10 +61,37 @@ public abstract class AbstractGlk implements IGlk {
 	}
 
 	@Override
-	public abstract void flush();
+	public void flush() {
+		try {
+			Iterator it = SOUND_CHANNELS.keySet().iterator();
+			while (it.hasNext())
+				((SoundChannel) it.next()).stop();
+			it = STREAMS.keySet().iterator();
+			while (it.hasNext())
+				((Stream) it.next()).close();
+		} catch (Exception e) {
+			System.err
+					.println("problem while attempting to stop sound channel: "
+							+ e);
+		}
+	}
 
 	@Override
-	public abstract void reset();
+	public void reset() {
+		WINDOWS = new TreeMap(HC_COMP);
+		STREAMS = new TreeMap(HC_COMP);
+		FILE_REFS = new TreeMap(HC_COMP);
+		SOUND_CHANNELS = new TreeMap(HC_COMP);
+
+		CURRENT_STREAM = null;
+		EVENT_QUEUE = new LinkedList();
+		TIMER = 0;
+		TIMESTAMP = 0L;
+		blorbFile = null;
+		IMAGE_CACHE = new LinkedList();
+
+		StyleHints.clearAll();
+	}
 
 	@Override
 	public abstract void progress(String stJob, int min, int max, int cur);
@@ -471,7 +503,7 @@ public abstract class AbstractGlk implements IGlk {
 	@GlkMethod(0x43)
 	public Stream streamOpenMemory(InOutByteBuffer b, int len, int mode,
 			int rock) {
-		Stream s = new Stream.MemoryStream(b.buffer, len, mode);
+		Stream s = new MemoryStream(b.buffer, len, mode);
 
 		STREAMS.put(s, new Integer(rock));
 		if (CREATE_CALLBACK != null)
@@ -483,7 +515,7 @@ public abstract class AbstractGlk implements IGlk {
 	@GlkMethod(0x139)
 	public Stream streamOpenMemoryUni(InOutByteBuffer b, int len, int mode,
 			int rock) {
-		Stream s = new Stream.UnicodeMemoryStream(b.buffer, len, mode);
+		Stream s = new UnicodeMemoryStream(b.buffer, len, mode);
 
 		STREAMS.put(s, new Integer(rock));
 		if (CREATE_CALLBACK != null)
@@ -499,7 +531,7 @@ public abstract class AbstractGlk implements IGlk {
 			return null;
 		}
 
-		Stream s = new Stream.FileStream(ref, mode, false);
+		Stream s = new FileStream(ref, mode, false);
 
 		STREAMS.put(s, new Integer(rock));
 		if (CREATE_CALLBACK != null)
@@ -515,7 +547,7 @@ public abstract class AbstractGlk implements IGlk {
 			return null;
 		}
 
-		Stream s = new Stream.FileStream(ref, mode, true);
+		Stream s = new FileStream(ref, mode, true);
 
 		STREAMS.put(s, new Integer(rock));
 		if (CREATE_CALLBACK != null)
