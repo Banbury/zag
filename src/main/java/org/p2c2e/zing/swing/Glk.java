@@ -27,8 +27,6 @@ import org.p2c2e.zing.types.OutInt;
 import org.p2c2e.zing.types.OutWindow;
 import org.p2c2e.zing.types.StreamResult;
 
-import com.sixlegs.image.png.PngImage;
-
 public class Glk extends AbstractGlk {
 	private static Glk instance;
 
@@ -425,13 +423,8 @@ public class Glk extends AbstractGlk {
 			if (chunk == null)
 				return null;
 
-			if (BlorbFile.PNG.equals(chunk.getDataType())) {
-				img = Toolkit.getDefaultToolkit().createImage(
-						new PngImage(chunk.getData()));
-			} else {
-				byte[] arr = Bytes.getBytes(chunk.getData());
-				img = Toolkit.getDefaultToolkit().createImage(arr);
-			}
+			byte[] arr = Bytes.getBytes(chunk.getData());
+			img = Toolkit.getDefaultToolkit().createImage(arr);
 
 			TRACKER.addImage(img, id);
 			TRACKER.waitForID(id);
