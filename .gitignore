@@ -2,4 +2,10 @@ bin/
 *.class
 *.jar
 *~
-/target
+target/
+.project
+.classpath
+.factorypath
+.settings/
+*.glkdata
+samples/

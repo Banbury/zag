@@ -6,6 +6,13 @@
 	<version>${app.version}-SNAPSHOT</version>
 	<name>Zag2</name>
 	<description>An implementation of Glulx for Java</description>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>zag-core</module>
+		<module>zag-swing</module>
+		<module>zag-test</module>
+	</modules>
 
 	<properties>
 		<app.version>1.0.8</app.version>
@@ -47,79 +54,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.9</version>
-				<configuration>
-					<additionalProjectnatures>
-						<projectnature>org.eclipse.ajdt.ui.ajnature</projectnature>
-						<projectnature>org.eclipse.jdt.core.javanature</projectnature>
-						<projectnature>org.eclipse.m2e.core.maven2Nature</projectnature>
-					</additionalProjectnatures>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<!-- <annotationProcessors> -->
-					<!-- <annotationProcessor>org.p2c2e.util.GlkMethodProcessor</annotationProcessor> -->
-					<!-- </annotationProcessors> -->
-					<!-- <generatedSourcesDirectory>${project.build.sourceDirectory}</generatedSourcesDirectory> -->
-					<!-- <showWarnings>true</showWarnings> -->
-					<source>1.6</source>
-					<target>1.6</target>
-					<compilerArgument>-proc:none</compilerArgument>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<mainClass>org.p2c2e.zing.swing.Main</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>aspectj-maven-plugin</artifactId>
-				<version>1.6</version>
-				<configuration>
-					<complianceLevel>1.6</complianceLevel>
-					<outxml>true</outxml>
-					<verbose>true</verbose>
-					<showWeaveInfo>true</showWeaveInfo>
-					<sources>
-						<basedir>src/main/java</basedir>
-						<includes>
-							<include>org/p2c2e/zag/*.java</include>
-						</includes>
-					</sources>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>process-source</phase>
-						<goals>
-							<goal>compile</goal>
-						</goals>
-					</execution>
-				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.aspectj</groupId>
-						<artifactId>aspectjtools</artifactId>
-						<version>1.7.3</version>
-						<scope>compile</scope>
-					</dependency>
-				</dependencies>
-			</plugin>
 			<plugin>
 				<groupId>org.objectstyle.japp</groupId>
 				<artifactId>japp-maven-plugin</artifactId>
@@ -199,22 +133,6 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>2.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.p2c2e</groupId>
-			<artifactId>zag-processor</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>edu.ucar</groupId>
-			<artifactId>unidataCommon</artifactId>
-			<version>4.2.20</version>
-		</dependency>
 		<dependency>
 			<groupId>org.spockframework</groupId>
 			<artifactId>spock-core</artifactId>
