@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import org.p2c2e.blorb.Color;
 import org.p2c2e.util.FastByteBuffer;
 import org.p2c2e.zing.Dispatch2;
 import org.p2c2e.zing.Fileref;
@@ -88,15 +89,15 @@ public final class IO {
 
 	HuffmanTree htree;
 
-	LinkedList undoData = new LinkedList();
+	LinkedList<Integer> undoData = new LinkedList<Integer>();
 	Fileref undoFile;
 	Stream undoStream;
 
-	HashMap ors;
+	HashMap<Integer, Object> ors;
 
 	public IO(IGlk glk, Zag z) {
 		this.glk = glk;
-		ors = new HashMap();
+		ors = new HashMap<Integer, Object>();
 		init(z);
 	}
 
@@ -341,11 +342,11 @@ public final class IO {
 			break;
 		default:
 			int addr;
-			Class c;
+			Class<?> c;
 			Method m = Dispatch2.getMethod(selector);
 			if (m == null)
 				noSuchMethod(selector);
-			Class[] f = m.getParameterTypes();
+			Class<?>[] f = m.getParameterTypes();
 			if (f.length != numargs)
 				wrongNumArgs();
 
@@ -381,9 +382,8 @@ public final class IO {
 					p[i] = new GlkEvent();
 				} else if (c == StreamResult.class) {
 					p[i] = new StreamResult();
-				} else if (c == java.awt.Color.class) {
-					p[i] = new java.awt.Color((args[i] >>> 16) & 0xff,
-							(args[i] >>> 8) & 0xff, args[i] & 0xff);
+				} else if (c == Color.class) {
+					p[i] = new Color((args[i] >>> 16), (args[i] >>> 8), args[i]);
 				} else if (c == GlkTimeval.class) {
 					mem.position(args[i]);
 					p[i] = new GlkTimeval(mem.getInt(), mem.getInt(),
@@ -468,7 +468,6 @@ public final class IO {
 
 	void streamNum(Zag z, int n, boolean started, int position) {
 		Zag.StringCallResult r;
-		int ival;
 		String s = String.valueOf(n);
 		int len = s.length();
 
@@ -479,7 +478,7 @@ public final class IO {
 			if (started) {
 				r = z.popCallstubString();
 				if (r.pc != 0)
-					z.fatal("String-on-string call stub while printing number.");
+					Zag.fatal("String-on-string call stub while printing number.");
 			}
 			break;
 		case FILTER:
@@ -489,7 +488,7 @@ public final class IO {
 			if (position >= len) {
 				r = z.popCallstubString();
 				if (r.pc != 0)
-					z.fatal("String-on-string call stub while printing number.");
+					Zag.fatal("String-on-string call stub while printing number.");
 			} else {
 				int tmp = z.pc;
 				z.pc = n;
@@ -551,7 +550,7 @@ public final class IO {
 
 			if (type == 0xe1) {
 				if (htree == null)
-					z.fatal("Attempt to stream a compressed string with no Huffman table.");
+					Zag.fatal("Attempt to stream a compressed string with no Huffman table.");
 				HuffmanTree.Node troot = htree.root;
 				HuffmanTree.Node n;
 				int done = 0;
@@ -700,12 +699,12 @@ public final class IO {
 							z.enterFunction(z.memory, oaddr, n.numargs, n.args);
 							return;
 						} else {
-							z.fatal("Attempting indirect reference to unknown object while "
+							Zag.fatal("Attempting indirect reference to unknown object while "
 									+ "decoding string.");
 						}
 						break;
 					default:
-						z.fatal("Unknown node type in cached Huffman tree.");
+						Zag.fatal("Unknown node type in cached Huffman tree.");
 					}
 				}
 
@@ -758,9 +757,9 @@ public final class IO {
 				default:
 				}
 			} else if (type >= 0xe0 && type <= 0xff) {
-				z.fatal("Attempt to print unknown type of string.");
+				Zag.fatal("Attempt to print unknown type of string.");
 			} else {
-				z.fatal("Attempt to print non-string.");
+				Zag.fatal("Attempt to print non-string.");
 			}
 
 			if (!started) {
@@ -780,9 +779,9 @@ public final class IO {
 
 	int saveUndo(Zag z) {
 		if (undoFile == null) {
-			undoFile = glk.filerefCreateTemp(glk.FILEUSAGE_DATA
-					| glk.FILEUSAGE_BINARY_MODE, 0);
-			undoStream = glk.streamOpenFile(undoFile, glk.FILEMODE_READ_WRITE,
+			undoFile = glk.filerefCreateTemp(IGlk.FILEUSAGE_DATA
+					| IGlk.FILEUSAGE_BINARY_MODE, 0);
+			undoStream = glk.streamOpenFile(undoFile, IGlk.FILEMODE_READ_WRITE,
 					0);
 		}
 		int pos = undoStream.getPosition();
@@ -809,17 +808,17 @@ public final class IO {
 			end = s.getPosition();
 
 			val = savesize.size;
-			s.setPosition(pos + 4, glk.SEEKMODE_START);
+			s.setPosition(pos + 4, IGlk.SEEKMODE_START);
 			s.putInt(val);
 
-			s.setPosition(pos + 152, glk.SEEKMODE_START);
+			s.setPosition(pos + 152, IGlk.SEEKMODE_START);
 			s.putInt(savesize.memSize);
 
 			s.setPosition(s.getPosition() + savesize.memSize
 					+ (((savesize.memSize & 1) == 0) ? 4 : 5),
-					glk.SEEKMODE_START);
+					IGlk.SEEKMODE_START);
 			s.putInt(savesize.stackSize);
-			s.setPosition(end, glk.SEEKMODE_START);
+			s.setPosition(end, IGlk.SEEKMODE_START);
 
 			return 0;
 		} catch (IOException e) {
@@ -850,10 +849,10 @@ public final class IO {
 			return 1;
 
 		try {
-			int pos = ((Integer) undoData.removeFirst()).intValue();
-			undoStream.setPosition(pos, glk.SEEKMODE_START);
+			int pos = undoData.removeFirst().intValue();
+			undoStream.setPosition(pos, IGlk.SEEKMODE_START);
 			res = restoreState(z, undoStream) ? 0 : 1;
-			undoStream.setPosition(pos, glk.SEEKMODE_START);
+			undoStream.setPosition(pos, IGlk.SEEKMODE_START);
 		} catch (Exception e) {
 			e.printStackTrace();
 			res = 1;
@@ -968,7 +967,7 @@ public final class IO {
 
 			default:
 				chunkSize = in.getInt();
-				in.setPosition(chunkSize, glk.SEEKMODE_CURRENT);
+				in.setPosition(chunkSize, IGlk.SEEKMODE_CURRENT);
 			}
 
 			// remoced - DMT

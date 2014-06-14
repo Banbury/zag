@@ -3,7 +3,7 @@ package org.p2c2e.zing;
 import java.io.File;
 import java.io.IOException;
 
-public class Fileref implements Comparable {
+public class Fileref implements Comparable<Object> {
 	public final static int FILEMODE_WRITE = 0x01;
 	public final static int FILEMODE_READ = 0x02;
 	public final static int FILEMODE_READWRITE = 0x03;

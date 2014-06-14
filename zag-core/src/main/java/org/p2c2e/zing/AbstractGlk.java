@@ -1,6 +1,5 @@
 package org.p2c2e.zing;
 
-import java.awt.Color;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.event.KeyEvent;
@@ -18,6 +17,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.p2c2e.blorb.BlorbFile;
+import org.p2c2e.blorb.Color;
 import org.p2c2e.util.GlkMethod;
 import org.p2c2e.zing.streams.FileStream;
 import org.p2c2e.zing.streams.MemoryStream;
@@ -37,18 +37,18 @@ import org.p2c2e.zing.types.StreamResult;
 
 public abstract class AbstractGlk implements IGlk {
 	public Comparator HC_COMP = new HashCodeComparator();
-	public TreeMap WINDOWS;
-	public TreeMap STREAMS;
-	public TreeMap FILE_REFS;
-	public TreeMap SOUND_CHANNELS;
-	public Stream CURRENT_STREAM;
+	public TreeMap<IWindow, Integer> windows;
+	protected TreeMap<Stream, Integer> streams;
+	protected TreeMap<Fileref, Integer> fileRefs;
+	protected TreeMap<SoundChannel, Integer> soundChannels;
+	protected Stream currentStream;
 	private LinkedList<GlkEvent> event_queue;
 	public int TIMER = 0;
 	public long TIMESTAMP;
 	protected BlorbFile blorbFile;
 
 	public MediaTracker TRACKER;
-	public LinkedList IMAGE_CACHE;
+	protected LinkedList<ImageCacheNode> imageCache;
 	public ObjectCallback CREATE_CALLBACK;
 	public ObjectCallback DESTROY_CALLBACK;
 	public boolean BORDERS_ON = true;
@@ -62,12 +62,12 @@ public abstract class AbstractGlk implements IGlk {
 	@Override
 	public void flush() {
 		try {
-			Iterator it = SOUND_CHANNELS.keySet().iterator();
+			Iterator<SoundChannel> it = soundChannels.keySet().iterator();
 			while (it.hasNext())
-				((SoundChannel) it.next()).stop();
-			it = STREAMS.keySet().iterator();
-			while (it.hasNext())
-				((Stream) it.next()).close();
+				it.next().stop();
+			Iterator<Stream> it2 = streams.keySet().iterator();
+			while (it2.hasNext())
+				it2.next().close();
 		} catch (Exception e) {
 			System.err
 					.println("problem while attempting to stop sound channel: "
@@ -77,17 +77,17 @@ public abstract class AbstractGlk implements IGlk {
 
 	@Override
 	public void reset() {
-		WINDOWS = new TreeMap(HC_COMP);
-		STREAMS = new TreeMap(HC_COMP);
-		FILE_REFS = new TreeMap(HC_COMP);
-		SOUND_CHANNELS = new TreeMap(HC_COMP);
+		windows = new TreeMap<IWindow, Integer>(HC_COMP);
+		streams = new TreeMap<Stream, Integer>(HC_COMP);
+		fileRefs = new TreeMap<Fileref, Integer>(HC_COMP);
+		soundChannels = new TreeMap<SoundChannel, Integer>(HC_COMP);
 
-		CURRENT_STREAM = null;
+		currentStream = null;
 		event_queue = new LinkedList<GlkEvent>();
 		TIMER = 0;
 		TIMESTAMP = 0L;
 		blorbFile = null;
-		IMAGE_CACHE = new LinkedList();
+		imageCache = new LinkedList<AbstractGlk.ImageCacheNode>();
 
 		StyleHints.clearAll();
 	}
@@ -102,7 +102,7 @@ public abstract class AbstractGlk implements IGlk {
 	@Override
 	public void setBlorbFile(BlorbFile f) {
 		blorbFile = f;
-		IMAGE_CACHE.clear();
+		imageCache.clear();
 
 	}
 
@@ -161,25 +161,25 @@ public abstract class AbstractGlk implements IGlk {
 	@Override
 	@GlkMethod(0x20)
 	public IWindow windowIterate(IWindow win, OutInt rock) {
-		return (IWindow) objIterate(WINDOWS, win, rock);
+		return (IWindow) objIterate(windows, win, rock);
 	}
 
 	@Override
 	@GlkMethod(0x40)
 	public Stream streamIterate(Stream s, OutInt rock) {
-		return (Stream) objIterate(STREAMS, s, rock);
+		return (Stream) objIterate(streams, s, rock);
 	}
 
 	@Override
 	@GlkMethod(0x64)
 	public Fileref filerefIterate(Fileref f, OutInt rock) {
-		return (Fileref) objIterate(FILE_REFS, f, rock);
+		return (Fileref) objIterate(fileRefs, f, rock);
 	}
 
 	@Override
 	@GlkMethod(0xF0)
 	public SoundChannel schannelIterate(SoundChannel s, OutInt rock) {
-		return (SoundChannel) objIterate(SOUND_CHANNELS, s, rock);
+		return (SoundChannel) objIterate(soundChannels, s, rock);
 	}
 
 	@Override
@@ -252,74 +252,74 @@ public abstract class AbstractGlk implements IGlk {
 	@Override
 	@GlkMethod(0x2F)
 	public void setWindow(IWindow win) {
-		CURRENT_STREAM = (win == null) ? null : win.getStream();
+		currentStream = (win == null) ? null : win.getStream();
 	}
 
 	@Override
 	@GlkMethod(0x47)
 	public void streamSetCurrent(Stream s) {
 		if (s == null || s.canWrite())
-			CURRENT_STREAM = s;
+			currentStream = s;
 	}
 
 	@Override
 	@GlkMethod(0x48)
 	public Stream streamGetCurrent() {
-		return CURRENT_STREAM;
+		return currentStream;
 	}
 
 	@Override
 	@GlkMethod(0x80)
 	public void putChar(char ch) {
-		if (CURRENT_STREAM == null)
+		if (currentStream == null)
 			nullRef("Glk.putChar");
 		else
-			CURRENT_STREAM.putChar(ch);
+			currentStream.putChar(ch);
 	}
 
 	@Override
 	@GlkMethod(0x128)
 	public void putCharUni(int ch) {
-		if (CURRENT_STREAM == null)
+		if (currentStream == null)
 			nullRef("Glk.putCharUni");
 		else
-			CURRENT_STREAM.putCharUni(ch);
+			currentStream.putCharUni(ch);
 	}
 
 	@Override
 	@GlkMethod(0x82)
 	public void putString(String s) {
-		if (CURRENT_STREAM == null)
+		if (currentStream == null)
 			nullRef("Glk.putString");
 		else
-			CURRENT_STREAM.putString(s);
+			currentStream.putString(s);
 	}
 
 	@Override
 	@GlkMethod(0x129)
 	public void putStringUni(String s) {
-		if (CURRENT_STREAM == null)
+		if (currentStream == null)
 			nullRef("Glk.putStringUni");
 		else
-			CURRENT_STREAM.putStringUni(s);
+			currentStream.putStringUni(s);
 	}
 
 	@Override
 	@GlkMethod(0x84)
 	public void putBuffer(InByteBuffer b, int len) {
-		if (CURRENT_STREAM == null)
+		if (currentStream == null)
 			nullRef("Glk.putBuffer");
 		else
-			CURRENT_STREAM.putBuffer(b.buffer, len);
+			currentStream.putBuffer(b.buffer, len);
 	}
 
 	@Override
 	@GlkMethod(0x12A)
 	public void putBufferUni(InByteBuffer b, int len) {
-		if (CURRENT_STREAM == null)
+		if (currentStream == null)
 			nullRef("Glk.putBufferUni");
 		else
-			CURRENT_STREAM.putBufferUni(b.buffer, len);
+			currentStream.putBufferUni(b.buffer, len);
 	}
 
 	@Override
@@ -471,7 +471,7 @@ public abstract class AbstractGlk implements IGlk {
 			b.writecount = res.writecount;
 		}
 
-		STREAMS.remove(s);
+		streams.remove(s);
 		if (DESTROY_CALLBACK != null)
 			DESTROY_CALLBACK.callback(s);
 	}
@@ -504,7 +504,7 @@ public abstract class AbstractGlk implements IGlk {
 			int rock) {
 		Stream s = new MemoryStream(b.buffer, len, mode);
 
-		STREAMS.put(s, new Integer(rock));
+		streams.put(s, new Integer(rock));
 		if (CREATE_CALLBACK != null)
 			CREATE_CALLBACK.callback(s);
 		return s;
@@ -516,7 +516,7 @@ public abstract class AbstractGlk implements IGlk {
 			int rock) {
 		Stream s = new UnicodeMemoryStream(b.buffer, len, mode);
 
-		STREAMS.put(s, new Integer(rock));
+		streams.put(s, new Integer(rock));
 		if (CREATE_CALLBACK != null)
 			CREATE_CALLBACK.callback(s);
 		return s;
@@ -532,7 +532,7 @@ public abstract class AbstractGlk implements IGlk {
 
 		Stream s = new FileStream(ref, mode, false);
 
-		STREAMS.put(s, new Integer(rock));
+		streams.put(s, new Integer(rock));
 		if (CREATE_CALLBACK != null)
 			CREATE_CALLBACK.callback(s);
 		return s;
@@ -548,7 +548,7 @@ public abstract class AbstractGlk implements IGlk {
 
 		Stream s = new FileStream(ref, mode, true);
 
-		STREAMS.put(s, new Integer(rock));
+		streams.put(s, new Integer(rock));
 		if (CREATE_CALLBACK != null)
 			CREATE_CALLBACK.callback(s);
 		return s;
@@ -562,7 +562,7 @@ public abstract class AbstractGlk implements IGlk {
 			return 0;
 		}
 
-		return ((Integer) STREAMS.get(s)).intValue();
+		return streams.get(s).intValue();
 	}
 
 	@Override
@@ -582,8 +582,8 @@ public abstract class AbstractGlk implements IGlk {
 	@Override
 	@GlkMethod(0x86)
 	public void setStyle(int style) {
-		if (CURRENT_STREAM != null)
-			setStyleStream(CURRENT_STREAM, style);
+		if (currentStream != null)
+			setStyleStream(currentStream, style);
 	}
 
 	@Override
@@ -653,7 +653,7 @@ public abstract class AbstractGlk implements IGlk {
 		try {
 			Fileref ref = Fileref.createTemp(usage);
 			if (ref != null) {
-				FILE_REFS.put(ref, new Integer(rock));
+				fileRefs.put(ref, new Integer(rock));
 				if (CREATE_CALLBACK != null)
 					CREATE_CALLBACK.callback(ref);
 				return ref;
@@ -670,7 +670,7 @@ public abstract class AbstractGlk implements IGlk {
 	public Fileref filerefCreateByName(int usage, String name, int rock) {
 		Fileref ref = Fileref.createByName(usage, name);
 		if (ref != null) {
-			FILE_REFS.put(ref, new Integer(rock));
+			fileRefs.put(ref, new Integer(rock));
 			if (CREATE_CALLBACK != null)
 				CREATE_CALLBACK.callback(ref);
 			return ref;
@@ -692,7 +692,7 @@ public abstract class AbstractGlk implements IGlk {
 		}
 
 		Fileref ref = Fileref.createFromFileref(usage, r);
-		FILE_REFS.put(ref, new Integer(rock));
+		fileRefs.put(ref, new Integer(rock));
 		if (CREATE_CALLBACK != null)
 			CREATE_CALLBACK.callback(ref);
 		return ref;
@@ -708,7 +708,7 @@ public abstract class AbstractGlk implements IGlk {
 
 		ref.destroy();
 
-		FILE_REFS.remove(ref);
+		fileRefs.remove(ref);
 		if (DESTROY_CALLBACK != null)
 			DESTROY_CALLBACK.callback(ref);
 	}
@@ -743,7 +743,7 @@ public abstract class AbstractGlk implements IGlk {
 			return 0;
 		}
 
-		return ((Integer) FILE_REFS.get(ref)).intValue();
+		return fileRefs.get(ref).intValue();
 	}
 
 	@Override
@@ -754,14 +754,14 @@ public abstract class AbstractGlk implements IGlk {
 			return 0;
 		}
 
-		return ((Integer) SOUND_CHANNELS.get(c)).intValue();
+		return soundChannels.get(c).intValue();
 	}
 
 	@Override
 	@GlkMethod(0xF2)
 	public SoundChannel schannelCreate(int rock) {
 		SoundChannel c = new SoundChannel(this);
-		SOUND_CHANNELS.put(c, new Integer(rock));
+		soundChannels.put(c, new Integer(rock));
 		if (CREATE_CALLBACK != null)
 			CREATE_CALLBACK.callback(c);
 
@@ -782,7 +782,7 @@ public abstract class AbstractGlk implements IGlk {
 			e.printStackTrace();
 		}
 
-		SOUND_CHANNELS.remove(c);
+		soundChannels.remove(c);
 		if (DESTROY_CALLBACK != null)
 			DESTROY_CALLBACK.callback(c);
 	}
@@ -1081,7 +1081,7 @@ public abstract class AbstractGlk implements IGlk {
 	@Override
 	@GlkMethod(0x100)
 	public void setHyperlink(int val) {
-		setHyperlinkStream(CURRENT_STREAM, val);
+		setHyperlinkStream(currentStream, val);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package org.p2c2e.zing;
 
-import java.awt.Color;
+import org.p2c2e.blorb.Color;
 
 public interface IGraphicsWindow {
 

@@ -1,6 +1,5 @@
 package org.p2c2e.zing;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
@@ -9,6 +8,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
+import org.p2c2e.blorb.Color;
 
 public class Style implements Cloneable {
 	public static boolean USE_HINTS = true;
@@ -118,7 +119,7 @@ public class Style implements Cloneable {
 
 	public Style getHyperlinked() {
 		Style s = (Style) clone();
-		s.textColor = Color.blue;
+		s.textColor = new Color(0, 255, 0);
 		s.isUnderlined = true;
 		s.isHyperlinked = true;
 		return s;

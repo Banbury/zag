@@ -49,7 +49,7 @@ public final class Zag implements OpConstants {
 
 	Heap heap;
 
-	HashMap accelTable = new HashMap();
+	HashMap<Integer, InformFuncs> accelTable = new HashMap<Integer, InformFuncs>();
 
 	/* accel params */
 	int classes_table;
@@ -118,6 +118,7 @@ public final class Zag implements OpConstants {
 			else
 				io.init(this);
 		} else {
+			f.close();
 			throw new IOException("Not a glulx file.");
 		}
 	}
@@ -1517,7 +1518,7 @@ public final class Zag implements OpConstants {
 	final void enterFunction(FastByteBuffer mem, int addr, int numargs,
 			int[] args) {
 
-		AcceleratedFunction func = (AcceleratedFunction) accelTable.get(addr);
+		AcceleratedFunction func = accelTable.get(addr);
 		if (func != null) {
 			int retval = func.enterFunction(numargs, args);
 			popCallstub(retval);

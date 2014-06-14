@@ -1,33 +1,31 @@
 package org.p2c2e.blorb;
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.LinkedList;
 
-public class ListPalette implements Palette
-{
-  LinkedList _li = new LinkedList();
-  
-  ListPalette(BlorbFile.Chunk c) throws IOException
-  {
-    InputStream in = c.getData();
-    int i = in.read();
+public class ListPalette implements Palette {
+	LinkedList<Color> _li = new LinkedList<Color>();
 
-    while (i != -1)
-    {
-      _li.add(new Palette.Color(i, in.read(), in.read()));
-      i = in.read();
-    }
+	ListPalette(BlorbFile.Chunk c) throws IOException {
+		InputStream in = c.getData();
+		int i = in.read();
 
-    in.close();
-  }
+		while (i != -1) {
+			_li.add(new Color(i, in.read(), in.read()));
+			i = in.read();
+		}
 
-  public boolean isColorList()
-  {
-    return true;
-  }
+		in.close();
+	}
 
-  public Iterator iterator()
-  {
-    return _li.iterator();
-  }
+	@Override
+	public boolean isColorList() {
+		return true;
+	}
+
+	public Iterator<Color> iterator() {
+		return _li.iterator();
+	}
 }
