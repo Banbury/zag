@@ -1,6 +1,5 @@
 package org.p2c2e.zing.swing;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -15,6 +14,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import org.p2c2e.blorb.Color;
 import org.p2c2e.zing.HyperlinkInputConsumer;
 import org.p2c2e.zing.IGraphicsWindow;
 import org.p2c2e.zing.MouseInputConsumer;
@@ -35,7 +35,7 @@ public class GraphicsWindow extends Window implements IGraphicsWindow {
 
 		panel = new GraphicsWindowPanel();
 		panel.addMouseListener(this);
-		bg = Color.white;
+		bg = new Color(255, 255, 255);
 		change = true;
 	}
 
@@ -81,7 +81,8 @@ public class GraphicsWindow extends Window implements IGraphicsWindow {
 		Graphics2D ng2d = nbi.createGraphics();
 
 		ng2d.setClip(0, 0, r.width, r.height);
-		ng2d.setColor(bg);
+		ng2d.setColor(new java.awt.Color(bg.getBlue(), bg.getGreen(), bg
+				.getBlue()));
 		ng2d.fillRect(0, 0, r.width, r.height);
 
 		if (bi != null) {
@@ -108,7 +109,8 @@ public class GraphicsWindow extends Window implements IGraphicsWindow {
 	@Override
 	public void setBackgroundColor(Color c) {
 		bg = c;
-		panel.setBackground(c);
+		panel.setBackground(new java.awt.Color(c.getBlue(), c.getGreen(), c
+				.getBlue()));
 		change = true;
 	}
 
@@ -120,7 +122,8 @@ public class GraphicsWindow extends Window implements IGraphicsWindow {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-						g2d.setColor(c);
+						g2d.setColor(new java.awt.Color(c.getBlue(), c
+								.getGreen(), c.getBlue()));
 						g2d.fillRect(left, top, width, height);
 					}
 				});
@@ -139,7 +142,8 @@ public class GraphicsWindow extends Window implements IGraphicsWindow {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-						g2d.setColor(bg);
+						g2d.setColor(new java.awt.Color(bg.getBlue(), bg
+								.getGreen(), bg.getBlue()));
 						g2d.fillRect(left, top, width, height);
 					}
 				});
@@ -199,7 +203,9 @@ public class GraphicsWindow extends Window implements IGraphicsWindow {
 	public void requestHyperlinkInput(HyperlinkInputConsumer hic) {
 	}
 
-	class GraphicsWindowPanel extends JPanel {
+	private class GraphicsWindowPanel extends JPanel {
+		private static final long serialVersionUID = 1L;
+
 		public GraphicsWindowPanel() {
 			super();
 		}

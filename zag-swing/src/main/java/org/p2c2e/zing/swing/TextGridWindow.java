@@ -1,6 +1,5 @@
 package org.p2c2e.zing.swing;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -19,6 +18,7 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
+import org.p2c2e.blorb.Color;
 import org.p2c2e.zing.CharInputConsumer;
 import org.p2c2e.zing.HyperlinkInputConsumer;
 import org.p2c2e.zing.IGlk;
@@ -118,6 +118,7 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 		hyperConsumer = null;
 	}
 
+	@Override
 	public void setHyperlink(int val) {
 		hyperVal = val;
 
@@ -167,6 +168,7 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 		}
 	}
 
+	@Override
 	public void setCursor(int x, int y) {
 		this.x = x;
 		this.y = y;
@@ -579,7 +581,8 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 
 			if (drawBackground && bi != null) {
 				Style normal = (Style) hintedStyles.get("normal");
-				g2d.setColor(normal.backColor);
+				g2d.setColor(new java.awt.Color(normal.backColor.getRed(),
+						normal.backColor.getGreen(), normal.backColor.getBlue()));
 				g2d.fillRect(0, 0, getWidth(), getHeight());
 				drawBackground = false;
 			}
@@ -617,7 +620,9 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 				Arrays.fill(dirty, false);
 
 				if (lineConsumer != null && wasDirty) {
-					g2d.setColor(input.textColor);
+					g2d.setColor(new java.awt.Color(input.textColor.getRed(),
+							input.textColor.getGreen(), input.textColor
+									.getBlue()));
 					g2d.fillRect(insets.left + MARGIN
 							+ (colSize * TextGridWindow.this.x), insets.top
 							+ MARGIN + (lineHeight * TextGridWindow.this.y),

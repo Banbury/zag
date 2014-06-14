@@ -1,6 +1,5 @@
 package org.p2c2e.zing.swing;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -39,6 +38,7 @@ import javax.swing.JViewport;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 
+import org.p2c2e.blorb.Color;
 import org.p2c2e.zing.CharInputConsumer;
 import org.p2c2e.zing.HyperlinkInputConsumer;
 import org.p2c2e.zing.IGlk;
@@ -197,6 +197,7 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 		hyperConsumer = null;
 	}
 
+	@Override
 	public void setHyperlink(int val) {
 		if (val != 0) {
 			if (nonHyper == null) {
@@ -460,13 +461,11 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 
 		if (hints.data[StyleHints.TEXT_COLOR] != null) {
 			val = hints.data[StyleHints.TEXT_COLOR].intValue();
-			hintedStyle.textColor = new Color((val >> 16) & 0xff,
-					(val >> 8) & 0xff, val & 0xff);
+			hintedStyle.textColor = new Color((val >> 16), (val >> 8), val);
 		}
 		if (hints.data[StyleHints.BACK_COLOR] != null) {
 			val = hints.data[StyleHints.BACK_COLOR].intValue();
-			hintedStyle.backColor = new Color((val >> 16) & 0xff,
-					(val >> 8) & 0xff, val & 0xff);
+			hintedStyle.backColor = new Color((val >> 16), (val >> 8), val);
 		}
 		if (hints.data[StyleHints.REVERSE_COLOR] != null
 				&& hints.data[StyleHints.REVERSE_COLOR].intValue() == 1) {
@@ -1407,7 +1406,9 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 			Style inputStyle = (Style) hintedStyles.get("input");
 
 			clip = g2.getClipBounds();
-			g2.setColor(lastStyle.backColor);
+			g2.setColor(new java.awt.Color(lastStyle.backColor.getRed(),
+					lastStyle.backColor.getGreen(), lastStyle.backColor
+							.getBlue()));
 			g2.fillRect(clip.x, clip.y, clip.width, clip.height);
 
 			r = new Rectangle();
@@ -1504,7 +1505,9 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 			}
 
 			if (carets != null) {
-				g2.setColor(inputStyle.textColor);
+				g2.setColor(new java.awt.Color(inputStyle.textColor.getRed(),
+						inputStyle.textColor.getGreen(), inputStyle.textColor
+								.getBlue()));
 				g2.translate(translateX, translateY);
 				g2.draw(carets[0]);
 			}

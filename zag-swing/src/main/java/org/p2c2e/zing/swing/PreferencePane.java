@@ -1,6 +1,5 @@
 package org.p2c2e.zing.swing;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
@@ -23,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.BevelBorder;
 
+import org.p2c2e.blorb.Color;
 import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.Style;
 
@@ -70,6 +70,7 @@ public class PreferencePane extends JPanel implements ActionListener {
 		apply.addActionListener(this);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		String st = e.getActionCommand();
 
@@ -91,6 +92,8 @@ public class PreferencePane extends JPanel implements ActionListener {
 	}
 
 	class StyleEditPane extends JPanel implements ActionListener {
+		private static final long serialVersionUID = 1L;
+
 		Style[] styles;
 		int type;
 		JComboBox styleCombo;
@@ -111,7 +114,8 @@ public class PreferencePane extends JPanel implements ActionListener {
 			styleCombo.setActionCommand("change-style");
 
 			for (int i = 0; i < IGlk.STYLE_NUMSTYLES; i++) {
-				styles[i] = (Style) Style.getStyle(IGlk.STYLES[i], type).clone();
+				styles[i] = (Style) Style.getStyle(IGlk.STYLES[i], type)
+						.clone();
 				styleCombo.addItem(IGlk.STYLES[i]);
 			}
 
@@ -129,6 +133,7 @@ public class PreferencePane extends JPanel implements ActionListener {
 			styleCombo.addActionListener(this);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if ("change-style".equals(e.getActionCommand())) {
 				fp.init(styles[styleCombo.getSelectedIndex()]);
@@ -145,6 +150,8 @@ public class PreferencePane extends JPanel implements ActionListener {
 	}
 
 	class ParaPane extends JPanel implements ActionListener {
+		private static final long serialVersionUID = 1L;
+
 		Style s;
 		JComboBox left, right, par, just;
 
@@ -154,7 +161,7 @@ public class PreferencePane extends JPanel implements ActionListener {
 			setLayout(l);
 
 			setBorder(BorderFactory.createTitledBorder(
-					BorderFactory.createLineBorder(Color.black),
+					BorderFactory.createLineBorder(java.awt.Color.black),
 					"Paragraph Formatting"));
 
 			Box leftBox = new Box(BoxLayout.X_AXIS);
@@ -206,6 +213,7 @@ public class PreferencePane extends JPanel implements ActionListener {
 			just.setSelectedIndex(s.justification);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			String st = e.getActionCommand();
 
@@ -222,6 +230,8 @@ public class PreferencePane extends JPanel implements ActionListener {
 	}
 
 	class FontPane extends JPanel implements ActionListener, ItemListener {
+		private static final long serialVersionUID = 1L;
+
 		Object lastDeselected;
 		Style s;
 		JComboBox wf;
@@ -237,7 +247,8 @@ public class PreferencePane extends JPanel implements ActionListener {
 			setLayout(l);
 
 			setBorder(BorderFactory.createTitledBorder(
-					BorderFactory.createLineBorder(Color.black), "Fonts"));
+					BorderFactory.createLineBorder(java.awt.Color.black),
+					"Fonts"));
 
 			Box tfBox = new Box(BoxLayout.X_AXIS);
 			tfBox.add(new JLabel("Typeface: "));
@@ -279,7 +290,7 @@ public class PreferencePane extends JPanel implements ActionListener {
 					.createBevelBorder(BevelBorder.LOWERED));
 			tcPanel.setOpaque(true);
 			tcPanel.setSize(new Dimension(30, 30));
-			tcPanel.setBackground(Color.black);
+			tcPanel.setBackground(java.awt.Color.black);
 			cGrid.add(tcPanel);
 			JButton tcButton = new JButton("Change");
 			tcButton.setActionCommand("change-text-color");
@@ -292,7 +303,7 @@ public class PreferencePane extends JPanel implements ActionListener {
 					.createBevelBorder(BevelBorder.LOWERED));
 			bcPanel.setOpaque(true);
 			bcPanel.setSize(new Dimension(30, 30));
-			bcPanel.setBackground(Color.white);
+			bcPanel.setBackground(java.awt.Color.white);
 			cGrid.add(bcPanel);
 			JButton bcButton = new JButton("Change");
 			bcButton.setActionCommand("change-back-color");
@@ -313,35 +324,41 @@ public class PreferencePane extends JPanel implements ActionListener {
 			ub.setSelected(s.isUnderlined);
 			bb.setSelected(s.weight.floatValue() > TextAttribute.WEIGHT_REGULAR
 					.floatValue());
-			tcPanel.setBackground(s.textColor);
-			bcPanel.setBackground(s.backColor);
+			tcPanel.setBackground(new java.awt.Color(s.textColor.getBlue(),
+					s.textColor.getGreen(), s.textColor.getBlue()));
+			bcPanel.setBackground(new java.awt.Color(s.backColor.getBlue(),
+					s.backColor.getGreen(), s.backColor.getBlue()));
 		}
 
+		@Override
 		public void itemStateChanged(ItemEvent e) {
 			if (e.getStateChange() == ItemEvent.DESELECTED)
 				lastDeselected = e.getItem();
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			String st = e.getActionCommand();
 
 			if ("change-text-color".equals(st)) {
-				Color c = JColorChooser.showDialog(this, "Choose a text color",
-						tcPanel.getBackground());
+				java.awt.Color c = JColorChooser.showDialog(this,
+						"Choose a text color", tcPanel.getBackground());
 				if (c != null) {
 					tcPanel.setBackground(c);
 					tcPanel.repaint();
 
-					s.textColor = c;
+					s.textColor = new Color(c.getRed(), c.getGreen(),
+							c.getBlue());
 				}
 			} else if ("change-back-color".equals(st)) {
-				Color c = JColorChooser.showDialog(this,
+				java.awt.Color c = JColorChooser.showDialog(this,
 						"Choose a background color", bcPanel.getBackground());
 				if (c != null) {
 					bcPanel.setBackground(c);
 					bcPanel.repaint();
 
-					s.backColor = c;
+					s.backColor = new Color(c.getRed(), c.getGreen(),
+							c.getBlue());
 				}
 			} else if ("font-family-change".equals(st)) {
 				s.family = (String) wf.getSelectedItem();

@@ -1,6 +1,5 @@
 package org.p2c2e.zing.swing;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Frame;
@@ -22,6 +21,7 @@ import javax.swing.RootPaneContainer;
 import javax.swing.SwingConstants;
 
 import org.p2c2e.blorb.BlorbFile;
+import org.p2c2e.blorb.Color;
 import org.p2c2e.util.Bytes;
 import org.p2c2e.zing.AbstractGlk;
 import org.p2c2e.zing.Fileref;
@@ -237,7 +237,7 @@ public class Glk extends AbstractGlk {
 		if (w instanceof PairWindow)
 			return 0;
 
-		return ((Integer) WINDOWS.get(w)).intValue();
+		return windows.get(w).intValue();
 	}
 
 	@Override
@@ -254,11 +254,11 @@ public class Glk extends AbstractGlk {
 		Window win = Window
 				.split((Window) w, method, size, BORDERS_ON, wintype);
 
-		WINDOWS.put(win, new Integer(rock));
-		STREAMS.put(win.stream, new Integer(0));
+		windows.put(win, new Integer(rock));
+		streams.put(win.stream, new Integer(0));
 		if (w != null) {
-			WINDOWS.put(win.getParent(), new Integer(0));
-			STREAMS.put(win.getParent().stream, new Integer(0));
+			windows.put(win.getParent(), new Integer(0));
+			streams.put(win.getParent().stream, new Integer(0));
 		}
 		if (CREATE_CALLBACK != null) {
 			CREATE_CALLBACK.callback(win);
@@ -295,8 +295,8 @@ public class Glk extends AbstractGlk {
 			windowCloseRecurse(pw.second);
 		}
 
-		WINDOWS.remove(wnd);
-		STREAMS.remove(wnd.getStream());
+		windows.remove(wnd);
+		streams.remove(wnd.getStream());
 		if (DESTROY_CALLBACK != null) {
 			DESTROY_CALLBACK.callback(w);
 			DESTROY_CALLBACK.callback(wnd.getStream());
@@ -388,14 +388,14 @@ public class Glk extends AbstractGlk {
 	public Image getImage(int id, int xscale, int yscale) {
 		ImageCacheNode n = null;
 		Image img = null;
-		int nodes = IMAGE_CACHE.size();
-		ListIterator it = IMAGE_CACHE.listIterator(nodes);
+		int nodes = imageCache.size();
+		ListIterator<ImageCacheNode> it = imageCache.listIterator(nodes);
 
 		if (it.hasPrevious()) {
-			n = (ImageCacheNode) it.previous();
+			n = it.previous();
 
 			while (n.id != id && it.hasPrevious())
-				n = (ImageCacheNode) it.previous();
+				n = it.previous();
 		}
 
 		if (n != null && n.id == id) {
@@ -442,8 +442,8 @@ public class Glk extends AbstractGlk {
 			n.id = id;
 			n.normal = img;
 			if (nodes == 20)
-				IMAGE_CACHE.removeFirst();
-			IMAGE_CACHE.add(n);
+				imageCache.removeFirst();
+			imageCache.add(n);
 
 			if (xscale >= 0) {
 				img = img.getScaledInstance(xscale, yscale, Image.SCALE_SMOOTH);
@@ -603,14 +603,14 @@ public class Glk extends AbstractGlk {
 								: Style.LEFT_FLUSH);
 
 		Color cText;
-		int iText = glk.colorToInt(Color.black);
+		int iText = glk.colorToInt(new Color(0, 0, 0));
 		if (type == IGlk.WINTYPE_TEXT_GRID && i == IGlk.STYLE_ALERT) {
-			iText = glk.colorToInt(Color.red);
+			iText = glk.colorToInt(new Color(255, 0, 0));
 		} else if (type == IGlk.WINTYPE_TEXT_BUFFER) {
 			if (i == IGlk.STYLE_ALERT)
-				iText = glk.colorToInt(Color.red);
+				iText = glk.colorToInt(new Color(255, 0, 0));
 			else if (i == glk.STYLE_NOTE)
-				iText = glk.colorToInt(Color.cyan);
+				iText = glk.colorToInt(new Color(255, 0, 255));
 		}
 
 		cText = glk.intToColor(p.getInt("text-color", iText));
