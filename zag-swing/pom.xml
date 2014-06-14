@@ -27,6 +27,118 @@
 					<compilerArgument>-proc:none</compilerArgument>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.objectstyle.japp</groupId>
+				<artifactId>japp-maven-plugin</artifactId>
+				<version>3.0</version>
+				<executions>
+					<execution>
+						<id>Linux</id>
+						<configuration>
+							<name>zag2</name>
+							<mainClass>org.p2c2e.zing.swing.Main</mainClass>
+							<!-- <icon>src/japplication/resources/My.icns</icon> -->
+							<os>java</os>
+							<jvm>1.6+</jvm>
+							<jvmOptions>-Xmx512m</jvmOptions>
+						</configuration>
+						<phase>package</phase>
+						<goals>
+							<goal>japp</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>Mac</id>
+						<configuration>
+							<name>zag2</name>
+							<mainClass>org.p2c2e.zing.swing.Main</mainClass>
+							<!-- <icon>src/japplication/resources/My.icns</icon> -->
+							<os>mac</os>
+							<jvm>1.5+</jvm>
+							<jvmOptions>-Xmx512m -Dapple.laf.useScreenMenuBar=true</jvmOptions>
+						</configuration>
+						<phase>package</phase>
+						<goals>
+							<goal>japp</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.akathist.maven.plugins.launch4j</groupId>
+				<artifactId>launch4j-maven-plugin</artifactId>
+				<version>1.5.2</version>
+				<executions>
+					<execution>
+						<id>l4j-gui</id>
+						<phase>package</phase>
+						<goals>
+							<goal>launch4j</goal>
+						</goals>
+						<configuration>
+							<headerType>gui</headerType>
+							<outfile>${project.build.directory}/zag2.exe</outfile>
+							<jar>${project.build.directory}/zag2.jar</jar>
+							<errTitle>Zag</errTitle>
+							<classPath>
+								<mainClass>org.p2c2e.zing.swing.Main</mainClass>
+							</classPath>
+							<jre>
+								<minVersion>1.5.0</minVersion>
+								<opts>
+									<opt>-Xmx512M</opt>
+								</opts>
+							</jre>
+							<versionInfo>
+								<fileVersion>${app.version}.0</fileVersion>
+								<fileDescription>Zag2 - a Glulx interpreter</fileDescription>
+								<copyright>2014 by Banbury</copyright>
+								<productVersion>${app.version}.0</productVersion>
+								<productName>Zag2</productName>
+								<internalName>zag2</internalName>
+								<originalFilename>zag2.exe</originalFilename>
+								<txtFileVersion>${app.version}.0</txtFileVersion>
+								<txtProductVersion>${app.version}.0</txtProductVersion>
+							</versionInfo>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.keyboardsamurais.maven</groupId>
+				<artifactId>maven-timestamp-plugin</artifactId>
+				<version>1.0</version>
+				<configuration>
+					<propertyName>timestamp</propertyName>
+					<timestampPattern>yyyyMMdd</timestampPattern>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<descriptors>
+						<descriptor>res/zip.xml</descriptor>
+					</descriptors>
+					<finalName>zag2-${project.version}-${timestamp}</finalName>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>
