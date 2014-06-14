@@ -29,7 +29,6 @@ import org.p2c2e.zing.IGlk;
 import org.p2c2e.zing.IWindow;
 import org.p2c2e.zing.ObjectCallback;
 import org.p2c2e.zing.Style;
-import org.p2c2e.zing.streams.Stream;
 import org.p2c2e.zing.types.GlkEvent;
 import org.p2c2e.zing.types.OutInt;
 import org.p2c2e.zing.types.OutWindow;
@@ -179,36 +178,6 @@ public class Glk extends AbstractGlk {
 	}
 
 	@Override
-	public void windowGetSize(IWindow win, OutInt b1, OutInt b2) {
-		if (win != null) {
-			if (b1 != null)
-				b1.val = win.getWindowWidth();
-			if (b2 != null)
-				b2.val = win.getWindowHeight();
-		} else {
-			nullRef("Glk.windowGetSize");
-		}
-	}
-
-	@Override
-	public IWindow windowGetSibling(IWindow win) {
-		if (win != null)
-			return win.getSibling();
-
-		nullRef("Glk.windowGetSibling");
-		return null;
-	}
-
-	@Override
-	public IWindow windowGetParent(IWindow win) {
-		if (win != null)
-			return win.getParent();
-
-		nullRef("Glk.widowGetParent");
-		return null;
-	}
-
-	@Override
 	public int windowGetType(IWindow win) {
 		if (win instanceof TextBufferWindow)
 			return WINTYPE_TEXT_BUFFER;
@@ -238,14 +207,6 @@ public class Glk extends AbstractGlk {
 			return 0;
 
 		return windows.get(w).intValue();
-	}
-
-	@Override
-	public void windowClear(IWindow win) {
-		if (win == null)
-			nullRef("Glk.windowClear");
-		else
-			win.clear();
 	}
 
 	@Override
@@ -300,34 +261,6 @@ public class Glk extends AbstractGlk {
 		if (DESTROY_CALLBACK != null) {
 			DESTROY_CALLBACK.callback(w);
 			DESTROY_CALLBACK.callback(wnd.getStream());
-		}
-	}
-
-	@Override
-	public void windowSetEchoStream(IWindow win, Stream s) {
-		if (win == null)
-			nullRef("Glk.windowSetEchoStream");
-		else
-			win.setEchoStream(s);
-	}
-
-	@Override
-	public Stream windowGetEchoStream(IWindow win) {
-		if (win == null) {
-			nullRef("Glk.windowGetEchoStream");
-			return null;
-		} else {
-			return win.getEchoStream();
-		}
-	}
-
-	@Override
-	public Stream windowGetStream(IWindow win) {
-		if (win == null) {
-			nullRef("Glk.windowGetStream");
-			return null;
-		} else {
-			return win.getStream();
 		}
 	}
 
@@ -609,7 +542,7 @@ public class Glk extends AbstractGlk {
 		} else if (type == IGlk.WINTYPE_TEXT_BUFFER) {
 			if (i == IGlk.STYLE_ALERT)
 				iText = glk.colorToInt(new Color(255, 0, 0));
-			else if (i == glk.STYLE_NOTE)
+			else if (i == IGlk.STYLE_NOTE)
 				iText = glk.colorToInt(new Color(255, 0, 255));
 		}
 
@@ -617,7 +550,14 @@ public class Glk extends AbstractGlk {
 
 		Color cBack = glk.intToColor(p.getInt("back-color", 0x00ffffff));
 
-		return new Style(glk, frc, stName, stFam, iSize, ofWeight, bItalic,
+		Style style = new Style(stName, stFam, iSize, ofWeight, bItalic,
 				bUnderlined, iLeft, iRight, iPar, iJust, cText, cBack);
+
+		Font testfont = new Font(style.getMap());
+		double w1 = testfont.getStringBounds("m", frc).getWidth();
+		double w2 = testfont.getStringBounds("i", frc).getWidth();
+		style.setMonospace((w1 == w2));
+
+		return style;
 	}
 }

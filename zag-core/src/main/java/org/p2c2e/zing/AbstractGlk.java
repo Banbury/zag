@@ -206,15 +206,36 @@ public abstract class AbstractGlk implements IGlk {
 
 	@Override
 	@GlkMethod(0x25)
-	public abstract void windowGetSize(IWindow win, OutInt b1, OutInt b2);
+	public void windowGetSize(IWindow win, OutInt b1, OutInt b2) {
+		if (win != null) {
+			if (b1 != null)
+				b1.val = win.getWindowWidth();
+			if (b2 != null)
+				b2.val = win.getWindowHeight();
+		} else {
+			nullRef("Glk.windowGetSize");
+		}
+	}
 
 	@Override
 	@GlkMethod(0x30)
-	public abstract IWindow windowGetSibling(IWindow win);
+	public IWindow windowGetSibling(IWindow win) {
+		if (win != null)
+			return win.getSibling();
+
+		nullRef("Glk.windowGetSibling");
+		return null;
+	}
 
 	@Override
 	@GlkMethod(0x29)
-	public abstract IWindow windowGetParent(IWindow win);
+	public IWindow windowGetParent(IWindow win) {
+		if (win != null)
+			return win.getParent();
+
+		nullRef("Glk.widowGetParent");
+		return null;
+	}
 
 	@Override
 	@GlkMethod(0x28)
@@ -226,7 +247,12 @@ public abstract class AbstractGlk implements IGlk {
 
 	@Override
 	@GlkMethod(0x2A)
-	public abstract void windowClear(IWindow win);
+	public void windowClear(IWindow win) {
+		if (win == null)
+			nullRef("Glk.windowClear");
+		else
+			win.clear();
+	}
 
 	@Override
 	@GlkMethod(0x23)
@@ -239,15 +265,34 @@ public abstract class AbstractGlk implements IGlk {
 
 	@Override
 	@GlkMethod(0x2D)
-	public abstract void windowSetEchoStream(IWindow win, Stream s);
+	public void windowSetEchoStream(IWindow win, Stream s) {
+		if (win == null)
+			nullRef("Glk.windowSetEchoStream");
+		else
+			win.setEchoStream(s);
+	}
 
 	@Override
 	@GlkMethod(0x2E)
-	public abstract Stream windowGetEchoStream(IWindow win);
+	public Stream windowGetEchoStream(IWindow win) {
+		if (win == null) {
+			nullRef("Glk.windowGetEchoStream");
+			return null;
+		} else {
+			return win.getEchoStream();
+		}
+	}
 
 	@Override
 	@GlkMethod(0x2C)
-	public abstract Stream windowGetStream(IWindow win);
+	public Stream windowGetStream(IWindow win) {
+		if (win == null) {
+			nullRef("Glk.windowGetStream");
+			return null;
+		} else {
+			return win.getStream();
+		}
+	}
 
 	@Override
 	@GlkMethod(0x2F)

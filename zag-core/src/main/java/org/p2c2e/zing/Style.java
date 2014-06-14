@@ -1,7 +1,5 @@
 package org.p2c2e.zing;
 
-import java.awt.Font;
-import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,13 +38,8 @@ public class Style implements Cloneable {
 	boolean isMonospace;
 	boolean isHyperlinked;
 
-	private IGlk glk;
-
-	public Style(IGlk glk, FontRenderContext frc, String name, String fam,
-			int s, Float w, boolean oblique, boolean underline, int l, int r,
-			int p, int just, Color t, Color b) {
-		this.glk = glk;
-
+	public Style(String name, String fam, int s, Float w, boolean oblique,
+			boolean underline, int l, int r, int p, int just, Color t, Color b) {
 		this.name = name;
 		family = fam;
 		size = s;
@@ -59,11 +52,6 @@ public class Style implements Cloneable {
 		justification = just;
 		textColor = t;
 		backColor = b;
-
-		Font testfont = new Font(getMap());
-		double w1 = testfont.getStringBounds("m", frc).getWidth();
-		double w2 = testfont.getStringBounds("i", frc).getWidth();
-		isMonospace = (w1 == w2);
 
 		isHyperlinked = false;
 	}
@@ -100,6 +88,10 @@ public class Style implements Cloneable {
 
 	public boolean isMonospace() {
 		return isMonospace;
+	}
+
+	public void setMonospace(boolean monospace) {
+		this.isMonospace = monospace;
 	}
 
 	public boolean isHyperlinked() {

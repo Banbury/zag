@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 public class TraceGlkAspect {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	@Before("execution(* org.p2c2e.zing.IGlk.*(..)) && !execution(void org.p2c2e.zing.swing.Glk.progress(String, int, int, int))")
+	@Before("execution(* org.p2c2e.zing.IGlk.*(..)) && !execution(void org.p2c2e.zing.IGlk.progress(String, int, int, int))")
 	public void logGlkCalls(JoinPoint jp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(jp.getSignature());
