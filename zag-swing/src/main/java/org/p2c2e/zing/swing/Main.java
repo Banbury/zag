@@ -461,7 +461,7 @@ public class Main {
 				config.width = getProp(props, "WindowWidth", r.width);
 				config.height = getProp(props, "WindowHeight", r.height);
 				config.decorate = getProp(props, "WindowFrame", true);
-				config.borders = getProp(props, "WindowBorders", true);
+				config.borders = getProp(props, "WindowBorders", false);
 				config.propFont = getProp(props, "FontName", null);
 				config.fixedFont = getProp(props, "FixedFontName", null);
 				config.pFontSize = getProp(props, "FontSize", 14);
@@ -481,7 +481,7 @@ public class Main {
 			config.width = r.width;
 			config.height = r.height;
 			config.decorate = true;
-			config.borders = true;
+			config.borders = false;
 			config.propFont = null;
 			config.fixedFont = null;
 			config.pFontSize = 14;

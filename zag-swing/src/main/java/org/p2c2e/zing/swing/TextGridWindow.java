@@ -213,9 +213,6 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 	// we need to set up the grid
 	@Override
 	public void rearrange(Rectangle r) {
-		int width, height, rowSize, newRows, newCols, i, j;
-		Square[][] newGrid;
-		LineMetrics m;
 		Style normal = (Style) hintedStyles.get("normal");
 		Font normalFont = new Font(normal.getMap());
 		Insets insets = panel.getInsets();
@@ -227,21 +224,21 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 
 		// how many rows and cols can we fit in our rectangle? we must remember
 		// to compensate for INSET, as well
-		width = r.width - (insets.right + insets.left) - (2 * MARGIN);
-		height = r.height - (insets.top + insets.bottom) - (2 * MARGIN);
+		int width = r.width - (insets.right + insets.left) - (2 * MARGIN);
+		int height = r.height - (insets.top + insets.bottom) - (2 * MARGIN);
 
-		m = normalFont.getLineMetrics("Hag", frc);
+		LineMetrics m = normalFont.getLineMetrics("Hag", frc);
 		ascending = (int) m.getAscent();
-		rowSize = (int) m.getHeight() + 2;
+		int rowSize = (int) m.getHeight() + 2;
 		colSize = (int) normalFont.getStringBounds(Style.MONO_TEST_ARRAY, 0, 1,
 				frc).getWidth();
 		// colSize = (int) normalFont.createGlyphVector(frc,
 		// Style.MONO_TEST_ARRAY).getGlyphMetrics(0).getAdvance();
 
-		newCols = width / colSize;
-		newRows = height / rowSize;
+		int newCols = width / colSize;
+		int newRows = height / rowSize;
 		lineHeight = rowSize;
-		newGrid = new Square[newRows][newCols];
+		Square[][] newGrid = new Square[newRows][newCols];
 		dirty = new boolean[newRows];
 
 		synchronized (grid) {
@@ -259,12 +256,12 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 
 			Square sq = new Square(' ', normal, 0);
 			// fill the grid with spaces
-			for (i = 0; i < newRows; i++)
+			for (int i = 0; i < newRows; i++)
 				Arrays.fill(newGrid[i], sq);
 
 			// now put the old info in newGrid
-			for (i = 0; i < rows && i < newRows; i++) {
-				for (j = 0; j < cols && j < newCols; j++)
+			for (int i = 0; i < rows && i < newRows; i++) {
+				for (int j = 0; j < cols && j < newCols; j++)
 					newGrid[i][j] = grid[i][j];
 			}
 
@@ -552,6 +549,8 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 	}
 
 	class TextGridPanel extends JPanel {
+		private static final long serialVersionUID = 1L;
+
 		public TextGridPanel() {
 			super();
 			setDoubleBuffered(false);
