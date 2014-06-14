@@ -2,9 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>zag2</groupId>
+		<groupId>de.banbury</groupId>
 		<artifactId>zag2</artifactId>
-		<version>${app.version}-SNAPSHOT</version>
+		<version>1.0.8-SNAPSHOT</version>
 	</parent>
 	<artifactId>zag-core</artifactId>
 
@@ -92,15 +92,14 @@
 			<version>2.3</version>
 		</dependency>
 		<dependency>
-			<groupId>org.p2c2e</groupId>
-			<artifactId>zag-processor</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
 			<groupId>edu.ucar</groupId>
 			<artifactId>unidataCommon</artifactId>
 			<version>4.2.20</version>
+		</dependency>
+		<dependency>
+			<groupId>de.banbury</groupId>
+			<artifactId>zag-processor</artifactId>
+			<version>1.0.8-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -2,14 +2,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>zag2</groupId>
+		<groupId>de.banbury</groupId>
 		<artifactId>zag2</artifactId>
-		<version>${app.version}-SNAPSHOT</version>
+		<version>1.0.8-SNAPSHOT</version>
 	</parent>
 	<artifactId>zag-test</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>zag2</groupId>
+			<groupId>de.banbury</groupId>
 			<artifactId>zag-core</artifactId>
 			<version>1.0.8-SNAPSHOT</version>
 		</dependency>

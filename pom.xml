@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>zag2</groupId>
+	<groupId>de.banbury</groupId>
 	<artifactId>zag2</artifactId>
-	<version>${app.version}-SNAPSHOT</version>
+	<version>1.0.8-SNAPSHOT</version>
 	<name>Zag2</name>
 	<description>An implementation of Glulx for Java</description>
 	<packaging>pom</packaging>
@@ -12,11 +12,9 @@
 		<module>zag-core</module>
 		<module>zag-swing</module>
 		<module>zag-test</module>
+		<module>zag-processor</module>
 	</modules>
 
-	<properties>
-		<app.version>1.0.8</app.version>
-	</properties>
 
 	<repositories>
 		<repository>
@@ -94,6 +92,7 @@
 			<plugin>
 				<groupId>com.akathist.maven.plugins.launch4j</groupId>
 				<artifactId>launch4j-maven-plugin</artifactId>
+				<version>1.5.2</version>
 				<executions>
 					<execution>
 						<id>l4j-gui</id>
