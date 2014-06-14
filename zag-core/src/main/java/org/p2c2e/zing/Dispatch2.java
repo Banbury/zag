@@ -28,7 +28,8 @@ public final class Dispatch2 {
 				.getMethod("windowIterate", org.p2c2e.zing.IWindow.class,
 						org.p2c2e.zing.types.OutInt.class));
 		METHODS.put(64, AbstractGlk.class.getMethod("streamIterate",
-				org.p2c2e.zing.streams.Stream.class, org.p2c2e.zing.types.OutInt.class));
+				org.p2c2e.zing.streams.Stream.class,
+				org.p2c2e.zing.types.OutInt.class));
 		METHODS.put(100, AbstractGlk.class
 				.getMethod("filerefIterate", org.p2c2e.zing.Fileref.class,
 						org.p2c2e.zing.types.OutInt.class));
@@ -66,7 +67,8 @@ public final class Dispatch2 {
 				org.p2c2e.zing.IWindow.class,
 				org.p2c2e.zing.types.StreamResult.class));
 		METHODS.put(45, AbstractGlk.class.getMethod("windowSetEchoStream",
-				org.p2c2e.zing.IWindow.class, org.p2c2e.zing.streams.Stream.class));
+				org.p2c2e.zing.IWindow.class,
+				org.p2c2e.zing.streams.Stream.class));
 		METHODS.put(46, AbstractGlk.class.getMethod("windowGetEchoStream",
 				org.p2c2e.zing.IWindow.class));
 		METHODS.put(44, AbstractGlk.class.getMethod("windowGetStream",
@@ -228,10 +230,10 @@ public final class Dispatch2 {
 				org.p2c2e.zing.types.OutInt.class));
 		METHODS.put(235, AbstractGlk.class.getMethod(
 				"windowSetBackgroundColor", org.p2c2e.zing.IWindow.class,
-				java.awt.Color.class));
+				org.p2c2e.blorb.Color.class));
 		METHODS.put(234, AbstractGlk.class.getMethod("windowFillRect",
-				org.p2c2e.zing.IWindow.class, java.awt.Color.class, int.class,
-				int.class, int.class, int.class));
+				org.p2c2e.zing.IWindow.class, org.p2c2e.blorb.Color.class,
+				int.class, int.class, int.class, int.class));
 		METHODS.put(233, AbstractGlk.class.getMethod("windowEraseRect",
 				org.p2c2e.zing.IWindow.class, int.class, int.class, int.class,
 				int.class));

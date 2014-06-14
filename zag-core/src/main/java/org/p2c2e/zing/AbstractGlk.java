@@ -1250,9 +1250,9 @@ public abstract class AbstractGlk implements IGlk {
 
 	@Override
 	public Color intToColor(int i) {
-		int iRed = (i >>> 16) & 0xff;
-		int iGreen = (i >>> 8) & 0xff;
-		int iBlue = i & 0xff;
+		int iRed = (i >>> 16);
+		int iGreen = (i >>> 8);
+		int iBlue = i;
 		return new Color(iRed, iGreen, iBlue);
 	}
 

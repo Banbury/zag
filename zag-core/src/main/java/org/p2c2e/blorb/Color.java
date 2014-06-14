@@ -1,25 +1,25 @@
 package org.p2c2e.blorb;
 
 public class Color {
-	private byte _red;
-	private byte _green;
-	private byte _blue;
+	private int _red;
+	private int _green;
+	private int _blue;
 
 	public Color(int red, int green, int blue) {
-		_red = (byte) red;
-		_green = (byte) green;
-		_blue = (byte) blue;
+		_red = (red & 0xff);
+		_green = (green & 0xff);
+		_blue = (blue & 0xff);
 	}
 
 	public int getRed() {
-		return _red & 0xff;
+		return _red;
 	}
 
 	public int getGreen() {
-		return _green & 0xff;
+		return _green;
 	}
 
 	public int getBlue() {
-		return _blue & 0xff;
+		return _blue;
 	}
 }

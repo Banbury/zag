@@ -612,6 +612,8 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 						as.addAttributes(s.getMap(), mark, cols);
 
 						layout = new TextLayout(as.getIterator(null), frc);
+						g2d.setColor(new java.awt.Color(s.textColor.getRed(),
+								s.textColor.getGreen(), s.textColor.getBlue()));
 						layout.draw(g2d, x, y);
 					}
 					y += lineHeight;

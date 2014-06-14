@@ -817,7 +817,7 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 				if (struct != null && struct.left != null) {
 					for (int i = 0; i < struct.left.size(); i++) {
 						mimg = new MarginImage();
-						mimg.img = (Image) struct.left.get(i);
+						mimg.img = struct.left.get(i);
 						mimg.inherit = curLine.leftImg;
 						mimg.myTop = curLine.top;
 						curLine.leftImg = mimg;
@@ -827,7 +827,7 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 				if (struct != null && struct.right != null) {
 					for (int i = 0; i < struct.right.size(); i++) {
 						mimg = new MarginImage();
-						mimg.img = (Image) struct.right.get(i);
+						mimg.img = struct.right.get(i);
 						mimg.inherit = curLine.rightImg;
 						mimg.myTop = curLine.top;
 						curLine.rightImg = mimg;
@@ -1018,10 +1018,10 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 				Integer oiVal = mHyperlinks.get(oiPos);
 
 				if (oiVal == null) {
-					SortedMap m = mHyperlinks.headMap(oiPos);
+					SortedMap<Integer, Integer> m = mHyperlinks.headMap(oiPos);
 					if (!m.isEmpty()) {
-						oiPos = (Integer) m.lastKey();
-						oiVal = (Integer) m.get(oiPos);
+						oiPos = m.lastKey();
+						oiVal = m.get(oiPos);
 					}
 				}
 
@@ -1042,18 +1042,18 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 
 	Line getHit(int x, int y) {
 		int np = paragraphs.size();
-		ListIterator pit = paragraphs.listIterator(np);
+		ListIterator<Paragraph> pit = paragraphs.listIterator(np);
 
 		while (pit.hasPrevious()) {
-			Paragraph p = (Paragraph) pit.previous();
+			Paragraph p = pit.previous();
 			int pstart = p.lines.getFirst().top;
 
 			if (pstart <= y) {
 				int nl = p.lines.size();
-				ListIterator lit = p.lines.listIterator(nl);
+				ListIterator<Line> lit = p.lines.listIterator(nl);
 
 				while (lit.hasPrevious()) {
-					Line l = (Line) lit.previous();
+					Line l = lit.previous();
 					if (l.top <= y) {
 						int ax = l.left + H_MARGIN;
 						TextLayout lay = (l.jlay == null) ? l.layout : l.jlay;
@@ -1319,15 +1319,15 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 		synchronized (paragraphs) {
 			if (!paragraphs.isEmpty()) {
 				np = paragraphs.size();
-				ListIterator pit = paragraphs.listIterator(np);
+				ListIterator<Paragraph> pit = paragraphs.listIterator(np);
 
 				for (i = np - 1; !done && i >= 0; i--) {
-					p1 = (Paragraph) pit.previous();
+					p1 = pit.previous();
 					nl = p1.lines.size();
-					ListIterator lit = p1.lines.listIterator(nl);
+					ListIterator<Line> lit = p1.lines.listIterator(nl);
 
 					for (j = nl - 1; !done && j >= 0; j--) {
-						l1 = (Line) lit.previous();
+						l1 = lit.previous();
 						done = (l1.start < startPos);
 					}
 				}
@@ -1357,6 +1357,8 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 	}
 
 	class TextBufferPanel extends JPanel implements Scrollable {
+		private static final long serialVersionUID = 1L;
+
 		Dimension preferredViewportSize = new Dimension(0, 0);
 		int lSize = ((Style) hintedStyles.get("normal")).size + 2;
 
@@ -1389,10 +1391,6 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 
 		@Override
 		public synchronized void paintComponent(Graphics g) {
-			int np, nl, i, j;
-			int x, y;
-			MarginImage mi;
-			Rectangle r;
 			Rectangle clip;
 			Paragraph p;
 			Shape[] carets = null;
@@ -1401,25 +1399,26 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 			Line l1 = null;
 			Line l2 = null;
 			TextLayout layout = null;
-			Graphics2D g2 = (Graphics2D) g;
+
 			Style lastStyle = (Style) hintedStyles.get("normal");
 			Style inputStyle = (Style) hintedStyles.get("input");
 
+			Graphics2D g2 = (Graphics2D) g;
 			clip = g2.getClipBounds();
 			g2.setColor(new java.awt.Color(lastStyle.backColor.getRed(),
 					lastStyle.backColor.getGreen(), lastStyle.backColor
 							.getBlue()));
 			g2.fillRect(clip.x, clip.y, clip.width, clip.height);
 
-			r = new Rectangle();
+			Rectangle r = new Rectangle();
 			r.x = clip.x;
 			r.width = clip.width;
 
 			synchronized (paragraphs) {
-				np = paragraphs.size();
+				int np = paragraphs.size();
 				ListIterator<Paragraph> pit = paragraphs.listIterator();
 
-				for (i = 0; i < np; i++) {
+				for (int i = 0; i < np; i++) {
 					p = pit.next();
 					l1 = p.lines.getFirst();
 					l2 = p.lines.getLast();
@@ -1430,13 +1429,13 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 					if (r.intersects(clip)) {
 						l1 = p.lines.getFirst();
 
-						mi = l1.leftImg;
+						MarginImage mi = l1.leftImg;
 						while (mi != null) {
 							r.y = mi.myTop;
 							r.height = mi.img.getHeight(this);
 
 							if (r.intersects(clip)) {
-								x = H_MARGIN
+								int x = H_MARGIN
 										+ p.leftBase
 										+ ((mi.inherit == null) ? 0
 												: mi.inherit.getWidth());
@@ -1451,7 +1450,7 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 							r.height = mi.img.getHeight(this);
 
 							if (r.intersects(clip)) {
-								x = getWidth()
+								int x = getWidth()
 										- (H_MARGIN + p.rightBase + mi
 												.getWidth());
 								g2.drawImage(mi.img, x, r.y, this);
@@ -1459,10 +1458,10 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 							mi = mi.inherit;
 						}
 
-						nl = p.lines.size();
+						int nl = p.lines.size();
 						ListIterator<Line> lit = p.lines.listIterator();
 
-						for (j = 0; j < nl; j++) {
+						for (int j = 0; j < nl; j++) {
 							l1 = lit.next();
 							r.y = l1.top;
 							r.height = l1.bottom - l1.top;
@@ -1479,8 +1478,12 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 									layout = l1.layout;
 								}
 
-								x = l1.left + H_MARGIN;
-								y = l1.top + (int) layout.getAscent();
+								int x = l1.left + H_MARGIN;
+								int y = l1.top + Math.round(layout.getAscent());
+								g2.setColor(new java.awt.Color(
+										lastStyle.textColor.getRed(),
+										lastStyle.textColor.getGreen(),
+										lastStyle.textColor.getBlue()));
 								layout.draw(g2, x, y);
 							}
 
@@ -1488,8 +1491,8 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 									&& ((l1.start <= iLineCursorPos && l1.end > iLineCursorPos) || (iLineCursorPos == l1.end && l1.end == buffer
 											.length()))) {
 								translateX = l1.left + H_MARGIN;
-								translateY = (int) ((double) l1.top + layout
-										.getAscent());
+								translateY = Math.round(l1.top
+										+ layout.getAscent());
 
 								int curPos;
 								if (charConsumer != null)
@@ -1604,17 +1607,17 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 	}
 
 	static class MarginImgStruct {
-		ArrayList left;
-		ArrayList right;
+		ArrayList<Image> left;
+		ArrayList<Image> right;
 
 		void add(Image img, int align) {
 			if (align == MARGIN_LEFT) {
 				if (left == null)
-					left = new ArrayList(1);
+					left = new ArrayList<Image>(1);
 				left.add(img);
 			} else {
 				if (right == null)
-					right = new ArrayList(1);
+					right = new ArrayList<Image>(1);
 				right.add(img);
 			}
 		}

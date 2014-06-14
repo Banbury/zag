@@ -81,7 +81,7 @@ public class GraphicsWindow extends Window implements IGraphicsWindow {
 		Graphics2D ng2d = nbi.createGraphics();
 
 		ng2d.setClip(0, 0, r.width, r.height);
-		ng2d.setColor(new java.awt.Color(bg.getBlue(), bg.getGreen(), bg
+		ng2d.setColor(new java.awt.Color(bg.getRed(), bg.getGreen(), bg
 				.getBlue()));
 		ng2d.fillRect(0, 0, r.width, r.height);
 
@@ -109,7 +109,7 @@ public class GraphicsWindow extends Window implements IGraphicsWindow {
 	@Override
 	public void setBackgroundColor(Color c) {
 		bg = c;
-		panel.setBackground(new java.awt.Color(c.getBlue(), c.getGreen(), c
+		panel.setBackground(new java.awt.Color(c.getRed(), c.getGreen(), c
 				.getBlue()));
 		change = true;
 	}
@@ -122,7 +122,7 @@ public class GraphicsWindow extends Window implements IGraphicsWindow {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-						g2d.setColor(new java.awt.Color(c.getBlue(), c
+						g2d.setColor(new java.awt.Color(c.getRed(), c
 								.getGreen(), c.getBlue()));
 						g2d.fillRect(left, top, width, height);
 					}
@@ -142,7 +142,7 @@ public class GraphicsWindow extends Window implements IGraphicsWindow {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-						g2d.setColor(new java.awt.Color(bg.getBlue(), bg
+						g2d.setColor(new java.awt.Color(bg.getRed(), bg
 								.getGreen(), bg.getBlue()));
 						g2d.fillRect(left, top, width, height);
 					}

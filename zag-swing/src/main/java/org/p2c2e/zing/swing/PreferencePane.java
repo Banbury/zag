@@ -324,9 +324,9 @@ public class PreferencePane extends JPanel implements ActionListener {
 			ub.setSelected(s.isUnderlined);
 			bb.setSelected(s.weight.floatValue() > TextAttribute.WEIGHT_REGULAR
 					.floatValue());
-			tcPanel.setBackground(new java.awt.Color(s.textColor.getBlue(),
+			tcPanel.setBackground(new java.awt.Color(s.textColor.getRed(),
 					s.textColor.getGreen(), s.textColor.getBlue()));
-			bcPanel.setBackground(new java.awt.Color(s.backColor.getBlue(),
+			bcPanel.setBackground(new java.awt.Color(s.backColor.getRed(),
 					s.backColor.getGreen(), s.backColor.getBlue()));
 		}
 
