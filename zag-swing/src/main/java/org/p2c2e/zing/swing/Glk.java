@@ -112,7 +112,7 @@ public class Glk extends AbstractGlk {
 
 	@Override
 	public void progress(String stJob, int min, int max, int cur) {
-		JProgressBar prog = LameFocusManager.STATUS.prog;
+		JProgressBar prog = LameFocusManager.STATUS.getProgressBar();
 
 		if (min == max && prog.isVisible()) {
 			prog.setVisible(false);

@@ -1,45 +1,47 @@
 package org.p2c2e.zing.swing;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Component;
 
-public class StatusPane extends JPanel
-{
-  public static Component BLANK = Box.createVerticalStrut(25);
-  public static JLabel MORE = new JLabel("[More]", SwingConstants.LEFT);
-  public static JLabel EXIT = new JLabel("[*** End of session ***]", 
-                                  SwingConstants.LEFT);
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 
-  JProgressBar prog;
-  Component current;
+public class StatusPane extends JPanel {
+	public static Component BLANK = Box.createVerticalStrut(25);
+	public static JLabel MORE = new JLabel("[More]", SwingConstants.LEFT);
+	public static JLabel EXIT = new JLabel("[*** End of session ***]",
+			SwingConstants.LEFT);
 
-  StatusPane()
-  {
-    super();
-    prog = new JProgressBar();
-    setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-    show(BLANK);
-  }
+	private JProgressBar prog;
+	private Component current;
 
-  public JProgressBar getProgressBar()
-  {
-    return prog;
-  }
+	StatusPane() {
+		super();
+		prog = new JProgressBar();
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		show(BLANK);
+	}
 
-  public void show(Component l)
-  {
-    if (l == null)
-      l = BLANK;
+	public JProgressBar getProgressBar() {
+		return prog;
+	}
 
-    if (l != current)
-    {
-      removeAll();
-      add(l);
-      add(BLANK);
-      add(Box.createHorizontalGlue());
-      add(prog);
-      revalidate();
-      repaint();
-    }
-  }
+	public void show(Component l) {
+		if (l == null)
+			l = BLANK;
+
+		if (l != current) {
+			removeAll();
+			add(l);
+			add(BLANK);
+			add(Box.createHorizontalGlue());
+			add(prog);
+			revalidate();
+			repaint();
+			current = l;
+		}
+	}
 }

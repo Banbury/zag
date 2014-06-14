@@ -268,7 +268,7 @@ public class FileStream extends Stream {
 	}
 
 	private int noBytesUtf8(byte b) {
-		if (b < 0x80) {
+		if ((0xff & b) < 0x80) {
 			return 1;
 		} else if ((b & 0xC0) == 0xC0) {
 			return 2;

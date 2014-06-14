@@ -36,7 +36,6 @@ public class PairWindow extends Window {
 		panel.setLayout(bl);
 		// panel = (axis == BoxLayout.X_AXIS) ? Box.createHorizontalBox() :
 		// Box.createVerticalBox();
-		this.axis = axis;
 	}
 
 	@Override

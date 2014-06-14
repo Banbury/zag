@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
@@ -177,7 +176,7 @@ public class BlorbFile {
 		int iSize;
 		LinkedList<Integer> li = _mOpt.get(stType);
 		if (li == null)
-			li = (LinkedList<Integer>) Collections.EMPTY_LIST;
+			li = new LinkedList<Integer>();
 
 		iSize = li.size();
 		ArrayList<Chunk> copy = new ArrayList<Chunk>(iSize);

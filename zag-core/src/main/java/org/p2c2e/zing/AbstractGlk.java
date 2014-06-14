@@ -42,7 +42,7 @@ public abstract class AbstractGlk implements IGlk {
 	public TreeMap FILE_REFS;
 	public TreeMap SOUND_CHANNELS;
 	public Stream CURRENT_STREAM;
-	public static LinkedList EVENT_QUEUE;
+	private LinkedList<GlkEvent> event_queue;
 	public int TIMER = 0;
 	public long TIMESTAMP;
 	protected BlorbFile blorbFile;
@@ -83,7 +83,7 @@ public abstract class AbstractGlk implements IGlk {
 		SOUND_CHANNELS = new TreeMap(HC_COMP);
 
 		CURRENT_STREAM = null;
-		EVENT_QUEUE = new LinkedList();
+		event_queue = new LinkedList<GlkEvent>();
 		TIMER = 0;
 		TIMESTAMP = 0L;
 		blorbFile = null;
@@ -1107,9 +1107,9 @@ public abstract class AbstractGlk implements IGlk {
 
 	@Override
 	public void addEvent(GlkEvent e) {
-		synchronized (EVENT_QUEUE) {
-			EVENT_QUEUE.addLast(e);
-			EVENT_QUEUE.notifyAll();
+		synchronized (event_queue) {
+			event_queue.addLast(e);
+			event_queue.notifyAll();
 		}
 	}
 
@@ -1128,7 +1128,7 @@ public abstract class AbstractGlk implements IGlk {
 	@Override
 	@GlkMethod(0x161)
 	public int getCurrentSimpleTime(int factor) {
-		return Math.round(System.currentTimeMillis() / 1000L / factor);
+		return Math.round(System.currentTimeMillis() / 1000.0f / factor);
 	}
 
 	@Override
@@ -1228,7 +1228,7 @@ public abstract class AbstractGlk implements IGlk {
 		DateTime udt = new DateTime(date.getYear(), date.getMonth(),
 				date.getDay(), date.getHour(), date.getMinute(),
 				date.getSecond(), DateTimeZone.UTC);
-		return Math.round(udt.getMillis() / 1000L / factor);
+		return Math.round(udt.getMillis() / 1000.0f / factor);
 	}
 
 	@Override
@@ -1237,7 +1237,7 @@ public abstract class AbstractGlk implements IGlk {
 		DateTime udt = new DateTime(date.getYear(), date.getMonth(),
 				date.getDay(), date.getHour(), date.getMinute(),
 				date.getSecond());
-		return Math.round(udt.getMillis() / 1000L / factor);
+		return Math.round(udt.getMillis() / 1000.0f / factor);
 	}
 
 	@Override
@@ -1270,10 +1270,10 @@ public abstract class AbstractGlk implements IGlk {
 		GlkEvent ev = null;
 		boolean done = false;
 
-		synchronized (EVENT_QUEUE) {
+		synchronized (event_queue) {
 			while (!done) {
-				if (!EVENT_QUEUE.isEmpty()) {
-					ev = (GlkEvent) EVENT_QUEUE.removeFirst();
+				if (!event_queue.isEmpty()) {
+					ev = event_queue.removeFirst();
 					if (ev != null)
 						done = true;
 				} else if (TIMER > 0
@@ -1287,9 +1287,9 @@ public abstract class AbstractGlk implements IGlk {
 				} else {
 					try {
 						if (TIMER > 0)
-							EVENT_QUEUE.wait(TIMER - (cur - TIMESTAMP));
+							event_queue.wait(TIMER - (cur - TIMESTAMP));
 						else
-							EVENT_QUEUE.wait();
+							event_queue.wait();
 					} catch (InterruptedException ex) {
 					}
 				}
@@ -1308,12 +1308,12 @@ public abstract class AbstractGlk implements IGlk {
 	public void selectPoll(GlkEvent e) {
 		long cur;
 		GlkEvent ev = null;
-		ListIterator li;
+		ListIterator<GlkEvent> li;
 
-		synchronized (EVENT_QUEUE) {
-			li = EVENT_QUEUE.listIterator();
+		synchronized (event_queue) {
+			li = event_queue.listIterator();
 			while (li.hasNext()) {
-				ev = (GlkEvent) li.next();
+				ev = li.next();
 				if (ev.type == EVTYPE_TIMER || ev.type == EVTYPE_ARRANGE
 						|| ev.type == EVTYPE_SOUND_NOTIFY) {
 					li.remove();
