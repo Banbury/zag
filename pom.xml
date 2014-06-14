@@ -15,6 +15,9 @@
 		<module>zag-processor</module>
 	</modules>
 
+	<properties>
+		<app.version>1.0.8</app.version>
+	</properties>
 
 	<repositories>
 		<repository>
