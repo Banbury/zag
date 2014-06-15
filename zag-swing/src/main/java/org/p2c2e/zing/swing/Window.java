@@ -2,7 +2,6 @@ package org.p2c2e.zing.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -293,9 +292,9 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 		PairWindow oldPair;
 		PairWindow newPair = null;
 		Window w;
-		FontRenderContext context = ((Graphics2D) FRAME.getContentPane()
-				.getGraphics()).getFontRenderContext();
-		context = new FontRenderContext(null, true, true);
+		// FontRenderContext context = ((Graphics2D) FRAME.getContentPane()
+		// .getGraphics()).getFontRenderContext();
+		FontRenderContext context = new FontRenderContext(null, true, true);
 
 		switch (winType) {
 		case BLANK:

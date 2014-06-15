@@ -3,7 +3,6 @@ package org.p2c2e.zing.swing;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
@@ -448,9 +447,10 @@ public class Glk extends AbstractGlk {
 	}
 
 	private static void setupStyles(IGlk glk, RootPaneContainer f) {
-		FontRenderContext frc = ((Graphics2D) f.getContentPane().getGraphics())
-				.getFontRenderContext();
-		frc = new FontRenderContext(null, true, true);
+		// FontRenderContext frc = ((Graphics2D)
+		// f.getContentPane().getGraphics())
+		// .getFontRenderContext();
+		FontRenderContext frc = new FontRenderContext(null, true, true);
 
 		Preferences stylep = Preferences.userRoot().node(
 				"/org/p2c2e/zing/style");
