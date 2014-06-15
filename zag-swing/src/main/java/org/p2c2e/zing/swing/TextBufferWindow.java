@@ -1146,7 +1146,7 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 
 			doPaint(lastLineSeen);
 
-			cs.consume(e);
+			cs.consume(mapKeyEvent(e));
 		} else if (lineConsumer != null) {
 			boolean needLayout = false;
 

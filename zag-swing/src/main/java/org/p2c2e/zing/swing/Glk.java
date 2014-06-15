@@ -8,6 +8,7 @@ import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
+import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.prefs.Preferences;
 
@@ -41,6 +42,22 @@ public class Glk extends AbstractGlk {
 			instance = new Glk();
 
 		return instance;
+	}
+
+	public static class ImageCacheNode {
+		public int id;
+		public Image normal;
+		public Image scaled;
+	}
+
+	protected LinkedList<ImageCacheNode> imageCache;
+
+	private MediaTracker tracker;
+
+	@Override
+	public void setBlorbFile(BlorbFile f) {
+		super.setBlorbFile(f);
+		imageCache.clear();
 	}
 
 	public void setFrame(JFrame frame) {
@@ -82,7 +99,7 @@ public class Glk extends AbstractGlk {
 
 		LameFocusManager.registerFrame(frame, statusOn);
 
-		TRACKER = new MediaTracker(frame);
+		tracker = new MediaTracker(frame);
 		setupStyles(Glk.getInstance(), Window.getFrame());
 	}
 
@@ -97,6 +114,9 @@ public class Glk extends AbstractGlk {
 	@Override
 	public void reset() {
 		super.reset();
+
+		imageCache = new LinkedList<ImageCacheNode>();
+
 		if (Window.getRoot() != null) {
 			Window.close(Window.getRoot());
 			Window.getFrame().getContentPane().validate();
@@ -272,8 +292,7 @@ public class Glk extends AbstractGlk {
 		if (win instanceof TextBufferWindow) {
 			((TextBufferWindow) win).drawImage(img, val1);
 			return true;
-		}
-		if (win instanceof GraphicsWindow) {
+		} else if (win instanceof GraphicsWindow) {
 			((GraphicsWindow) win).drawImage(img, val1, val2);
 			return true;
 		}
@@ -290,8 +309,7 @@ public class Glk extends AbstractGlk {
 		if (win instanceof TextBufferWindow) {
 			((TextBufferWindow) win).drawImage(img, val1);
 			return true;
-		}
-		if (win instanceof GraphicsWindow) {
+		} else if (win instanceof GraphicsWindow) {
 			((GraphicsWindow) win).drawImage(img, val1, val2);
 			return true;
 		}
@@ -316,7 +334,6 @@ public class Glk extends AbstractGlk {
 		}
 	}
 
-	@Override
 	public Image getImage(int id, int xscale, int yscale) {
 		ImageCacheNode n = null;
 		Image img = null;
@@ -344,9 +361,9 @@ public class Glk extends AbstractGlk {
 					img = n.normal.getScaledInstance(xscale, yscale,
 							Image.SCALE_SMOOTH);
 					try {
-						TRACKER.addImage(img, id);
-						TRACKER.waitForID(id);
-						TRACKER.removeImage(img);
+						tracker.addImage(img, id);
+						tracker.waitForID(id);
+						tracker.removeImage(img);
 					} catch (InterruptedException eI) {
 						eI.printStackTrace();
 					}
@@ -366,9 +383,9 @@ public class Glk extends AbstractGlk {
 			byte[] arr = Bytes.getBytes(chunk.getData());
 			img = Toolkit.getDefaultToolkit().createImage(arr);
 
-			TRACKER.addImage(img, id);
-			TRACKER.waitForID(id);
-			TRACKER.removeImage(img);
+			tracker.addImage(img, id);
+			tracker.waitForID(id);
+			tracker.removeImage(img);
 
 			n = new ImageCacheNode();
 			n.id = id;
@@ -379,9 +396,9 @@ public class Glk extends AbstractGlk {
 
 			if (xscale >= 0) {
 				img = img.getScaledInstance(xscale, yscale, Image.SCALE_SMOOTH);
-				TRACKER.addImage(img, id);
-				TRACKER.waitForID(id);
-				TRACKER.removeImage(img);
+				tracker.addImage(img, id);
+				tracker.waitForID(id);
+				tracker.removeImage(img);
 				n.scaled = img;
 			}
 

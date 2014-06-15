@@ -1,10 +1,6 @@
 package org.p2c2e.zing;
 
-import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -47,17 +43,9 @@ public abstract class AbstractGlk implements IGlk {
 	public long TIMESTAMP;
 	protected BlorbFile blorbFile;
 
-	public MediaTracker TRACKER;
-	protected LinkedList<ImageCacheNode> imageCache;
 	public ObjectCallback CREATE_CALLBACK;
 	public ObjectCallback DESTROY_CALLBACK;
 	public boolean BORDERS_ON = true;
-
-	public static class ImageCacheNode {
-		public int id;
-		public Image normal;
-		public Image scaled;
-	}
 
 	@Override
 	public void flush() {
@@ -87,7 +75,6 @@ public abstract class AbstractGlk implements IGlk {
 		TIMER = 0;
 		TIMESTAMP = 0L;
 		blorbFile = null;
-		imageCache = new LinkedList<AbstractGlk.ImageCacheNode>();
 
 		StyleHints.clearAll();
 	}
@@ -102,8 +89,6 @@ public abstract class AbstractGlk implements IGlk {
 	@Override
 	public void setBlorbFile(BlorbFile f) {
 		blorbFile = f;
-		imageCache.clear();
-
 	}
 
 	@Override
@@ -1286,9 +1271,6 @@ public abstract class AbstractGlk implements IGlk {
 	}
 
 	@Override
-	public abstract Image getImage(int id, int xscale, int yscale);
-
-	@Override
 	public int colorToInt(Color c) {
 		return ((c.getRed() << 16) | (c.getGreen() << 8) | c.getBlue());
 	}
@@ -1460,180 +1442,6 @@ public abstract class AbstractGlk implements IGlk {
 			e.val1 = val;
 			e.val2 = 0;
 
-			glk.addEvent(e);
-		}
-	}
-
-	protected static class GlkCharConsumer implements CharInputConsumer {
-		private IGlk glk;
-		private IWindow w;
-
-		GlkCharConsumer(IGlk glk, IWindow win) {
-			this.glk = glk;
-			w = win;
-		}
-
-		@Override
-		public void consume(java.awt.event.KeyEvent e) {
-			GlkEvent ev = new GlkEvent();
-			ev.type = EVTYPE_CHAR_INPUT;
-			ev.win = w;
-			ev.val1 = e.getKeyChar();
-			ev.val2 = 0;
-
-			switch (ev.val1) {
-			case 9:
-				ev.val1 = KEYCODE_TAB;
-				break;
-			case 10:
-			case 13:
-				ev.val1 = KEYCODE_RETURN;
-				break;
-			case 27:
-				ev.val1 = KEYCODE_ESCAPE;
-				break;
-			case 127:
-				ev.val1 = KEYCODE_DELETE;
-				break;
-			case KeyEvent.CHAR_UNDEFINED:
-				switch (e.getKeyCode()) {
-				case KeyEvent.VK_LEFT:
-					ev.val1 = KEYCODE_LEFT;
-					break;
-				case KeyEvent.VK_RIGHT:
-					ev.val1 = KEYCODE_RIGHT;
-					break;
-				case KeyEvent.VK_UP:
-					ev.val1 = KEYCODE_UP;
-					break;
-				case KeyEvent.VK_DOWN:
-					ev.val1 = KEYCODE_DOWN;
-					break;
-				case KeyEvent.VK_ENTER:
-					ev.val1 = KEYCODE_RETURN;
-					break;
-				case KeyEvent.VK_DELETE:
-					ev.val1 = KEYCODE_DELETE;
-					break;
-				case KeyEvent.VK_ESCAPE:
-					ev.val1 = KEYCODE_ESCAPE;
-					break;
-				case KeyEvent.VK_TAB:
-					ev.val1 = KEYCODE_TAB;
-					break;
-				case KeyEvent.VK_PAGE_UP:
-					ev.val1 = KEYCODE_PAGE_UP;
-					break;
-				case KeyEvent.VK_PAGE_DOWN:
-					ev.val1 = KEYCODE_PAGE_DOWN;
-					break;
-				case KeyEvent.VK_HOME:
-					ev.val1 = KEYCODE_HOME;
-					break;
-				case KeyEvent.VK_END:
-					ev.val1 = KEYCODE_END;
-					break;
-				case KeyEvent.VK_F1:
-					ev.val1 = KEYCODE_FUNC1;
-					break;
-				case KeyEvent.VK_F2:
-					ev.val1 = KEYCODE_FUNC2;
-					break;
-				case KeyEvent.VK_F3:
-					ev.val1 = KEYCODE_FUNC3;
-					break;
-				case KeyEvent.VK_F4:
-					ev.val1 = KEYCODE_FUNC4;
-					break;
-				case KeyEvent.VK_F5:
-					ev.val1 = KEYCODE_FUNC5;
-					break;
-				case KeyEvent.VK_F6:
-					ev.val1 = KEYCODE_FUNC6;
-					break;
-				case KeyEvent.VK_F7:
-					ev.val1 = KEYCODE_FUNC7;
-					break;
-				case KeyEvent.VK_F8:
-					ev.val1 = KEYCODE_FUNC8;
-					break;
-				case KeyEvent.VK_F9:
-					ev.val1 = KEYCODE_FUNC9;
-					break;
-				case KeyEvent.VK_F10:
-					ev.val1 = KEYCODE_FUNC10;
-					break;
-				case KeyEvent.VK_F11:
-					ev.val1 = KEYCODE_FUNC11;
-					break;
-				case KeyEvent.VK_F12:
-					ev.val1 = KEYCODE_FUNC12;
-					break;
-				default:
-					ev.val1 = KEYCODE_UNKNOWN;
-				}
-				break;
-			default:
-			}
-
-			glk.addEvent(ev);
-		}
-	}
-
-	protected static class GlkLineConsumer implements LineInputConsumer {
-		private IGlk glk;
-		IWindow w;
-		ByteBuffer b;
-		boolean unicode;
-
-		GlkLineConsumer(IGlk glk, IWindow win, ByteBuffer buf, boolean unicode) {
-			this.glk = glk;
-			w = win;
-			b = buf;
-			this.unicode = unicode;
-		}
-
-		@Override
-		public void consume(String s) {
-			GlkEvent ev = new GlkEvent();
-			cancel(s);
-			ev.type = EVTYPE_LINE_INPUT;
-			ev.win = w;
-			ev.val1 = s.length();
-			ev.val2 = 0;
-			glk.addEvent(ev);
-		}
-
-		@Override
-		public void cancel(String s) {
-			int l = s.length();
-			if (unicode) {
-				// fixme does not handle astral plane
-				for (int i = 0; i < l; i++)
-					b.putInt(i * 4, s.charAt(i));
-			} else {
-				for (int i = 0; i < l; i++)
-					b.put(i, (byte) s.charAt(i));
-			}
-		}
-	}
-
-	protected static class GlkMouseConsumer implements MouseInputConsumer {
-		IGlk glk;
-		IWindow w;
-
-		GlkMouseConsumer(IGlk glk, IWindow win) {
-			this.glk = glk;
-			w = win;
-		}
-
-		@Override
-		public void consume(int x, int y) {
-			GlkEvent e = new GlkEvent();
-			e.type = EVTYPE_MOUSE_INPUT;
-			e.win = w;
-			e.val1 = x;
-			e.val2 = y;
 			glk.addEvent(e);
 		}
 	}

@@ -466,7 +466,7 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 		if (charConsumer != null) {
 			CharInputConsumer cs = charConsumer;
 			charConsumer = null;
-			cs.consume(e);
+			cs.consume(mapKeyEvent(e));
 		} else if (lineConsumer != null) {
 			int iChar = e.getKeyChar();
 			if ((iChar >= 32 && iChar < 127) || (iChar >= 160 && iChar < 256)) {

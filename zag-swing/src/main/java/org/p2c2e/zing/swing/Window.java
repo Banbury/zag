@@ -20,6 +20,7 @@ import javax.swing.RootPaneContainer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
+import org.p2c2e.zing.AbstractGlk;
 import org.p2c2e.zing.CharInputConsumer;
 import org.p2c2e.zing.HyperlinkInputConsumer;
 import org.p2c2e.zing.IGlk;
@@ -510,4 +511,73 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 		}
 	}
 
+	protected int mapKeyEvent(KeyEvent e) {
+		switch (e.getKeyChar()) {
+		case 9:
+			return AbstractGlk.KEYCODE_TAB;
+		case 10:
+		case 13:
+			return AbstractGlk.KEYCODE_RETURN;
+		case 27:
+			return AbstractGlk.KEYCODE_ESCAPE;
+		case 127:
+			return AbstractGlk.KEYCODE_DELETE;
+		case KeyEvent.CHAR_UNDEFINED:
+			switch (e.getKeyCode()) {
+			case KeyEvent.VK_LEFT:
+				return AbstractGlk.KEYCODE_LEFT;
+			case KeyEvent.VK_RIGHT:
+				return AbstractGlk.KEYCODE_RIGHT;
+			case KeyEvent.VK_UP:
+				return AbstractGlk.KEYCODE_UP;
+			case KeyEvent.VK_DOWN:
+				return AbstractGlk.KEYCODE_DOWN;
+			case KeyEvent.VK_ENTER:
+				return AbstractGlk.KEYCODE_RETURN;
+			case KeyEvent.VK_DELETE:
+				return AbstractGlk.KEYCODE_DELETE;
+			case KeyEvent.VK_ESCAPE:
+				return AbstractGlk.KEYCODE_ESCAPE;
+			case KeyEvent.VK_TAB:
+				return AbstractGlk.KEYCODE_TAB;
+			case KeyEvent.VK_PAGE_UP:
+				return AbstractGlk.KEYCODE_PAGE_UP;
+			case KeyEvent.VK_PAGE_DOWN:
+				return AbstractGlk.KEYCODE_PAGE_DOWN;
+			case KeyEvent.VK_HOME:
+				return AbstractGlk.KEYCODE_HOME;
+			case KeyEvent.VK_END:
+				return AbstractGlk.KEYCODE_END;
+			case KeyEvent.VK_F1:
+				return AbstractGlk.KEYCODE_FUNC1;
+			case KeyEvent.VK_F2:
+				return AbstractGlk.KEYCODE_FUNC2;
+			case KeyEvent.VK_F3:
+				return AbstractGlk.KEYCODE_FUNC3;
+			case KeyEvent.VK_F4:
+				return AbstractGlk.KEYCODE_FUNC4;
+			case KeyEvent.VK_F5:
+				return AbstractGlk.KEYCODE_FUNC5;
+			case KeyEvent.VK_F6:
+				return AbstractGlk.KEYCODE_FUNC6;
+			case KeyEvent.VK_F7:
+				return AbstractGlk.KEYCODE_FUNC7;
+			case KeyEvent.VK_F8:
+				return AbstractGlk.KEYCODE_FUNC8;
+			case KeyEvent.VK_F9:
+				return AbstractGlk.KEYCODE_FUNC9;
+			case KeyEvent.VK_F10:
+				return AbstractGlk.KEYCODE_FUNC10;
+			case KeyEvent.VK_F11:
+				return AbstractGlk.KEYCODE_FUNC11;
+			case KeyEvent.VK_F12:
+				return AbstractGlk.KEYCODE_FUNC12;
+			default:
+				return AbstractGlk.KEYCODE_UNKNOWN;
+			}
+		default:
+			return e.getKeyChar();
+		}
+
+	}
 }

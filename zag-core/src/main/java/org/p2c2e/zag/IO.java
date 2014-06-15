@@ -1,6 +1,5 @@
 package org.p2c2e.zag;
 
-import java.awt.Window;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -432,8 +431,8 @@ public final class IO {
 			}
 
 			if (retType != null) {
-				if (retType == IWindow.class || retType == Window.class
-						|| retType == Stream.class || retType == Fileref.class
+				if (retType == IWindow.class || retType == Stream.class
+						|| retType == Fileref.class
 						|| retType == SoundChannel.class) {
 					ret = oRet.hashCode();
 				} else if (retType == char.class) {

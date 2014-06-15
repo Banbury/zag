@@ -1,7 +1,5 @@
 package org.p2c2e.zing;
 
-import java.awt.Image;
-
 import org.p2c2e.blorb.BlorbFile;
 import org.p2c2e.blorb.Color;
 import org.p2c2e.zing.streams.Stream;
@@ -23,8 +21,6 @@ public interface IGlk {
 	public Color intToColor(int i);
 
 	public int colorToInt(Color c);
-
-	public Image getImage(int id, int xscale, int yscale);
 
 	public void selectPoll(GlkEvent e);
 
