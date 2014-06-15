@@ -55,7 +55,7 @@ class FileStreamSpec extends Specification {
 		then:
 		n == 46
 		n == sr.readcount
-		buf.array()[-1] == 0
+		buf.array()[n] == 0
 	}
 
 	def "read line unicode"() {
@@ -71,7 +71,7 @@ class FileStreamSpec extends Specification {
 		then:
 		n == 46
 		n == sr.readcount
-		buf.array()[-1] == 0
+		buf.array()[n] == 0
 	}
 
 	def "get buffer"() {
@@ -97,9 +97,25 @@ class FileStreamSpec extends Specification {
 
 		when:
 		int c = stream.getCharUni()
+		stream.close()
 
 		then:
 		c == "T"
+	}
+
+	def "get buffer from unicode file"() {
+		setup:
+		Fileref fileref = createTempfileUnicodePutChar()
+		Stream stream = new FileStream(fileref, IGlk.FILEMODE_READ, false)
+		ByteBuffer buf = ByteBuffer.wrap(new byte[256])
+
+		when:
+		int n = stream.getBuffer(buf, 256)
+		StreamResult sr = stream.close()
+
+		then:
+		n == 3
+		((char)buf.get(0)) == "T"
 	}
 
 	def createTempfile() {
@@ -118,6 +134,16 @@ class FileStreamSpec extends Specification {
 		stream.putStringUni("The quick brown fox jumped over the lazy dog.")
 		stream.putStringUni(System.getProperty("line.separator"))
 		stream.putStringUni("Pop goes the weasel.")
+		stream.close()
+		return fileref_rw
+	}
+
+	def createTempfileUnicodePutChar() {
+		Fileref fileref_rw = Fileref.createTemp(IGlk.FILEUSAGE_DATA)
+		Stream stream = new FileStream(fileref_rw, IGlk.FILEMODE_WRITE, true)
+		stream.putCharUni((int)"T")
+		stream.putCharUni((int)"h")
+		stream.putCharUni((int)"e")
 		stream.close()
 		return fileref_rw
 	}

@@ -1,5 +1,6 @@
 package org.p2c2e.zing.streams;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -33,19 +34,18 @@ public class FileStream extends Stream {
 						.getAbsolutePath(), "r");
 				break;
 			case IGlk.FILEMODE_WRITE:
+				fileref.getFile().delete();
 				fileref.getFile().createNewFile();
 				rfile = new RandomAccessFile(fileref.getFile()
 						.getAbsolutePath(), "rw");
 				break;
 			case IGlk.FILEMODE_READ_WRITE:
-				if (!fileref.getFile().exists())
-					fileref.getFile().createNewFile();
+				fileref.getFile().createNewFile();
 				rfile = new RandomAccessFile(fileref.getFile()
 						.getAbsolutePath(), "rw");
 				break;
 			case IGlk.FILEMODE_WRITE_APPEND:
-				if (!fileref.getFile().exists())
-					fileref.getFile().createNewFile();
+				fileref.getFile().createNewFile();
 				rfile = new RandomAccessFile(fileref.getFile()
 						.getAbsolutePath(), "rw");
 				int nPos = (int) rfile.length();
@@ -98,13 +98,8 @@ public class FileStream extends Stream {
 		try {
 			int i = 0;
 			while (!isEOF() && i < len) {
-				if (unicode) {
-					int c = getCharUni();
-					b.putInt(c);
-				} else {
-					int c = getChar();
-					b.put((byte) c);
-				}
+				int c = getChar();
+				b.put((byte) c);
 				i++;
 			}
 			return i;
@@ -119,20 +114,22 @@ public class FileStream extends Stream {
 		try {
 			int i = 0;
 
-			byte[] buf = new byte[len];
+			ByteArrayOutputStream buf = new ByteArrayOutputStream();
 			while (i < len && !isEOF()) {
 				byte bt = rfile.readByte();
 				if (bt != '\r') {
-					buf[i] = bt;
+					buf.write(bt);
 					i++;
 					if (bt == '\n')
 						break;
 				}
 			}
 
-			String s = decodeUtf8(buf);
+			String s = decodeUtf8(buf.toByteArray(), false);
+			buf.close();
 
-			b.put(s.getBytes(Charset.forName("US-ASCII")));
+			b.put(s.getBytes(Charset.forName("ISO-8859-1")));
+			b.put((byte) 0);
 			rcount += i;
 			return i;
 		} catch (IOException e) {
@@ -158,6 +155,7 @@ public class FileStream extends Stream {
 					rcount--;
 				}
 			}
+			b.putInt(0);
 
 			return i;
 		} catch (IOException e) {
@@ -176,7 +174,10 @@ public class FileStream extends Stream {
 					rfile.write(encodeUtf8("" + c));
 				}
 			} else {
-				rfile.writeByte(c);
+				if (c > 255)
+					rfile.writeByte(0x3f);
+				else
+					rfile.writeByte(c);
 			}
 			wcount++;
 		} catch (IOException eio) {
@@ -280,8 +281,9 @@ public class FileStream extends Stream {
 		return 1;
 	}
 
-	private String decodeUtf8(byte[] buf) {
-		return new String(buf, Charset.forName("UTF-8"));
+	private String decodeUtf8(byte[] buf, boolean unicode) {
+		return new String(buf, Charset.forName((unicode) ? "UTF-8"
+				: "ISO-8859-1"));
 	}
 
 	private char readNextCharUnicode() throws IOException {
@@ -290,6 +292,6 @@ public class FileStream extends Stream {
 		int n = noBytesUtf8(b);
 
 		byte[] buf = rfile.readBytes(n);
-		return decodeUtf8(buf).charAt(0);
+		return decodeUtf8(buf, true).charAt(0);
 	}
 }

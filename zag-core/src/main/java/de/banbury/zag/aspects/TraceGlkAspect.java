@@ -20,6 +20,7 @@ public class TraceGlkAspect {
 				sb.append(o.toString());
 			else
 				sb.append("null");
+			sb.append(" ");
 		}
 
 		log.trace(sb.toString());

@@ -43,19 +43,14 @@ public class Fileref implements Comparable<Object> {
 		if (fname.isEmpty())
 			fname = "null";
 
-		switch (usage) {
-		case IGlk.FILEUSAGE_DATA:
+		if ((usage & IGlk.FILEUSAGE_DATA) == IGlk.FILEUSAGE_DATA) {
 			fname += ".glkdata";
-			break;
-		case IGlk.FILEUSAGE_SAVED_GAME:
+		} else if ((usage & IGlk.FILEUSAGE_SAVED_GAME) == IGlk.FILEUSAGE_SAVED_GAME) {
 			fname += ".glksave";
-			break;
-		case IGlk.FILEUSAGE_TRANSCRIPT:
+		} else if ((usage & IGlk.FILEUSAGE_TRANSCRIPT) == IGlk.FILEUSAGE_TRANSCRIPT) {
 			fname += ".txt";
-			break;
-		case IGlk.FILEUSAGE_INPUT_RECORD:
+		} else if ((usage & IGlk.FILEUSAGE_INPUT_RECORD) == IGlk.FILEUSAGE_INPUT_RECORD) {
 			fname += ".txt";
-			break;
 		}
 
 		return new Fileref(new File(fname), usage);
