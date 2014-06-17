@@ -32,8 +32,8 @@
 					<!-- </annotationProcessors> -->
 					<!-- <generatedSourcesDirectory>${project.build.sourceDirectory}</generatedSourcesDirectory> -->
 					<!-- <showWarnings>true</showWarnings> -->
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 					<compilerArgument>-proc:none</compilerArgument>
 				</configuration>
 			</plugin>

@@ -17,6 +17,7 @@
 
 	<properties>
 		<app.version>1.0.8</app.version>
+		<java.version>1.7</java.version>
 	</properties>
 
 	<repositories>
