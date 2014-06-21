@@ -75,7 +75,8 @@ public class Main {
 
 	public static void main(String[] argv) {
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager.setLookAndFeel(org.p2c2e.zing.swing.Properties
+					.getInstance().getPlafName());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
