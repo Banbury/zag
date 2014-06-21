@@ -496,11 +496,11 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 				for (int i = 0; i < IGlk.STYLE_NUMSTYLES; i++) {
 					Style s = Style.getStyle(IGlk.STYLES[i],
 							IGlk.WINTYPE_TEXT_BUFFER);
-					Style.saveStyle(Glk.getInstance(), bufp, s);
+					saveStyle(Glk.getInstance(), bufp, s);
 
 					s = Style.getStyle(IGlk.STYLES[i], IGlk.WINTYPE_TEXT_GRID);
 
-					Style.saveStyle(Glk.getInstance(), gridp, s);
+					saveStyle(Glk.getInstance(), gridp, s);
 				}
 			} catch (BackingStoreException ex) {
 				ex.printStackTrace();
@@ -510,6 +510,23 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 			LameFocusManager.rootRearrange();
 			Window.root.panel.repaint();
 		}
+	}
+
+	public static void saveStyle(IGlk glk, Preferences p, Style s)
+			throws BackingStoreException {
+		p = p.node(s.name);
+		p.put("typeface", s.family);
+		p.putInt("font-size", s.size);
+		p.putFloat("font-weight", s.weight.floatValue());
+		p.putBoolean("font-italic", s.isOblique);
+		p.putBoolean("font-underline", s.isUnderlined);
+		p.putInt("left-indent", s.leftIndent);
+		p.putInt("right-indent", s.rightIndent);
+		p.putInt("paragraph-indent", s.parIndent);
+		p.putInt("justification", s.justification);
+		p.putInt("text-color", glk.colorToInt(s.textColor));
+		p.putInt("back-color", glk.colorToInt(s.backColor));
+		p.flush();
 	}
 
 	protected int mapKeyEvent(KeyEvent e) {

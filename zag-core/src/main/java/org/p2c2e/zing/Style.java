@@ -4,8 +4,6 @@ import java.awt.font.TextAttribute;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 import org.p2c2e.blorb.Color;
 
@@ -134,23 +132,6 @@ public class Style implements Cloneable {
 			return (Style) GRID_STYLES.get(name);
 		else
 			return (Style) BUFFER_STYLES.get(name);
-	}
-
-	public static void saveStyle(IGlk glk, Preferences p, Style s)
-			throws BackingStoreException {
-		p = p.node(s.name);
-		p.put("typeface", s.family);
-		p.putInt("font-size", s.size);
-		p.putFloat("font-weight", s.weight.floatValue());
-		p.putBoolean("font-italic", s.isOblique);
-		p.putBoolean("font-underline", s.isUnderlined);
-		p.putInt("left-indent", s.leftIndent);
-		p.putInt("right-indent", s.rightIndent);
-		p.putInt("paragraph-indent", s.parIndent);
-		p.putInt("justification", s.justification);
-		p.putInt("text-color", glk.colorToInt(s.textColor));
-		p.putInt("back-color", glk.colorToInt(s.backColor));
-		p.flush();
 	}
 
 	private void createMap() {

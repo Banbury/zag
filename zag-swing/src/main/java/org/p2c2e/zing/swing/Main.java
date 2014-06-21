@@ -87,6 +87,10 @@ public class Main {
 
 		o = new Object();
 		frame = new JFrame("Zag");
+		if (isMaximized()) {
+			frame.setExtendedState(frame.getExtendedState()
+					| JFrame.MAXIMIZED_BOTH);
+		}
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getRootPane().setGlassPane(new GlassPane());
 
@@ -369,10 +373,15 @@ public class Main {
 					Preferences prefs = Preferences.userRoot().node(
 							"/org/p2c2e/zag");
 
-					prefs.putInt("frame-loc-x", p.x);
-					prefs.putInt("frame-loc-y", p.y);
-					prefs.putInt("frame-width", d.width);
-					prefs.putInt("frame-height", d.height);
+					if ((frame.getExtendedState() & JFrame.MAXIMIZED_BOTH) != JFrame.MAXIMIZED_BOTH) {
+						prefs.putInt("frame-loc-x", p.x);
+						prefs.putInt("frame-loc-y", p.y);
+						prefs.putInt("frame-width", d.width);
+						prefs.putInt("frame-height", d.height);
+						prefs.putBoolean("frame-maximized", false);
+					} else {
+						prefs.putBoolean("frame-maximized", true);
+					}
 					prefs.flush();
 				} catch (BackingStoreException eBack) {
 					eBack.printStackTrace();
@@ -432,6 +441,11 @@ public class Main {
 		r.height = prefs.getInt("frame-height", r.height);
 
 		return r;
+	}
+
+	static boolean isMaximized() {
+		Preferences prefs = Preferences.userRoot().node("/org/p2c2e/zag");
+		return prefs.getBoolean("frame-maximized", false);
 	}
 
 	static boolean getProp(Properties props, String name, boolean def) {
