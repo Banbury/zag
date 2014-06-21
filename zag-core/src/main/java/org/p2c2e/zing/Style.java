@@ -11,6 +11,7 @@ import org.p2c2e.blorb.Color;
 
 public class Style implements Cloneable {
 	public static boolean USE_HINTS = true;
+	public static boolean use_antialiasing = true;
 	public static TreeMap GRID_STYLES = new TreeMap();
 	public static TreeMap BUFFER_STYLES = new TreeMap();
 	public static char[] MONO_TEST_ARRAY = { 'm', 'i' };

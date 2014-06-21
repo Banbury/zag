@@ -104,6 +104,24 @@ public class Main {
 		closeitem = new JMenuItem("End session");
 		quititem = new JMenuItem("Quit");
 		hintitem = new JCheckBoxMenuItem("Accept style hints");
+		final JCheckBoxMenuItem antialiasItem = new JCheckBoxMenuItem(
+				"Anti-aliasing");
+		final Preferences stylep = Preferences.userRoot().node(
+				"/org/p2c2e/zing/style");
+		antialiasItem.setState(stylep.getBoolean("use-antialias", true));
+		antialiasItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(frame,
+						"This option will take effect on restart.");
+				try {
+					stylep.putBoolean("use-antialias", antialiasItem.getState());
+					stylep.flush();
+				} catch (BackingStoreException ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
 		prefitem = new JMenuItem("Style preferences...");
 		al = new ZagActionListener();
 		frame.addWindowListener(al);
@@ -123,6 +141,7 @@ public class Main {
 		filemenu.add(closeitem);
 		filemenu.add(quititem);
 		editmenu.add(hintitem);
+		editmenu.add(antialiasItem);
 		editmenu.add(prefitem);
 
 		menubar.add(filemenu);
@@ -598,7 +617,8 @@ public class Main {
 				int x, y;
 				Graphics2D g2d = (Graphics2D) g;
 				// FontRenderContext frc = g2d.getFontRenderContext();
-				FontRenderContext frc = new FontRenderContext(null, true, true);
+				FontRenderContext frc = new FontRenderContext(null,
+						Style.use_antialiasing, true);
 				Rectangle2D r = GFONT.getStringBounds(stText, frc);
 				LineMetrics m = GFONT.getLineMetrics(stText, frc);
 				int h = getHeight();

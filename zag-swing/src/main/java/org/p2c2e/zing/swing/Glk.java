@@ -521,14 +521,16 @@ public class Glk extends AbstractGlk {
 		// FontRenderContext frc = ((Graphics2D)
 		// f.getContentPane().getGraphics())
 		// .getFontRenderContext();
-		FontRenderContext frc = new FontRenderContext(null, true, true);
-
 		Preferences stylep = Preferences.userRoot().node(
 				"/org/p2c2e/zing/style");
 		Preferences gridp = stylep.node("grid");
 		Preferences bufp = stylep.node("buffer");
 
 		Style.USE_HINTS = stylep.getBoolean("use-hints", true);
+		Style.use_antialiasing = stylep.getBoolean("use-antialiasing", true);
+
+		FontRenderContext frc = new FontRenderContext(null,
+				Style.use_antialiasing, true);
 
 		for (int i = 0; i < IGlk.STYLE_NUMSTYLES; i++) {
 			Style.addStyle(
