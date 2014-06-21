@@ -237,8 +237,8 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 		// colSize = (int) normalFont.createGlyphVector(frc,
 		// Style.MONO_TEST_ARRAY).getGlyphMetrics(0).getAdvance();
 
-		int newCols = width / colSize;
-		int newRows = height / rowSize;
+		int newCols = Math.round((float) width / colSize);
+		int newRows = Math.round((float) height / rowSize);
 		lineHeight = rowSize;
 		Square[][] newGrid = new Square[newRows][newCols];
 		dirty = new boolean[newRows];
