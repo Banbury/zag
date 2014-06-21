@@ -300,7 +300,7 @@ public abstract class AbstractGlk implements IGlk {
 
 	@Override
 	@GlkMethod(0x80)
-	public void putChar(char ch) {
+	public void putChar(int ch) {
 		if (currentStream == null)
 			nullRef("Glk.putChar");
 		else

@@ -70,14 +70,20 @@ public class FileStream extends Stream {
 				rcount++;
 
 				if (!isText) {
-					return rfile.readByte();
-				} else {
-					char c = readNextCharUnicode();
-
-					if (!unicode)
-						return (c < 0x80) ? c : 0x3F;
-					else
+					if (unicode) {
+						int c = rfile.readInt();
 						return c;
+					} else {
+						int c = rfile.readByte();
+						if (c < 0x80)
+							return c;
+						else
+							return 0x3F;
+					}
+				} else {
+					skipCR();
+					int c = readNextCharUnicode();
+					return c;
 				}
 			} else {
 				return -1;
@@ -86,6 +92,22 @@ public class FileStream extends Stream {
 			eio.printStackTrace();
 			return -1;
 		}
+	}
+
+	private void skipCR() throws IOException {
+		byte c = rfile.readByte();
+		if (c != '\r' && c != '\n') {
+			rfile.unread();
+			return;
+		}
+		if (c == '\r' && TERMINATOR.startsWith("\r")) {
+			byte c2 = rfile.readByte();
+			rfile.unread();
+			if (c2 == '\n') {
+				return;
+			}
+		}
+		rfile.unread();
 	}
 
 	@Override
@@ -116,13 +138,12 @@ public class FileStream extends Stream {
 
 			ByteArrayOutputStream buf = new ByteArrayOutputStream();
 			while (i < len && !isEOF()) {
-				byte bt = rfile.readByte();
-				if (bt != '\r') {
-					buf.write(bt);
-					i++;
-					if (bt == '\n')
-						break;
-				}
+				// byte bt = rfile.readByte();
+				int bt = getChar();
+				buf.write(bt);
+				i++;
+				if (bt == '\n')
+					break;
 			}
 
 			String s = decodeUtf8(buf.toByteArray(), false);
@@ -130,7 +151,6 @@ public class FileStream extends Stream {
 
 			b.put(s.getBytes(Charset.forName("ISO-8859-1")));
 			b.put((byte) 0);
-			rcount += i;
 			return i;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -146,14 +166,10 @@ public class FileStream extends Stream {
 			while (i < len && !isEOF()) {
 				int c = getCharUni();
 
-				if (c != '\r') {
-					b.putInt(c);
-					i++;
-					if (c == '\n')
-						break;
-				} else {
-					rcount--;
-				}
+				b.putInt(c);
+				i++;
+				if (c == '\n')
+					break;
 			}
 			b.putInt(0);
 
@@ -171,13 +187,18 @@ public class FileStream extends Stream {
 				if (c == '\n') {
 					rfile.writeBytes(TERMINATOR);
 				} else {
-					rfile.write(encodeUtf8("" + c));
+					byte[] buf = encodeUtf8("" + (char) c);
+					rfile.writeBytes(buf, 0, buf.length);
 				}
 			} else {
-				if (c > 255)
-					rfile.writeByte(0x3f);
-				else
-					rfile.writeByte(c);
+				if (unicode) {
+					rfile.writeInt(c);
+				} else {
+					if ((char) c <= 0xFF)
+						rfile.writeByte(c);
+					else
+						rfile.writeByte(0x3F);
+				}
 			}
 			wcount++;
 		} catch (IOException eio) {
@@ -193,7 +214,7 @@ public class FileStream extends Stream {
 	@Override
 	public void putBuffer(ByteBuffer b, int len) {
 		for (int i = 0; i < len; i++) {
-			putChar(b.get());
+			putChar(b.get() & 0xff);
 		}
 	}
 
@@ -207,7 +228,8 @@ public class FileStream extends Stream {
 	@Override
 	public void putString(String s) {
 		for (int i = 0; i < s.length(); i++) {
-			putChar(s.charAt(i));
+			int n = Character.codePointAt(s, i);
+			putChar(n);
 		}
 	}
 
@@ -286,10 +308,15 @@ public class FileStream extends Stream {
 				: "ISO-8859-1"));
 	}
 
-	private char readNextCharUnicode() throws IOException {
+	private int readNextCharUnicode() throws IOException {
 		byte b = rfile.readByte();
 		rfile.unread();
 		int n = noBytesUtf8(b);
+
+		if (n == 1) {
+			b = rfile.readByte();
+			return b & 0xff;
+		}
 
 		byte[] buf = rfile.readBytes(n);
 		return decodeUtf8(buf, true).charAt(0);

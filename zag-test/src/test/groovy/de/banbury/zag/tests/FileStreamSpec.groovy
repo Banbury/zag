@@ -118,6 +118,43 @@ class FileStreamSpec extends Specification {
 		((char)buf.get(0)) == "T"
 	}
 
+	def "read unicode data in char/binary mode"() {
+		setup:
+		File f = File.createTempFile("zag", ".glkdata", new File(System.getProperty("user.dir")))
+		f.write("Test ${0x3B1 as char}x${0x201C as char}x${0x201D as char}.^Re${0xEB as char}l${0xEE as char}ty-${0xA9 as char}.^")
+		Fileref fr = Fileref.createByName(Fileref.FILEMODE_READ, f.name)
+		Stream stream = new FileStream(fr, IGlk.FILEMODE_READ, false)
+		ByteBuffer buf = ByteBuffer.wrap(new byte[256])
+
+		when:
+		int n = stream.getBuffer(buf, 256)
+		StreamResult sr = stream.close()
+
+		then:
+		n == 23
+		stream.rcount == n
+		buf.get(5) == 0x3F
+
+		//		cleanup:
+		//		f.delete()
+	}
+
+	def "write unicode chars to stream"() {
+		setup:
+		Fileref fr = Fileref.createTemp(IGlk.FILEUSAGE_DATA)
+		Stream stream = new FileStream(fr, IGlk.FILEMODE_WRITE, false)
+		String s = "Test ${0x3B1 as char}x${0x201C as char}x${0x201D as char}.^Re${0xEB as char}l${0xEE as char}ty-${0xA9 as char}.^"
+
+		when:
+		s.toCharArray().each {
+			stream.putCharUni(it as int)
+		}
+		stream.close()
+
+		then:
+		stream.wcount == 23
+	}
+
 	def createTempfile() {
 		Fileref fileref_rw = Fileref.createTemp(IGlk.FILEUSAGE_DATA)
 		Stream stream = new FileStream(fileref_rw, IGlk.FILEMODE_WRITE, false)

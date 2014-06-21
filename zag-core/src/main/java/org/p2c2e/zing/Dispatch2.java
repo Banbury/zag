@@ -78,7 +78,7 @@ public final class Dispatch2 {
 		METHODS.put(71, AbstractGlk.class.getMethod("streamSetCurrent",
 				org.p2c2e.zing.streams.Stream.class));
 		METHODS.put(72, AbstractGlk.class.getMethod("streamGetCurrent"));
-		METHODS.put(128, AbstractGlk.class.getMethod("putChar", char.class));
+		METHODS.put(128, AbstractGlk.class.getMethod("putChar", int.class));
 		METHODS.put(296, AbstractGlk.class.getMethod("putCharUni", int.class));
 		METHODS.put(130, AbstractGlk.class.getMethod("putString",
 				java.lang.String.class));

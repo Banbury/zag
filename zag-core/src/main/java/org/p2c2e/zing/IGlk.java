@@ -170,7 +170,7 @@ public interface IGlk {
 
 	public void putCharUni(int ch);
 
-	public void putChar(char ch);
+	public void putChar(int ch);
 
 	public Stream streamGetCurrent();
 

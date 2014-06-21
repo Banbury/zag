@@ -130,7 +130,7 @@ public final class IO {
 		StringBuffer sb = new StringBuffer();
 		int t = mem.get(addr++);
 		if (t == (byte) 0xe0) {
-			while ((t = mem.get(addr++)) != 0)
+			while ((t = mem.get(addr++) & 0xff) != 0)
 				sb.append((char) t);
 		} else if (t == (byte) 0xe2) {
 			addr -= 1;
@@ -188,7 +188,7 @@ public final class IO {
 		case PUT_CHAR:
 			if (numargs != 1)
 				wrongNumArgs();
-			glk.putChar((char) (args[0] & 0xff));
+			glk.putChar(args[0] & 0xff);
 			break;
 		case PUT_CHAR_UNI:
 			if (numargs != 1)
@@ -199,12 +199,13 @@ public final class IO {
 			if (numargs != 2)
 				wrongNumArgs();
 			glk.putCharStream((Stream) ors.get(new Integer(args[0])),
-					(char) (args[1] & 0xff));
+					args[1] & 0xff);
 			break;
 		case PUT_CHAR_STREAM_UNI:
 			if (numargs != 2)
 				wrongNumArgs();
-			glk.putCharStream((Stream) ors.get(new Integer(args[0])), args[1]);
+			glk.putCharStreamUni((Stream) ors.get(new Integer(args[0])),
+					args[1]);
 			break;
 		case PUT_STRING:
 			if (numargs != 1)
@@ -253,12 +254,12 @@ public final class IO {
 		case CHAR_TO_LOWER:
 			if (numargs != 1)
 				wrongNumArgs();
-			ret = Character.toLowerCase((char) (args[0] & 0xff));
+			ret = Character.toLowerCase(args[0] & 0xff);
 			break;
 		case CHAR_TO_UPPER:
 			if (numargs != 1)
 				wrongNumArgs();
-			ret = Character.toUpperCase((char) (args[0] & 0xff));
+			ret = Character.toUpperCase(args[0] & 0xff);
 			break;
 		case WINDOW_OPEN:
 			if (numargs != 5)
@@ -508,7 +509,7 @@ public final class IO {
 			z.enterFunction(z.memory, rock, 1, new int[] { c });
 			break;
 		case GLK:
-			glk.putChar((char) c);
+			glk.putChar(c);
 			break;
 		default:
 		}
@@ -521,7 +522,7 @@ public final class IO {
 			z.enterFunction(z.memory, rock, 1, new int[] { c });
 			break;
 		case GLK:
-			glk.putCharUni((char) c);
+			glk.putCharUni(c);
 			break;
 		default:
 		}
@@ -588,7 +589,7 @@ public final class IO {
 					case 0x02:
 						switch (sys) {
 						case GLK:
-							glk.putChar((char) ((n.c) & 0xff));
+							glk.putChar(n.c & 0xff);
 							break;
 						case FILTER:
 							if (!started) {
@@ -714,7 +715,7 @@ public final class IO {
 				switch (sys) {
 				case GLK:
 					while ((ch = z.memory.get(addr++)) != 0)
-						glk.putChar((char) ((ch) & 0xff));
+						glk.putChar(ch & 0xff);
 					break;
 				case FILTER:
 					if (!started) {
