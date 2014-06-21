@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>de.banbury</groupId>
+		<artifactId>zag2</artifactId>
+		<version>1.0.8-SNAPSHOT</version>
+	</parent>
+	<artifactId>zag-javafx</artifactId>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<compilerArgument>-proc:none</compilerArgument>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.fortasoft</groupId>
+				<artifactId>gradle-maven-plugin</artifactId>
+				<version>1.0.5</version>
+				<configuration>
+					<gradleProjectDirectory>
+						d:\libs\dalvik-sdk\android-tools\
+					</gradleProjectDirectory>
+					<tasks>
+						<task>createProject</task>
+					</tasks>
+					<args>
+						<arg>-PANDROID_SDK=d:/adt-bundle-windows-x86_64/sdk</arg>
+						<arg>-PNAME=Zagdroid</arg>
+						<arg>-PPACKAGE=de.banbury.zagdroid</arg>
+						<arg>-PDIR=${project.build.directory}</arg>
+						<arg>-PJFX_SDK=d:/libs/dalvik-sdk</arg>
+						<arg>-PJFX_APP=${project.build.directory}</arg>
+						<arg>-PJFX_MAIN=de.banbury.zag.javafx.MainApp</arg>
+					</args>
+					<javaHome>c:\Program Files (x86)\Java\jdk1.7.0_60\</javaHome>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<!-- goal must be "invoke" -->
+							<goal>invoke</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<dependencies>
+					<dependency>
+						<groupId>sun.jdk</groupId>
+						<artifactId>tools</artifactId>
+						<version>1.7.0</version>
+						<scope>system</scope>
+						<systemPath>${java.home}/../lib/tools.jar</systemPath>
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<configuration>
+							<target>
+								<property name="compile_classpath" refid="maven.compile.classpath" />
+								<property name="outputDir" value="${project.build.outputDirectory}" />
+								<property name="sourceDir" value="${project.build.sourceDirectory}" />
+								<ant antfile="${project.build.directory}/Zagdroid/build.xml" target="debug"
+									dir="${project.build.directory}/Zagdroid" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>de.banbury</groupId>
+			<artifactId>zag-core</artifactId>
+			<version>1.0.8-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>javafx</artifactId>
+			<version>2.2</version>
+			<systemPath>${env.JAVA_HOME}/jre/lib/jfxrt.jar</systemPath>
+			<scope>system</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.android</groupId>
+			<artifactId>android</artifactId>
+			<version>4.1.1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>javafxports</groupId>
+			<artifactId>jfxdvk</artifactId>
+			<version>0.10.0-20140619.093608-1</version>
+		</dependency>
+	</dependencies>
+</project>

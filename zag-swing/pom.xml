@@ -55,7 +55,7 @@
 							<!-- <icon>src/japplication/resources/My.icns</icon> -->
 							<os>mac</os>
 							<jvm>1.5+</jvm>
-							<jvmOptions>-Xmx512m -Dapple.laf.useScreenMenuBar=true</jvmOptions>
+							<jvmOptions>-Xmx512m -XX:-UseSplitVerifier -Dapple.laf.useScreenMenuBar=true</jvmOptions>
 						</configuration>
 						<phase>package</phase>
 						<goals>
@@ -86,7 +86,7 @@
 							<jre>
 								<minVersion>1.7.0</minVersion>
 								<opts>
-									<opt>-Xmx512M</opt>
+									<opt>-Xmx512M -XX:-UseSplitVerifier</opt>
 								</opts>
 							</jre>
 							<versionInfo>
