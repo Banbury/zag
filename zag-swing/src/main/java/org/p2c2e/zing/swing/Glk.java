@@ -8,10 +8,13 @@ import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.prefs.Preferences;
 
+import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,6 +22,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileSystemView;
+import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import org.p2c2e.blorb.BlorbFile;
 import org.p2c2e.blorb.Color;
@@ -434,16 +440,64 @@ public class Glk extends AbstractGlk {
 	public Fileref filerefCreateByPrompt(int usage, int fmode, int rock) {
 		String name = null;
 
-		JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
+		final File root = new File(System.getProperty("user.dir"));
+		FileSystemView fsv = new FileSystemView() {
+			@Override
+			public boolean isHiddenFile(File f) {
+				return f.isDirectory();
+			}
+
+			@Override
+			public File[] getRoots() {
+				return new File[] { root };
+			}
+
+			@Override
+			public File getHomeDirectory() {
+				return root;
+			}
+
+			@Override
+			public File getDefaultDirectory() {
+				return root;
+			}
+
+			@Override
+			public File createNewFolder(File containingDir) throws IOException {
+				return null;
+			}
+		};
+
+		JFileChooser fc = new JFileChooser(fsv);
+
+		BasicFileChooserUI ui = (BasicFileChooserUI) fc.getUI();
+		Action folder = ui.getNewFolderAction();
+		folder.setEnabled(false);
+
+		fc.setFileFilter(new FileFilter() {
+			@Override
+			public String getDescription() {
+				return "Savefile (*.glkdata)";
+			}
+
+			@Override
+			public boolean accept(File f) {
+				return f.getName().toLowerCase().endsWith(".glkdata");
+			}
+		});
 
 		if (fmode == Fileref.FILEMODE_WRITE
 				|| fmode == Fileref.FILEMODE_WRITEAPPEND) {
 			if (fc.showSaveDialog(Window.getFrame().getRootPane().getParent()) == JFileChooser.APPROVE_OPTION) {
-				name = fc.getName();
+				name = fc.getSelectedFile().getName();
+			} else {
+				return null;
 			}
 		} else {
 			if (fc.showOpenDialog(Window.getFrame().getRootPane().getParent()) == JFileChooser.APPROVE_OPTION) {
-				name = fc.getName();
+				name = fc.getSelectedFile().getName();
+			} else {
+				return null;
 			}
 		}
 		return filerefCreateByName(usage, name, rock);
