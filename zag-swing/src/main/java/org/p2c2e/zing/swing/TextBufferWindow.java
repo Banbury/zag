@@ -1,5 +1,6 @@
 package org.p2c2e.zing.swing;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -13,6 +14,7 @@ import java.awt.Shape;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GraphicAttribute;
 import java.awt.font.ImageGraphicAttribute;
@@ -50,7 +52,8 @@ import org.p2c2e.zing.StyleHints;
 import org.p2c2e.zing.TextSplitMeasurer;
 import org.p2c2e.zing.types.Int;
 
-public final class TextBufferWindow extends Window implements ITextBufferWindow {
+public final class TextBufferWindow extends Window implements
+		ITextBufferWindow, MouseMotionListener {
 	static ObjectCallback MORE_CALLBACK;
 
 	static final int H_MARGIN = 15;
@@ -125,6 +128,8 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 		((JScrollPane) panel).setBorder(null);
 		view.addMouseListener(this);
 		inputHistory = new LinkedList<String>();
+
+		view.addMouseMotionListener(this);
 	}
 
 	@Override
@@ -1677,6 +1682,44 @@ public final class TextBufferWindow extends Window implements ITextBufferWindow 
 		@Override
 		public float getDescent() {
 			return l.getDescent();
+		}
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		if (hyperConsumer != null) {
+			int x = e.getX();
+			int y = e.getY();
+			Line l = getHit(x, y);
+
+			if (l != null) {
+				TextLayout lay = (l.jlay == null) ? l.layout : l.jlay;
+				TextHitInfo thi = lay.hitTestChar(x - l.left - H_MARGIN, y
+						- l.top);
+				int pos = thi.getCharIndex() + l.start;
+				Integer oiPos = new Integer(pos);
+				Integer oiVal = mHyperlinks.get(oiPos);
+
+				if (oiVal == null) {
+					SortedMap<Integer, Integer> m = mHyperlinks.headMap(oiPos);
+					if (!m.isEmpty()) {
+						oiPos = m.lastKey();
+						oiVal = m.get(oiPos);
+					}
+				}
+
+				if (oiVal != null && oiVal.intValue() != 0) {
+					view.setCursor(new Cursor(Cursor.HAND_CURSOR));
+				} else {
+					view.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+				}
+			} else {
+				view.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
 		}
 	}
 }
