@@ -527,7 +527,7 @@ public class Glk extends AbstractGlk {
 		Preferences bufp = stylep.node("buffer");
 
 		Style.USE_HINTS = stylep.getBoolean("use-hints", true);
-		Style.use_antialiasing = stylep.getBoolean("use-antialiasing", true);
+		Style.use_antialiasing = stylep.getBoolean("use-antialias", true);
 
 		FontRenderContext frc = new FontRenderContext(null,
 				Style.use_antialiasing, true);
