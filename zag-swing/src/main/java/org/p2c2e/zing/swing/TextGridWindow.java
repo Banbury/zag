@@ -67,7 +67,7 @@ public class TextGridWindow extends Window implements ITextGridWindow {
 			for (int i = 0; i < dirty.length; i++) {
 				if (dirty[i]) {
 					panel.repaint();
-					// panel.invalidate();
+					panel.invalidate();
 				}
 			}
 		}
