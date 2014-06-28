@@ -297,7 +297,7 @@ public final class IO {
 			if (numargs != 3)
 				wrongNumArgs();
 			String unistr = getUnicodeStringFromMemory(mem, args[0] - 4,
-					args[2] + 4);
+					args[2]);
 			unistr = unistr.toUpperCase();
 			int len = args[1];
 			int outLen = unistr.codePointCount(0, unistr.length());
@@ -308,16 +308,7 @@ public final class IO {
 			ret = outLen;
 		}
 			break;
-		case BUFFER_TO_TITLE_CASE_UNI:
-		/*
-		 * Glk does not actually give enough information to correctly handle
-		 * title casing -- in particular, locale is not specified. So we're just
-		 * going to punt on this and upcase the first letter. This avoids the
-		 * need for many megabytes of ICU libraries which wouldn't actually help
-		 * anyway. Sorry, Dutch and Turkish IF authors -- blame Zarf for not
-		 * providing proper localization.
-		 */
-		{
+		case BUFFER_TO_TITLE_CASE_UNI: {
 			if (numargs != 4)
 				wrongNumArgs();
 			String unistr = getUnicodeStringFromMemory(mem, args[0] - 4,
@@ -328,7 +319,9 @@ public final class IO {
 			}
 			StringBuffer sb = new StringBuffer();
 			int firstChar = unistr.codePointAt(0);
-			sb.appendCodePoint(Character.toUpperCase(firstChar));
+
+			sb.appendCodePoint(Character.toTitleCase(firstChar));
+
 			sb.append(unistr.substring(firstChar > 0xffff ? 2 : 1));
 			unistr = sb.toString();
 			int len = args[1];
