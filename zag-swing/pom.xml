@@ -37,7 +37,6 @@
 						<configuration>
 							<name>zag2</name>
 							<mainClass>org.p2c2e.zing.swing.Main</mainClass>
-							<!-- <icon>src/japplication/resources/My.icns</icon> -->
 							<os>java</os>
 							<jvm>${java.version}+</jvm>
 							<jvmOptions>-Xmx512m</jvmOptions>
@@ -52,7 +51,7 @@
 						<configuration>
 							<name>zag2</name>
 							<mainClass>org.p2c2e.zing.swing.Main</mainClass>
-							<!-- <icon>src/japplication/resources/My.icns</icon> -->
+							<icon>${project.parent.basedir}/res/zag_icon.icns</icon>
 							<os>mac</os>
 							<jvm>1.5+</jvm>
 							<jvmOptions>-Xmx512m -XX:-UseSplitVerifier -Dapple.laf.useScreenMenuBar=true</jvmOptions>
@@ -79,6 +78,7 @@
 							<headerType>gui</headerType>
 							<outfile>${project.build.directory}/zag2.exe</outfile>
 							<jar>${project.build.directory}/zag2.jar</jar>
+							<icon>${project.parent.basedir}/res/zag_icon.ico</icon>
 							<errTitle>Zag</errTitle>
 							<classPath>
 								<mainClass>org.p2c2e.zing.swing.Main</mainClass>

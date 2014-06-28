@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ndbx formatVersion="18" type="file" uuid="feed4039-88c7-4583-9598-1b2464c71f95">
+    <property name="canvasHeight" value="1000"/>
+    <property name="canvasWidth" value="1000"/>
+    <property name="canvasX" value="0"/>
+    <property name="canvasY" value="0"/>
+    <node name="root" prototype="core.network" renderedChild="combine1">
+        <node name="colorize1" position="4.00,2.00" prototype="corevector.colorize">
+            <port name="fill" type="color" value="#ffffffff"/>
+        </node>
+        <node name="colorize2" position="1.00,2.00" prototype="corevector.colorize">
+            <port name="fill" type="color" value="#ccccccff"/>
+        </node>
+        <node name="colorize3" position="14.00,3.00" prototype="corevector.colorize">
+            <port name="strokeWidth" type="float" value="4.0"/>
+        </node>
+        <node name="combine1" position="7.00,4.00" prototype="list.combine"/>
+        <node name="line1" position="14.00,1.00" prototype="corevector.line">
+            <port name="point1" type="point" value="100.00,-28.00"/>
+            <port name="point2" type="point" value="100.00,45.00"/>
+        </node>
+        <node name="rect1" prototype="corevector.rect">
+            <port name="width" type="float" value="254.0"/>
+            <port name="height" type="float" value="254.0"/>
+            <port name="roundness" type="point" value="15.00,15.00"/>
+        </node>
+        <node name="rect2" position="7.00,1.00" prototype="corevector.rect">
+            <port name="position" type="point" value="0.00,-120.00"/>
+            <port name="width" type="float" value="254.0"/>
+            <port name="height" type="float" value="15.0"/>
+            <port name="roundness" type="point" value="15.00,15.00"/>
+        </node>
+        <node name="rect3" position="10.00,1.00" prototype="corevector.rect">
+            <port name="position" type="point" value="0.00,-103.00"/>
+            <port name="width" type="float" value="254.0"/>
+            <port name="height" type="float" value="30.0"/>
+        </node>
+        <node name="rect4" position="1.00,1.00" prototype="corevector.rect">
+            <port name="width" type="float" value="256.0"/>
+            <port name="height" type="float" value="256.0"/>
+            <port name="roundness" type="point" value="15.00,15.00"/>
+        </node>
+        <node name="textpath1" position="11.00,2.00" prototype="corevector.textpath">
+            <port name="text" type="string" value="&gt; ZAG"/>
+            <port name="font_name" type="string" value="Segoe UI"/>
+            <port name="font_size" type="float" value="72.0"/>
+            <port name="position" type="point" value="-14.00,32.00"/>
+        </node>
+        <conn input="colorize1.shape" output="rect1"/>
+        <conn input="combine1.list5" output="textpath1"/>
+        <conn input="combine1.list4" output="rect3"/>
+        <conn input="combine1.list3" output="rect2"/>
+        <conn input="combine1.list2" output="colorize1"/>
+        <conn input="colorize2.shape" output="rect4"/>
+        <conn input="combine1.list1" output="colorize2"/>
+        <conn input="colorize3.shape" output="line1"/>
+        <conn input="combine1.list6" output="colorize3"/>
+    </node>
+</ndbx>

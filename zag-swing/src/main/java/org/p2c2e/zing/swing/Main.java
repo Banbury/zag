@@ -34,6 +34,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -93,6 +94,8 @@ public class Main {
 		}
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getRootPane().setGlassPane(new GlassPane());
+		frame.setIconImage(new ImageIcon(Main.class
+				.getResource("/images/zag_icon.png")).getImage());
 
 		prefFrame = new JFrame("Zag Preferences");
 		chooser = new JFileChooser(System.getProperty("user.dir"));
