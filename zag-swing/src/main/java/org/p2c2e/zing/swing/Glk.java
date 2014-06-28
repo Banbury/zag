@@ -84,23 +84,23 @@ public class Glk extends AbstractGlk {
 				&& (new Font(proportionalFont, Font.PLAIN, 1)).getName()
 						.toLowerCase().equals(proportionalFont.toLowerCase())) {
 			Window.DEFAULT_PROPORTIONAL_FONT = proportionalFont;
-			Window.OVERRIDE_PROPORTIONAL_FONT = true;
+			Window.OVERRIDE_PROPORTIONAL_FONT = false;
 		}
 
 		if (fixedFont != null
 				&& (new Font(fixedFont, Font.PLAIN, 1)).getName().toLowerCase()
 						.equals(fixedFont.toLowerCase())) {
 			Window.DEFAULT_FIXED_FONT = fixedFont;
-			Window.OVERRIDE_FIXED_FONT = true;
+			Window.OVERRIDE_FIXED_FONT = false;
 		}
 
 		if (propFontSize > 0) {
 			Window.DEFAULT_PROP_FONT_SIZE = propFontSize;
-			Window.OVERRIDE_PROP_FONT_SIZE = true;
+			Window.OVERRIDE_PROP_FONT_SIZE = false;
 		}
 		if (fixedFontSize > 0) {
 			Window.DEFAULT_FIXED_FONT_SIZE = fixedFontSize;
-			Window.OVERRIDE_FIXED_FONT_SIZE = true;
+			Window.OVERRIDE_FIXED_FONT_SIZE = false;
 		}
 
 		LameFocusManager.registerFrame(frame, statusOn);
