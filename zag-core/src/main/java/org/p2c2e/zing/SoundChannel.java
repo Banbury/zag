@@ -2,6 +2,8 @@ package org.p2c2e.zing;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import javax.sound.sampled.AudioFormat;
@@ -22,24 +24,25 @@ import micromod.output.JavaSoundOutputDevice;
 import micromod.output.converters.SS16LEAudioFormatConverter;
 import micromod.resamplers.FIRResampler;
 
+import org.newdawn.easyogg.OggClip;
 import org.p2c2e.blorb.Aiff;
 import org.p2c2e.blorb.BlorbFile;
 import org.p2c2e.zing.types.GlkEvent;
 
 public class SoundChannel {
-	PlayerThread pt;
-	int vol;
-	IGlk glk;
+	private PlayerThread playerThread;
+	private int volume;
+	private IGlk glk;
 
 	public SoundChannel(IGlk glk) {
 		this.glk = glk;
-		vol = 0x10000;
-		pt = null;
+		volume = 0x10000;
+		playerThread = null;
 	}
 
 	public void destroy() throws Exception {
 		stop();
-		pt = null;
+		playerThread = null;
 	}
 
 	public boolean play(BlorbFile blorbFile, int soundId) throws Exception {
@@ -51,7 +54,7 @@ public class SoundChannel {
 		if (blorbFile == null)
 			return false;
 
-		if (pt != null)
+		if (playerThread != null)
 			stop();
 
 		String stType;
@@ -62,33 +65,35 @@ public class SoundChannel {
 
 		stType = c.getDataType();
 
-		if ("FORM".equals(stType))
+		if (stType.equals("FORM"))
 			return playAIFF(c, iRepeat, soundId, iNotify);
-		else if ("MOD ".equals(stType))
+		else if (stType.equals("MOD "))
 			return playMOD(c, iRepeat, soundId, iNotify);
-		else if ("SONG".equals(stType))
+		else if (stType.equals("SONG"))
 			return playSONG(blorbFile, c, iRepeat, soundId, iNotify);
+		else if (stType.equals("OGGV"))
+			return playOGG(c, iRepeat, soundId, iNotify);
 		else
 			return false;
 	}
 
 	public void stop() throws Exception {
-		if (pt != null)
-			pt.stopPlaying();
+		if (playerThread != null)
+			playerThread.stopPlaying();
 	}
 
 	public void setVolume(int iVol) {
-		this.vol = iVol;
-		if (pt != null)
-			pt.setVolume(iVol);
+		this.volume = iVol;
+		if (playerThread != null)
+			playerThread.setVolume(iVol);
 	}
 
-	synchronized void donePlaying() {
-		pt = null;
+	private synchronized void donePlaying() {
+		playerThread = null;
 	}
 
-	boolean playAIFF(BlorbFile.Chunk c, int iRepeat, int soundId, int iNotify)
-			throws Exception {
+	private boolean playAIFF(BlorbFile.Chunk c, int iRepeat, int soundId,
+			int iNotify) throws Exception {
 		AudioInputStream in = AudioSystem
 				.getAudioInputStream(new BufferedInputStream(c.getRawData()));
 		AudioFormat audioFormat = in.getFormat();
@@ -99,14 +104,14 @@ public class SoundChannel {
 		l.open(audioFormat);
 
 		AIFFThread at = new AIFFThread(l, c, in, iRepeat, soundId, iNotify);
-		pt = at;
-		pt.setVolume(vol);
+		playerThread = at;
+		playerThread.setVolume(volume);
 		at.start();
 		return true;
 	}
 
-	boolean playSONG(BlorbFile bf, BlorbFile.Chunk c, int iRepeat, int soundId,
-			int iNotify) throws Exception {
+	private boolean playSONG(BlorbFile bf, BlorbFile.Chunk c, int iRepeat,
+			int soundId, int iNotify) throws Exception {
 		MODThread mt;
 		MicroMod microMod;
 		JavaSoundOutputDevice out = new JavaSoundOutputDevice(
@@ -177,15 +182,15 @@ public class SoundChannel {
 		microMod = new MicroMod(module, out, new FIRResampler(16));
 
 		mt = new MODThread(microMod, out, iRepeat, soundId, iNotify);
-		pt = mt;
-		pt.setVolume(vol);
+		playerThread = mt;
+		playerThread.setVolume(volume);
 
 		mt.start();
 		return true;
 	}
 
-	boolean playMOD(BlorbFile.Chunk c, int iRepeat, int soundId, int iNotify)
-			throws Exception {
+	private boolean playMOD(BlorbFile.Chunk c, int iRepeat, int soundId,
+			int iNotify) throws Exception {
 		MODThread mt;
 		JavaSoundOutputDevice out = new JavaSoundOutputDevice(
 				new SS16LEAudioFormatConverter(), 44100, 1000);
@@ -193,20 +198,38 @@ public class SoundChannel {
 		MicroMod microMod = new MicroMod(module, out, new FIRResampler(16));
 
 		mt = new MODThread(microMod, out, iRepeat, soundId, iNotify);
-		pt = mt;
-		pt.setVolume(vol);
+		playerThread = mt;
+		playerThread.setVolume(volume);
 
 		mt.start();
 		return true;
 	}
 
-	public interface PlayerThread extends Runnable {
+	private boolean playOGG(BlorbFile.Chunk c, int iRepeat, int soundId,
+			int iNotify) {
+		try {
+			OGGThread oggt = new OGGThread(c.getData(), iRepeat, soundId,
+					iNotify);
+			playerThread = oggt;
+			playerThread.setVolume(volume);
+
+			oggt.start();
+
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	private interface PlayerThread extends Runnable {
 		public abstract void setVolume(int vol);
 
 		public abstract void stopPlaying() throws Exception;
 	}
 
-	class AIFFThread extends Thread implements PlayerThread, LineListener {
+	private class AIFFThread extends Thread implements PlayerThread,
+			LineListener {
 		private static final int BUFFER_SIZE = 128000;
 
 		int iRepeat;
@@ -301,7 +324,7 @@ public class SoundChannel {
 		}
 	}
 
-	class MODThread extends Thread implements PlayerThread {
+	private class MODThread extends Thread implements PlayerThread {
 		int soundId;
 		int iNotify;
 		int iRepeat;
@@ -378,5 +401,76 @@ public class SoundChannel {
 				}
 			}
 		}
+	}
+
+	private class OGGThread extends Thread implements PlayerThread {
+		private OggClip ogg;
+
+		private int repeat;
+		private int soundId;
+		private int notify;
+
+		public OGGThread(InputStream in, int repeat, int soundId, int notify)
+				throws IOException {
+			this.repeat = repeat;
+			this.soundId = soundId;
+			this.notify = notify;
+
+			ogg = new OggClip(new BufferedInputStream(in));
+		}
+
+		@Override
+		public void run() {
+			int n = repeat;
+			if (n == -1) {
+				ogg.loop();
+				while (!ogg.stopped()) {
+					Thread.yield();
+				}
+			} else {
+				while (n >= repeat) {
+					if (ogg.stopped()) {
+						ogg.play();
+						n--;
+					}
+					while (!ogg.stopped()) {
+						Thread.yield();
+					}
+				}
+			}
+
+			synchronized (this) {
+				if (ogg != null && !ogg.stopped()) {
+					ogg.stop();
+					donePlaying();
+
+					if (notify != 0) {
+						GlkEvent e = new GlkEvent();
+						e.type = IGlk.EVTYPE_SOUND_NOTIFY;
+						e.win = null;
+						e.val1 = soundId;
+						e.val2 = notify;
+
+						glk.addEvent(e);
+					}
+				}
+			}
+		}
+
+		@Override
+		public void setVolume(int vol) {
+			if (ogg != null) {
+				ogg.setGain((float) vol / 0x10000);
+			}
+		}
+
+		@Override
+		public void stopPlaying() throws Exception {
+			if (ogg != null && !ogg.stopped()) {
+				ogg.stop();
+				donePlaying();
+			}
+		}
+
 	}
 }
