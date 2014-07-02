@@ -11,6 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -46,6 +48,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 
 import org.p2c2e.blorb.BlorbFile;
@@ -203,6 +206,36 @@ public class Main {
 				.getRootPane().getGlassPane(), status, config.decorate));
 
 		hintitem.setState(Style.usingHints());
+
+		frame.setTransferHandler(new TransferHandler() {
+
+			@Override
+			public boolean importData(TransferSupport support) {
+				try {
+					List<File> files = (List<File>) support.getTransferable()
+							.getTransferData(DataFlavor.javaFileListFlavor);
+					synchronized (o) {
+						f = files.get(0);
+						o.notify();
+					}
+					return true;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return false;
+			}
+
+			@Override
+			public boolean canImport(TransferSupport support) {
+				if (f == null
+						&& support
+								.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+					support.setDropAction(LINK);
+					return true;
+				}
+				return false;
+			}
+		});
 
 		if (filename != null) {
 			if (filename.startsWith("http://")
