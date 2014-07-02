@@ -881,7 +881,7 @@ public abstract class AbstractGlk implements IGlk {
 	public int gestaltExt(int sel, int val, InOutIntBuffer arr, int len) {
 		switch (sel) {
 		case GESTALT_VERSION:
-			return 0x00000601;
+			return 0x00000704;
 		case GESTALT_CHAR_OUTPUT:
 			if (val == 10 || (val >= 32 && val < 127)
 					|| (val >= 160 && val < 256)) {
