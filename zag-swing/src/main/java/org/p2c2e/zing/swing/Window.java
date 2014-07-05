@@ -184,10 +184,10 @@ public abstract class Window implements MouseListener, Comparable, IWindow {
 	protected void createHintedStyles(Map styles, boolean useHints) {
 		Style s;
 		Style hs;
-		Iterator it = styles.values().iterator();
+		Iterator<Style> it = styles.values().iterator();
 
 		while (it.hasNext()) {
-			s = (Style) it.next();
+			s = it.next();
 			hs = (useHints) ? createHintedStyle(s) : s;
 			hintedStyles.put(hs.name, hs);
 		}

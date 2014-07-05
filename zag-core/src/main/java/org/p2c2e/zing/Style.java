@@ -146,8 +146,10 @@ public class Style implements Cloneable {
 					TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
 		map.put(TextAttribute.SIZE, new Float(size));
 		map.put(TextAttribute.WEIGHT, weight);
-		map.put(TextAttribute.BACKGROUND, backColor);
-		map.put(TextAttribute.FOREGROUND, textColor);
+		map.put(TextAttribute.BACKGROUND, new java.awt.Color(
+				backColor.getRed(), backColor.getGreen(), backColor.getBlue()));
+		map.put(TextAttribute.FOREGROUND, new java.awt.Color(
+				textColor.getRed(), textColor.getGreen(), textColor.getBlue()));
 	}
 
 }
