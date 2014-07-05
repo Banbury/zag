@@ -35,6 +35,7 @@ import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -48,6 +49,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 
@@ -61,23 +64,35 @@ import org.p2c2e.zing.Style;
 import org.p2c2e.zing.types.GlkEvent;
 
 public class Main {
-	static JFrame frame;
-	static JFrame prefFrame;
-	static PreferencePane.CloseCallback cc;
-	static JMenuItem openitem;
-	static JMenuItem openurlitem;
-	static JMenuItem closeitem;
-	static JMenuItem quititem;
-	static JMenuItem prefitem;
-	static JCheckBoxMenuItem hintitem;
-	static ZagActionListener al;
-	static JFileChooser chooser;
-	static Object o;
-	static File f;
-	static Zag z;
-	static boolean specialConfig = false;
+	private JFrame frame;
+	private JFrame prefFrame;
+	private PreferencePane.CloseCallback cc;
+	private JMenuItem openitem;
+	private JMenuItem openurlitem;
+	private JMenuItem closeitem;
+	private JMenuItem quititem;
+	private JMenuItem prefitem;
+	private JCheckBoxMenuItem hintitem;
+	private ZagActionListener al;
+	private JFileChooser chooser;
+	private Object o;
+	private File f;
+	private Zag z;
+	private Glk glk;
+	private boolean specialConfig = false;
+	private Config config;
 
-	public static void main(String[] argv) {
+	public static void main(final String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				Main m = new Main();
+				m.run(args);
+			}
+		});
+	}
+
+	public void run(String[] argv) {
 		try {
 			UIManager.setLookAndFeel(org.p2c2e.zing.swing.Properties
 					.getInstance().getPlafName());
@@ -157,27 +172,19 @@ public class Main {
 		menubar.add(filemenu);
 		menubar.add(editmenu);
 
-		openitem.setActionCommand("file-open");
-		openurlitem.setActionCommand("url-open");
-		closeitem.setActionCommand("file-close");
-		quititem.setActionCommand("file-quit");
-		prefitem.setActionCommand("edit-preferences");
-		hintitem.setActionCommand("edit-accept-hints");
-
-		openitem.addActionListener(al);
-		openurlitem.addActionListener(al);
-		closeitem.addActionListener(al);
-		quititem.addActionListener(al);
-		prefitem.addActionListener(al);
-		hintitem.addActionListener(al);
+		openitem.setAction(new FileOpenAction());
+		openurlitem.setAction(new FileOpenUrlAction());
+		closeitem.setAction(new FileCloseAction());
+		quititem.setAction(new QuitAction());
+		prefitem.setAction(new EditPreferencesAction());
+		hintitem.setAction(new UseHintsAction());
 
 		closeitem.setEnabled(false);
 
-		Config config;
 		Rectangle rect = getDefaultFrameRect();
 		String filename = (argv.length > 0) ? argv[0] : null;
 		String conf = (argv.length > 1) ? argv[1] : null;
-		Glk glk = Glk.getInstance();
+		glk = Glk.getInstance();
 		StatusPane status = glk.getStatusPane();
 
 		config = getConfig(conf, rect);
@@ -214,10 +221,8 @@ public class Main {
 				try {
 					List<File> files = (List<File>) support.getTransferable()
 							.getTransferData(DataFlavor.javaFileListFlavor);
-					synchronized (o) {
-						f = files.get(0);
-						o.notify();
-					}
+					f = files.get(0);
+					execute();
 					return true;
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -257,46 +262,53 @@ public class Main {
 				f = null;
 			}
 
+			execute();
 		}
 
-		while (true) {
-			if (f != null) {
-				openitem.setEnabled(false);
-				openurlitem.setEnabled(false);
-				closeitem.setEnabled(true);
+	}
 
-				if (config.decorate)
-					status.show(StatusPane.BLANK);
+	private void execute() {
+		if (f != null) {
+			SwingWorker<String, Object> sw = new SwingWorker<String, Object>() {
+				@Override
+				protected String doInBackground() throws Exception {
+					openitem.setEnabled(false);
+					openurlitem.setEnabled(false);
+					closeitem.setEnabled(true);
 
-				glk.reset();
-				open(f, config);
-				glk.flush();
-				if (specialConfig)
-					glk.exit();
-				else
-					status.show(StatusPane.EXIT);
+					if (config.decorate)
+						glk.getStatusPane().show(StatusPane.BLANK);
 
-				f = null;
-				openitem.setEnabled(true);
-				openurlitem.setEnabled(true);
-				closeitem.setEnabled(false);
-			} else {
-				synchronized (o) {
-					try {
-						o.wait();
-					} catch (InterruptedException ex) {
-					}
+					glk.reset();
+					open(f, config);
+					return null;
 				}
-			}
+
+				@Override
+				protected void done() {
+					glk.flush();
+					if (specialConfig)
+						glk.exit();
+					else
+						glk.getStatusPane().show(StatusPane.EXIT);
+
+					f = null;
+					openitem.setEnabled(true);
+					openurlitem.setEnabled(true);
+					closeitem.setEnabled(false);
+				}
+			};
+
+			sw.execute();
 		}
 	}
 
-	static boolean open(File fi, Config config) {
+	private boolean open(final File file, Config config) {
 		int iStart = 0;
 
 		try {
 			BlorbFile.Chunk chunk;
-			BlorbFile bf = new BlorbFile(fi);
+			BlorbFile bf = new BlorbFile(file);
 			Glk.getInstance().setBlorbFile(bf);
 
 			if (!config.decorate && config.mask >= 0)
@@ -308,9 +320,9 @@ public class Main {
 				frame.getContentPane().invalidate();
 			}
 
-			Iterator it = bf.iterateByType(BlorbFile.GLUL);
+			Iterator<BlorbFile.Chunk> it = bf.iterateByType(BlorbFile.GLUL);
 			if (it.hasNext()) {
-				chunk = (BlorbFile.Chunk) it.next();
+				chunk = it.next();
 				iStart = chunk.getDataPosition();
 			} else {
 				JOptionPane.showMessageDialog(frame,
@@ -321,7 +333,6 @@ public class Main {
 								+ "execute it.)", "Not a Glulx program",
 						JOptionPane.ERROR_MESSAGE);
 				return false;
-
 			}
 		} catch (NotBlorbException eblorb) {
 			// NOP
@@ -334,11 +345,10 @@ public class Main {
 		}
 
 		try {
-			z = new Zag(Glk.getInstance(), fi, iStart,
+			z = new Zag(Glk.getInstance(), file, iStart,
 					org.p2c2e.zing.swing.Properties.getInstance()
 							.getSaveMemory());
 			z.start();
-			return true;
 		} catch (GlulxException eG) {
 			JOptionPane.showMessageDialog(frame,
 					"The Glulx virtual machine encountered a "
@@ -353,93 +363,140 @@ public class Main {
 			e.printStackTrace();
 			return false;
 		}
+
+		return true;
 	}
 
-	static class ZagActionListener extends WindowAdapter implements
-			ActionListener {
+	private class ZagActionListener extends WindowAdapter {
 		@Override
 		public void windowClosed(WindowEvent e) {
-			actionPerformed(new ActionEvent(e.getWindow(),
+			new QuitAction().actionPerformed(new ActionEvent(e.getWindow(),
 					ActionEvent.ACTION_LAST, "file-quit"));
+		}
+	}
+
+	private class FileOpenAction extends AbstractAction {
+		public FileOpenAction() {
+			super("Open file...");
+			putValue(MNEMONIC_KEY, KeyEvent.VK_O);
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String st = e.getActionCommand();
-			IGlk glk = Glk.getInstance();
+			File fi;
+			int ret = chooser.showOpenDialog(frame);
 
-			if ("file-open".equals(st)) {
-				synchronized (o) {
-					File fi;
-					int ret = chooser.showOpenDialog(frame);
-
-					if (ret == JFileChooser.APPROVE_OPTION) {
-						fi = chooser.getSelectedFile();
-
-						openitem.setEnabled(false);
-						openurlitem.setEnabled(false);
-						closeitem.setEnabled(true);
-
-						f = fi;
-						o.notify();
-					}
-				}
-			} else if ("url-open".equals(st)) {
-				String stURL = JOptionPane.showInputDialog(frame, "Load URL:");
-
-				if (stURL != null) {
-					synchronized (o) {
-						try {
-							f = loadURL(stURL);
-							o.notify();
-						} catch (IOException eIO) {
-							f = null;
-						}
-					}
-				}
-			} else if ("file-close".equals(st)) {
-				if (specialConfig) {
-					glk.exit();
-				} else if (z != null) {
-					z.setRunning(false);
-					Glk.getInstance().addEvent(new GlkEvent());
-				}
-			} else if ("file-quit".equals(st)) {
-				try {
-					Point p = frame.getLocation();
-					Dimension d = frame.getSize();
-					Preferences prefs = Preferences.userRoot().node(
-							"/org/p2c2e/zag");
-
-					if ((frame.getExtendedState() & JFrame.MAXIMIZED_BOTH) != JFrame.MAXIMIZED_BOTH) {
-						prefs.putInt("frame-loc-x", p.x);
-						prefs.putInt("frame-loc-y", p.y);
-						prefs.putInt("frame-width", d.width);
-						prefs.putInt("frame-height", d.height);
-						prefs.putBoolean("frame-maximized", false);
-					} else {
-						prefs.putBoolean("frame-maximized", true);
-					}
-					prefs.flush();
-				} catch (BackingStoreException eBack) {
-					eBack.printStackTrace();
-				}
-
-				glk.exit();
-			} else if ("edit-preferences".equals(st)) {
-				prefitem.setEnabled(false);
-				prefFrame.getContentPane().add(
-						new PreferencePane(prefFrame, cc));
-				prefFrame.pack();
-				prefFrame.setLocationRelativeTo(frame);
-				prefFrame.setVisible(true);
-			} else if ("edit-accept-hints".equals(st)) {
-				Window.useHints(hintitem.getState());
+			if (ret == JFileChooser.APPROVE_OPTION) {
+				fi = chooser.getSelectedFile();
+				f = fi;
+				execute();
 			}
 		}
 	}
 
-	static File loadURL(String stURL) throws IOException {
+	private class FileOpenUrlAction extends AbstractAction {
+		public FileOpenUrlAction() {
+			super("Open URL...");
+			putValue(MNEMONIC_KEY, KeyEvent.VK_U);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String stURL = JOptionPane.showInputDialog(frame, "Load URL:");
+
+			if (stURL != null) {
+				try {
+					f = loadURL(stURL);
+					execute();
+				} catch (IOException eIO) {
+					f = null;
+				}
+			}
+		}
+	}
+
+	private class FileCloseAction extends AbstractAction {
+		public FileCloseAction() {
+			super("Close file");
+			putValue(MNEMONIC_KEY, KeyEvent.VK_C);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (specialConfig) {
+				glk.exit();
+			} else if (z != null) {
+				z.setRunning(false);
+				Glk.getInstance().addEvent(new GlkEvent());
+			}
+		}
+	}
+
+	private class QuitAction extends AbstractAction {
+		public QuitAction() {
+			super("Quit");
+			putValue(MNEMONIC_KEY, KeyEvent.VK_Q);
+			putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F4,
+					ActionEvent.ALT_MASK));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			try {
+				Point p = frame.getLocation();
+				Dimension d = frame.getSize();
+				Preferences prefs = Preferences.userRoot().node(
+						"/org/p2c2e/zag");
+
+				if ((frame.getExtendedState() & JFrame.MAXIMIZED_BOTH) != JFrame.MAXIMIZED_BOTH) {
+					prefs.putInt("frame-loc-x", p.x);
+					prefs.putInt("frame-loc-y", p.y);
+					prefs.putInt("frame-width", d.width);
+					prefs.putInt("frame-height", d.height);
+					prefs.putBoolean("frame-maximized", false);
+				} else {
+					prefs.putBoolean("frame-maximized", true);
+				}
+				prefs.flush();
+			} catch (BackingStoreException eBack) {
+				eBack.printStackTrace();
+			}
+
+			glk.exit();
+		}
+	}
+
+	private class EditPreferencesAction extends AbstractAction {
+		public EditPreferencesAction() {
+			super("Preferences...");
+			putValue(MNEMONIC_KEY, KeyEvent.VK_P);
+			putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O,
+					ActionEvent.CTRL_MASK));
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			prefitem.setEnabled(false);
+			prefFrame.getContentPane().add(new PreferencePane(prefFrame, cc));
+			prefFrame.pack();
+			prefFrame.setLocationRelativeTo(frame);
+			prefFrame.setVisible(true);
+		}
+	}
+
+	private class UseHintsAction extends AbstractAction {
+		public UseHintsAction() {
+			super("Use hints");
+			putValue(MNEMONIC_KEY, KeyEvent.VK_U);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Window.useHints(hintitem.getState());
+		}
+	}
+
+	private File loadURL(String stURL) throws IOException {
 		IGlk glk = Glk.getInstance();
 		int total = 0;
 		URL url = new URL(stURL);
@@ -470,7 +527,7 @@ public class Main {
 		return tmp;
 	}
 
-	static Rectangle getDefaultFrameRect() {
+	private Rectangle getDefaultFrameRect() {
 		Rectangle r = new Rectangle(70, 70, 600, 700);
 		Preferences prefs = Preferences.userRoot().node("/org/p2c2e/zag");
 		r.x = prefs.getInt("frame-loc-x", r.x);
@@ -481,12 +538,12 @@ public class Main {
 		return r;
 	}
 
-	static boolean isMaximized() {
+	private boolean isMaximized() {
 		Preferences prefs = Preferences.userRoot().node("/org/p2c2e/zag");
 		return prefs.getBoolean("frame-maximized", false);
 	}
 
-	static boolean getProp(Properties props, String name, boolean def) {
+	private boolean getProp(Properties props, String name, boolean def) {
 		String s = props.getProperty(name);
 		if (s != null)
 			return s.equalsIgnoreCase("yes");
@@ -494,7 +551,7 @@ public class Main {
 			return def;
 	}
 
-	static String getProp(Properties props, String name, String def) {
+	private String getProp(Properties props, String name, String def) {
 		String s = props.getProperty(name);
 		if (s != null)
 			return s;
@@ -502,7 +559,7 @@ public class Main {
 			return def;
 	}
 
-	static int getProp(Properties props, String name, int def) {
+	private int getProp(Properties props, String name, int def) {
 		String s = props.getProperty(name);
 		if (s != null) {
 			try {
@@ -513,7 +570,7 @@ public class Main {
 		return def;
 	}
 
-	static Config getConfig(String conf, Rectangle r) {
+	private Config getConfig(String conf, Rectangle r) {
 		Config config = null;
 
 		if (conf != null) {
@@ -564,7 +621,7 @@ public class Main {
 		return config;
 	}
 
-	static class ZagCC implements PreferencePane.CloseCallback {
+	private class ZagCC implements PreferencePane.CloseCallback {
 		@Override
 		public void close() {
 			prefFrame.setVisible(false);
@@ -585,8 +642,8 @@ public class Main {
 		int mask;
 	}
 
-	static class GlassPane extends JComponent {
-		static final Font GFONT = new Font("SansSerif", Font.PLAIN, 24);
+	private class GlassPane extends JComponent {
+		private final Font GFONT = new Font("SansSerif", Font.PLAIN, 24);
 
 		boolean more;
 		int ib;
@@ -694,7 +751,7 @@ public class Main {
 		}
 	}
 
-	static class StatusMoreCallback implements ObjectCallback {
+	private class StatusMoreCallback implements ObjectCallback {
 		boolean decorated;
 		StatusPane p;
 		GlassPane g;
@@ -715,7 +772,7 @@ public class Main {
 		}
 	}
 
-	static class GlulxFileFilter extends javax.swing.filechooser.FileFilter {
+	private class GlulxFileFilter extends javax.swing.filechooser.FileFilter {
 		@Override
 		public boolean accept(File f) {
 			String s = f.getName().toLowerCase();
