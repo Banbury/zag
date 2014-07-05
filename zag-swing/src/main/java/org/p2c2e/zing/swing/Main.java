@@ -334,7 +334,9 @@ public class Main {
 		}
 
 		try {
-			z = new Zag(Glk.getInstance(), fi, iStart);
+			z = new Zag(Glk.getInstance(), fi, iStart,
+					org.p2c2e.zing.swing.Properties.getInstance()
+							.getSaveMemory());
 			z.start();
 			return true;
 		} catch (GlulxException eG) {

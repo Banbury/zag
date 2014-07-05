@@ -40,4 +40,13 @@ public class Properties {
 			return UIManager.getSystemLookAndFeelClassName();
 		}
 	}
+
+	public boolean getSaveMemory() {
+		if (props.containsKey("save_memory")) {
+			return props.getProperty("save_memory").toLowerCase()
+					.equals("true");
+		} else {
+			return true;
+		}
+	}
 }

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 import org.p2c2e.util.FastByteBuffer;
+import org.p2c2e.util.SaveMemory;
 import org.p2c2e.zing.IGlk;
 
 public final class Zag implements OpConstants {
@@ -24,6 +25,7 @@ public final class Zag implements OpConstants {
 	FastByteBuffer stack;
 
 	private IGlk glk;
+	private boolean useSaveMemory;
 	IO io;
 
 	private boolean running;
@@ -62,8 +64,10 @@ public final class Zag implements OpConstants {
 	int num_attr_bytes;
 	int cpv_start;
 
-	public Zag(IGlk glk, File gf, int iStart) throws IOException {
+	public Zag(IGlk glk, File gf, int iStart, boolean useSaveMemory)
+			throws IOException {
 		this.glk = glk;
+		this.useSaveMemory = useSaveMemory;
 		gamefile = gf;
 		fileStartPos = iStart;
 		if (verify(true) != 0)
@@ -86,7 +90,8 @@ public final class Zag implements OpConstants {
 			f.seek(fileStartPos + 12);
 			extstart = f.readInt();
 			endmem = f.readInt();
-			FastByteBuffer buf = new FastByteBuffer(endmem);
+			FastByteBuffer buf = (useSaveMemory) ? new SaveMemory(endmem)
+					: new FastByteBuffer(endmem);
 			buf.setMinSize(endmem);
 
 			f.seek(fileStartPos);
@@ -112,6 +117,9 @@ public final class Zag implements OpConstants {
 			sp = fp = lp = vp = 0;
 
 			pc = buf.getInt(24);
+
+			if (useSaveMemory)
+				((SaveMemory) memory).setRamstart(ramstart);
 
 			if (io == null)
 				io = new IO(glk, this);
@@ -1645,7 +1653,7 @@ public final class Zag implements OpConstants {
 		}
 	}
 
-	static final void fatal(String s) {
+	public static final void fatal(String s) {
 		throw new GlulxException(s);
 	}
 

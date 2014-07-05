@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-public final class FastByteBuffer {
+public class FastByteBuffer {
 	private byte[] data;
 	private int position;
 	private int limit;
@@ -61,7 +61,7 @@ public final class FastByteBuffer {
 	}
 
 	public short getShort(int pos) {
-		return (short) (((data[pos++]) << 8) | ((data[pos++]) & 0xff));
+		return (short) (((data[pos]) << 8) | ((data[pos + 1]) & 0xff));
 	}
 
 	public int getInt() {
@@ -71,8 +71,8 @@ public final class FastByteBuffer {
 	}
 
 	public int getInt(int pos) {
-		return (((data[pos++]) << 24) | (((data[pos++]) & 0xff) << 16)
-				| (((data[pos++]) & 0xff) << 8) | ((data[pos++]) & 0xff));
+		return (((data[pos]) << 24) | (((data[pos + 1]) & 0xff) << 16)
+				| (((data[pos + 2]) & 0xff) << 8) | ((data[pos + 3]) & 0xff));
 	}
 
 	public void put(byte[] arr, int off, int len) {
@@ -98,7 +98,7 @@ public final class FastByteBuffer {
 	}
 
 	public void put(byte b) {
-		data[position++] = b;
+		put(position++, b);
 	}
 
 	public void put(int pos, byte b) {
@@ -106,27 +106,27 @@ public final class FastByteBuffer {
 	}
 
 	public void putShort(short s) {
-		data[position++] = (byte) (s >>> 8);
-		data[position++] = (byte) (s & 0xff);
+		put((byte) (s >>> 8));
+		put((byte) (s & 0xff));
 	}
 
 	public void putShort(int pos, short s) {
-		data[pos++] = (byte) (s >>> 8);
-		data[pos++] = (byte) (s & 0xff);
+		put(pos, (byte) (s >>> 8));
+		put(pos + 1, (byte) (s & 0xff));
 	}
 
 	public void putInt(int i) {
-		data[position++] = (byte) (i >>> 24);
-		data[position++] = (byte) ((i >>> 16) & 0xff);
-		data[position++] = (byte) ((i >>> 8) & 0xff);
-		data[position++] = (byte) (i & 0xff);
+		put((byte) (i >>> 24));
+		put((byte) ((i >>> 16) & 0xff));
+		put((byte) ((i >>> 8) & 0xff));
+		put((byte) (i & 0xff));
 	}
 
 	public void putInt(int pos, int i) {
-		data[pos++] = (byte) (i >>> 24);
-		data[pos++] = (byte) ((i >>> 16) & 0xff);
-		data[pos++] = (byte) ((i >>> 8) & 0xff);
-		data[pos++] = (byte) (i & 0xff);
+		put(pos, (byte) (i >>> 24));
+		put(pos + 1, (byte) ((i >>> 16) & 0xff));
+		put(pos + 2, (byte) ((i >>> 8) & 0xff));
+		put(pos + 3, (byte) (i & 0xff));
 	}
 
 	public byte[] array() {
