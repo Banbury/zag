@@ -1222,8 +1222,12 @@ public final class TextBufferWindow extends Window implements
 						needLayout = true;
 					}
 					break;
-				default:
-					// NOOP
+				case KeyEvent.VK_HOME:
+					iLineCursorPos = iLineStartPos;
+					break;
+				case KeyEvent.VK_END:
+					iLineCursorPos = buffer.length();
+					break;
 				}
 			} else {
 				char c = e.getKeyChar();
