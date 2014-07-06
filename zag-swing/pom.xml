@@ -3,14 +3,14 @@
 	<parent>
 		<groupId>de.banbury</groupId>
 		<artifactId>zag2</artifactId>
-		<version>1.1.0</version>
+		<version>1.1.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>zag-swing</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>de.banbury</groupId>
 			<artifactId>zag-core</artifactId>
-			<version>1.1.0</version>
+			<version>1.1.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
