@@ -1,3 +1,53 @@
+v1.1.0
+resolves #8 Keys Home and End work now as expected.
+Added proper event handling in Swing main class.
+fixes #6 Zag allows writing to ROM.
+fixed #5 Color hints aren't applied correctly.
+Added file drop support.
+Updated Glk gestalt version to 0.74.
+fixed #4 Added support for OGG Vorbis sound.
+Added icons.
+Fixed some bug with unicode case conversion.
+Disabled font override.
+fixed #3 Anti-aliasing setting was not applied.
+Fixed synchronization problem.
+Fixed more bugs with file streams.
+Added hand cursor over hyperlinks in TextBufferWindow.
+Added saving of maximized state of main window.
+resolves #2 Add toggle for anti-aliasing.
+Improved column display of TextGridWindow.
+Fixed repaint bug in TextGridWindow.
+Added fix for Java 7 verifier bug.
+Added ability to change PLAF from a property file.
+fixes #1 Attempting to save a game file fails.
+Changed source level to 1.7.
+Removed AWT dependencies from core.
+Fixed remaining FileStream bugs.
+Added some unit tests for Swing windows.
+Added creation of binary package.
+Turned off borders around panels.
+Fixed some bugs related to colors introduced with last patch.
+Removed java.awt.Color in Swing part.
+Removed dependencies on java.awt.Color and fixed some warnings.
+Divided project into modules.
+Removed separate PNG loader. Java can now load PNGs.
+Added trace logging with AspectJ.
+Fixed file streaming functions for the most part.
+(glk) Fixed handling of invalid filenames.
+Added file extensions based on usage when creating Fileref by name.
+Added gblorb extension to file chooser.
+Removed annotation processor.
+Fixed bug with AIFF sound playing.
+Added functions for composing/normalizing unicode strings.
+Added annotations to GLK functions for generation of Dispatch class.
+Added creation of launchers for all platforms.
+Added Glk date/time functions.
+Generalized output parameters.
+Changed Look&Feel to System.
+Turned on antialiasing.
+Project mavenized. 
+
+============================================================
 [Since 1.06]
 1 June 2012
 
