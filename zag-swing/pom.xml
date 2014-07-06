@@ -35,7 +35,7 @@
 					<execution>
 						<id>Linux</id>
 						<configuration>
-							<name>zag2</name>
+							<name>zag</name>
 							<mainClass>org.p2c2e.zing.swing.Main</mainClass>
 							<os>java</os>
 							<jvm>${java.version}+</jvm>
@@ -49,7 +49,7 @@
 					<execution>
 						<id>Mac</id>
 						<configuration>
-							<name>zag2</name>
+							<name>zag</name>
 							<mainClass>org.p2c2e.zing.swing.Main</mainClass>
 							<icon>${project.parent.basedir}/res/zag_icon.icns</icon>
 							<os>mac</os>
@@ -76,8 +76,8 @@
 						</goals>
 						<configuration>
 							<headerType>gui</headerType>
-							<outfile>${project.build.directory}/zag2.exe</outfile>
-							<jar>${project.build.directory}/zag2.jar</jar>
+							<outfile>${project.build.directory}/zag.exe</outfile>
+							<jar>${project.build.directory}/zag.jar</jar>
 							<icon>${project.parent.basedir}/res/zag_icon.ico</icon>
 							<errTitle>Zag</errTitle>
 							<classPath>
@@ -91,12 +91,12 @@
 							</jre>
 							<versionInfo>
 								<fileVersion>${app.version}.0</fileVersion>
-								<fileDescription>Zag2 - a Glulx interpreter</fileDescription>
+								<fileDescription>Zag - a Glulx interpreter</fileDescription>
 								<copyright>2014 by Banbury</copyright>
 								<productVersion>${app.version}.0</productVersion>
-								<productName>Zag2</productName>
-								<internalName>zag2</internalName>
-								<originalFilename>zag2.exe</originalFilename>
+								<productName>Zag</productName>
+								<internalName>zag</internalName>
+								<originalFilename>zag.exe</originalFilename>
 								<txtFileVersion>${app.version}.0</txtFileVersion>
 								<txtProductVersion>${app.version}.0</txtProductVersion>
 							</versionInfo>
@@ -125,9 +125,12 @@
 				<version>2.4</version>
 				<configuration>
 					<descriptors>
-						<descriptor>res/zip.xml</descriptor>
+<!-- 						<descriptor>res/zip.xml</descriptor> -->
+						<descriptor>res/windows.xml</descriptor>
+						<descriptor>res/linux.xml</descriptor>
+						<descriptor>res/macosx.xml</descriptor>
 					</descriptors>
-					<finalName>zag2-${project.version}-${timestamp}</finalName>
+					<finalName>zag-${project.version}-${timestamp}</finalName>
 				</configuration>
 				<executions>
 					<execution>

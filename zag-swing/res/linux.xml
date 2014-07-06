@@ -1,0 +1,36 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+	<id>linux</id>
+	<formats>
+		<format>tar.gz</format>
+	</formats>
+	<fileSets>
+		<fileSet>
+			<directory>${project.parent.basedir}</directory>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>README*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>${project.build.directory}</directory>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>zag.jar</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>${basedir}/res</directory>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>zag</include>
+			</includes>
+			<fileMode>0755</fileMode>
+		</fileSet>
+		<fileSet>
+			<directory>${project.parent.basedir}/license</directory>
+			<outputDirectory>license</outputDirectory>
+		</fileSet>
+	</fileSets>
+</assembly>
