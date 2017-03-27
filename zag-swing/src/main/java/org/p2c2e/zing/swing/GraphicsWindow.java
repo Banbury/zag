@@ -76,6 +76,14 @@ public class GraphicsWindow extends Window implements IGraphicsWindow {
 
 	@Override
 	public synchronized void rearrange(Rectangle r) {
+
+		// Some games use zero-height or zero-width windows which crash the terp.
+		if(r.height <= 0) {
+			r.height=1;
+		}
+		if(r.width <= 0) {
+			r.width=1;
+		}
 		BufferedImage nbi = graphConfig.createCompatibleImage(r.width,
 				r.height, Transparency.TRANSLUCENT);
 		Graphics2D ng2d = nbi.createGraphics();

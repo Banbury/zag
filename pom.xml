@@ -62,7 +62,7 @@
 		<dependency>
 			<groupId>org.spockframework</groupId>
 			<artifactId>spock-core</artifactId>
-			<version>1.0-groovy-2.0-SNAPSHOT</version>
+			<version>1.0-groovy-2.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
