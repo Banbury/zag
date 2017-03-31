@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>de.banbury</groupId>
@@ -6,6 +7,7 @@
 		<version>1.1.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>zag-swing</artifactId>
+
 	<dependencies>
 		<dependency>
 			<groupId>de.banbury</groupId>
@@ -53,7 +55,8 @@
 							<icon>${project.parent.basedir}/res/zag_icon.icns</icon>
 							<os>mac</os>
 							<jvm>1.5+</jvm>
-							<jvmOptions>-Xmx512m -XX:-UseSplitVerifier -Dapple.laf.useScreenMenuBar=true</jvmOptions>
+							<jvmOptions>-Xmx512m -XX:-UseSplitVerifier
+								-Dapple.laf.useScreenMenuBar=true</jvmOptions>
 						</configuration>
 						<phase>package</phase>
 						<goals>
@@ -124,7 +127,7 @@
 				<version>2.4</version>
 				<configuration>
 					<descriptors>
-<!-- 						<descriptor>res/zip.xml</descriptor> -->
+						<!-- <descriptor>res/zip.xml</descriptor> -->
 						<descriptor>res/windows.xml</descriptor>
 						<descriptor>res/linux.xml</descriptor>
 						<descriptor>res/macosx.xml</descriptor>
@@ -140,6 +143,28 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>webstart-maven-plugin</artifactId>
+				<version>1.0-beta-4</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jnlp</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<jnlp>
+						<mainClass>org.p2c2e.zing.swing.Main</mainClass>
+						<J2seVersion>1.7+</J2seVersion>
+						<OfflineAllowed>true</OfflineAllowed>
+					</jnlp>
+					<pack200>true</pack200>
+					<verbose>true</verbose>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

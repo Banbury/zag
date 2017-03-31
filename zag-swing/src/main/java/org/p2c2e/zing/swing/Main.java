@@ -206,6 +206,10 @@ public class Main {
 			frame.getRootPane().setBorder(BorderFactory.createEtchedBorder());
 			frame.setJMenuBar(menubar);
 		}
+		
+//		frame.getContentPane().setPreferredSize(new Dimension(640, 480));
+//		frame.pack();
+		
 		frame.setVisible(true);
 		glk.setFrame(frame, config.decorate, config.borders, config.propFont,
 				config.fixedFont, config.pFontSize, config.fFontSize);
