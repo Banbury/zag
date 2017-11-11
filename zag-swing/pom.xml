@@ -147,7 +147,19 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>webstart-maven-plugin</artifactId>
-				<version>1.0-beta-4</version>
+				<version>1.0-beta-7</version>
+ 				<dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>webstart-pack200-impl</artifactId>
+                        <version>1.0-beta-6</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>keytool-api-1.7</artifactId>
+                        <version>1.4</version>
+                    </dependency>
+                </dependencies>				
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -162,7 +174,7 @@
 						<J2seVersion>1.7+</J2seVersion>
 						<OfflineAllowed>true</OfflineAllowed>
 					</jnlp>
-					<pack200>true</pack200>
+					<pack200><enabled>true</enabled></pack200>
 					<verbose>true</verbose>
 				</configuration>
 			</plugin>
