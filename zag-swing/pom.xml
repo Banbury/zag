@@ -7,7 +7,13 @@
 		<version>1.1.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>zag-swing</artifactId>
-
+	
+	<scm>
+		<url>https://github.com/Banbury/zag</url>
+		<connection>scm:git:git://github.com/Banbury/zag.git</connection>
+		<developerConnection>scm:git:git@github.com:Banbury/zag.git</developerConnection>
+	</scm>
+	
 	<dependencies>
 		<dependency>
 			<groupId>de.banbury</groupId>
