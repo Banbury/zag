@@ -21,8 +21,8 @@
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/Banbury/zag.git</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
+	  	<tag>HEAD</tag>
+  	</scm>
 	
 	<repositories>
 		<repository>
@@ -132,8 +132,15 @@
 						<allowTimestampedSnapshots>true</allowTimestampedSnapshots>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<tagNameFormat>v@{project.version}</tagNameFormat>
-						<pushChanges>false</pushChanges>
+						<pushChanges>true</pushChanges>
 					</configuration>
+				    <dependencies>
+				        <dependency>
+				            <groupId>org.apache.maven.scm</groupId>
+				            <artifactId>maven-scm</artifactId>
+				            <version>1.9.2</version>
+				        </dependency>
+				    </dependencies>					
 				</plugin>
 			</plugins>
 		</pluginManagement>
