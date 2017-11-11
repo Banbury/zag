@@ -1145,7 +1145,9 @@ public final class TextBufferWindow extends Window implements
 
 		if (portRect.height > 5 && viewHeight > portRect.y + portRect.height) {
 			scrollDown(v, viewHeight, portRect.height);
-		} else if (charConsumer != null) {
+		} 
+		
+		if (charConsumer != null) {
 			CharInputConsumer cs = charConsumer;
 			charConsumer = null;
 
