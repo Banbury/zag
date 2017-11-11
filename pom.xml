@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.banbury</groupId>
 	<artifactId>zag2</artifactId>
-	<version>1.1.1-SNAPSHOT</version>
+	<version>1.1.2</version>
 	<name>Zag2</name>
 	<description>An implementation of Glulx for Java</description>
 	<packaging>pom</packaging>
@@ -21,7 +21,7 @@
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/Banbury/zag.git</developerConnection>
-	  	<tag>HEAD</tag>
+	  	<tag>v1.1.2</tag>
   	</scm>
 	
 	<repositories>
