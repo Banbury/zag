@@ -54,7 +54,7 @@
 		</pluginRepository>
 		<pluginRepository>
 			<id>pentaho-releases</id>
-			<url>http://repository.pentaho.org/artifactory/repo/</url>
+			<url>https://nexus.pentaho.org/content/groups/omni</url>
 		</pluginRepository>
 	</pluginRepositories>
 
